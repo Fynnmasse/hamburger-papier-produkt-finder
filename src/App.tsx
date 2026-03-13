@@ -1,11 +1,22 @@
 import { useState } from 'react'
 import { HeroLanding } from '@/components/ui/hero-1'
 import ProductFinder from '@/components/ProductFinder'
+import LoadingLines from '@/components/ui/loading-lines'
 
 type View = 'hero' | 'finder'
 
 export default function App() {
   const [view, setView] = useState<View>('hero')
+
+  return (
+    <>
+      <LoadingLines />
+      <AppContent view={view} setView={setView} />
+    </>
+  )
+}
+
+function AppContent({ view, setView }: { view: View; setView: (v: View) => void }) {
 
   if (view === 'finder') {
     return (

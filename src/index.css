@@ -40,6 +40,50 @@
   a { color: inherit; text-decoration: none; }
 }
 
+/* Loading Lines animation keyframes */
+@keyframes letterAnim {
+  0%   { opacity: 0; }
+  5%   { opacity: 1; text-shadow: 0 0 4px #fff; transform: scale(1.1) translateY(-2px); }
+  20%  { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes transformAnim {
+  0%   { transform: translate(-55%); }
+  100% { transform: translate(55%); }
+}
+
+@keyframes opacityAnim {
+  0%, 100% { opacity: 0; }
+  15%       { opacity: 1; }
+  65%       { opacity: 0; }
+}
+
+.loading-letter {
+  animation: letterAnim 2.4s linear 1 forwards;
+}
+
+.loading-lines-bg {
+  background: transparent;
+  mask: repeating-linear-gradient(90deg, transparent 0, transparent 6px, black 7px, black 8px);
+}
+
+.loading-lines-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 50% 50%, #ff0 0%, transparent 50%),
+    radial-gradient(circle at 45% 45%, #f00 0%, transparent 45%),
+    radial-gradient(circle at 55% 55%, #0ff 0%, transparent 45%),
+    radial-gradient(circle at 45% 55%, #0f0 0%, transparent 45%),
+    radial-gradient(circle at 55% 45%, #00f 0%, transparent 45%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0%, transparent 10%, black 25%);
+  animation:
+    transformAnim 2s infinite alternate cubic-bezier(0.6, 0.8, 0.5, 1),
+    opacityAnim 2.4s 1 forwards;
+}
+
 @layer components {
   /* Tag pills (product cards) */
   .tag-blue   { @apply text-[.68rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded bg-[#dceef8] text-[#135d84]; }

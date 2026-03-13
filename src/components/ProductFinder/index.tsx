@@ -1,15 +1,33 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { ArrowLeft, Home, Edit, ExternalLink } from 'lucide-react'
 import { PRODUCTS, type Product } from '@/lib/products'
 import { cn } from '@/lib/utils'
 
 // ── Types ──
-type Screen = 'intro' | 'step1' | 'step2' | 'step3' | 'results'
 type Category = 'alle' | 'toilettenpapier' | 'papierhandtuecher' | 'handtuchrollen' | 'putzpapier' | 'spender' | 'kuechenrollen' | 'seife'
-type Quantity  = 'alle' | 'karton' | 'palette'
-type Quality   = 'alle' | 'recycling' | 'zellstoff' | 'premium'
 
-interface State { category: Category; quantity: Quantity; quality: Quality }
+interface Answers {
+  category: Category
+  subtype?: string
+  quantity?: string
+  material?: string
+}
+
+interface StepOption {
+  value: string
+  label: string
+  desc: string
+  tag?: string | null
+  tagStyle?: string
+}
+
+interface StepDef {
+  id: string
+  title: string
+  subtitle: string
+  answerKey: keyof Answers
+  options: StepOption[]
+}
 
 // ── Labels ──
 const CAT_LABELS: Record<string, string> = {
@@ -18,26 +36,244 @@ const CAT_LABELS: Record<string, string> = {
   spender: 'Spender & Zubehör', kuechenrollen: 'Küchenrollen & Servietten',
   seife: 'Seife & Desinfektion', alle: 'Alle Kategorien',
 }
-const QTY_LABELS: Record<string, string>  = { karton: 'Karton', palette: 'Palette', alle: 'Alle Mengen' }
-const QUAL_LABELS: Record<string, string> = { recycling: 'ECO / Recycling', zellstoff: 'Standard Zellstoff', premium: 'Premium', alle: 'Alle Qualitäten' }
+
+const CHIP_LABELS: Record<string, string> = {
+  category: 'Kategorie', subtype: 'Typ', quantity: 'Menge', material: 'Qualität',
+}
+
+const VALUE_LABELS: Record<string, Record<string, string>> = {
+  category: CAT_LABELS,
+  subtype: {
+    kleinrollen: 'Kleinrollen', jumborollen: 'Jumborollen', spender: 'Spender',
+    'z-falz': 'Z-Falz', 'c-falz': 'C-Falz', interfold: 'Interfold',
+    standard: 'Standard-Rollen', autocut: 'Autocut-System',
+    putzpapier: 'Putzpapier-Rollen', aerzte: 'Ärzte- & Liegenrollen', mikrofaser: 'Mikrofaser',
+    kuechenrollen: 'Küchenrollen', servietten: 'Servietten', kosmetiktuecher: 'Kosmetiktücher',
+    papierhandtuecher: 'Papierhandtücher', seife: 'Seife & Schaumseife',
+    jumborollen_spender: 'Jumborollen / WC', servietten_spender: 'Servietten',
+  },
+  quantity: { karton: 'Karton', palette: 'Palette' },
+  material: { recycling: 'ECO / Recycling', zellstoff: 'Standard Zellstoff', premium: 'Premium' },
+}
+
+// ── Subtype Matching ──
+function matchesSubtype(p: Product, category: string, subtype: string): boolean {
+  const name = p.name.toLowerCase()
+
+  switch (category) {
+    case 'toilettenpapier':
+      if (subtype === 'jumborollen') return name.includes('jumbo') && p.layers > 0
+      if (subtype === 'kleinrollen') return !name.includes('jumbo') && !name.includes('spender') && p.layers > 0
+      if (subtype === 'spender') return (name.includes('spender') || p.layers === 0) && p.quantity === 'stueck'
+      break
+    case 'papierhandtuecher':
+      if (subtype === 'z-falz') return /z[\s-]?fal[tz]/i.test(p.name)
+      if (subtype === 'c-falz') return /c[\s-]?fal[tz]/i.test(p.name)
+      if (subtype === 'interfold') return /interfold/i.test(p.name)
+      break
+    case 'handtuchrollen':
+      if (subtype === 'standard') return p.layers > 0 && !name.includes('autocut') && !name.includes('starterset') && !name.includes('spender')
+      if (subtype === 'autocut') return name.includes('autocut') || name.includes('starterset')
+      if (subtype === 'spender') return name.includes('spender') && p.layers === 0
+      break
+    case 'putzpapier':
+      if (subtype === 'putzpapier') return /putz|werkstatt/i.test(p.name)
+      if (subtype === 'aerzte') return /ärzt|liegen/i.test(p.name)
+      if (subtype === 'mikrofaser') return /mikrofaser|wischmop/i.test(p.name)
+      break
+    case 'kuechenrollen':
+      if (subtype === 'kuechenrollen') return p.category === 'kuechenrollen'
+      if (subtype === 'servietten') return p.category === 'servietten'
+      if (subtype === 'kosmetiktuecher') return p.category === 'kosmetiktuecher'
+      break
+    case 'spender':
+      if (subtype === 'papierhandtuecher') return /papierhandtuchspender/i.test(p.name)
+      if (subtype === 'seife') return /seifenspender|schaumseifenspender/i.test(p.name)
+      if (subtype === 'jumborollen_spender') return /jumborollen\s*spender/i.test(p.name)
+      if (subtype === 'servietten_spender') return /serviettenspender/i.test(p.name)
+      break
+  }
+  return true
+}
 
 // ── Filter ──
-function filterProducts(s: State): Product[] {
+function filterProducts(answers: Answers): Product[] {
   return PRODUCTS.filter(p => {
-    let catMatch = false
-    if (s.category === 'alle') catMatch = true
-    else if (s.category === 'kuechenrollen') catMatch = ['kuechenrollen','servietten','kosmetiktuecher'].includes(p.category)
-    else catMatch = p.category === s.category
-    if (!catMatch) return false
-    if (s.quantity === 'karton'  && p.quantity !== 'karton')  return false
-    if (s.quantity === 'palette' && p.quantity !== 'palette') return false
-    if (s.quality !== 'alle' && p.material !== s.quality)    return false
+    // Category
+    if (answers.category !== 'alle') {
+      if (answers.category === 'kuechenrollen') {
+        if (!['kuechenrollen', 'servietten', 'kosmetiktuecher'].includes(p.category)) return false
+      } else {
+        if (p.category !== answers.category) return false
+      }
+    }
+    // Subtype
+    if (answers.subtype && answers.subtype !== 'alle') {
+      if (!matchesSubtype(p, answers.category, answers.subtype)) return false
+    }
+    // Quantity
+    if (answers.quantity && answers.quantity !== 'alle') {
+      if (p.quantity !== answers.quantity) return false
+    }
+    // Material
+    if (answers.material && answers.material !== 'alle') {
+      if (p.material !== answers.material) return false
+    }
     return true
   }).sort((a, b) => {
     const ai = a.img ? 1 : 0, bi = b.img ? 1 : 0
     if (bi !== ai) return bi - ai
     return a.price - b.price
   })
+}
+
+// ── Shared Step Builders ──
+const QUANTITY_STEP: StepDef = {
+  id: 'quantity', title: 'Wie viel benötigen Sie?', subtitle: 'Wählen Sie die Bestellmenge passend zu Ihrem Betrieb.',
+  answerKey: 'quantity',
+  options: [
+    { value: 'karton', label: 'Karton', desc: 'Kleine bis mittlere Bestellmengen. Ideal für Büros, Praxen oder als Erstbestellung.', tag: 'Schnellversand möglich', tagStyle: 'bg-green-100 text-green-800' },
+    { value: 'palette', label: 'Palette', desc: 'Großmengen für Hotels, Gastronomie, Industrie. Maximale Ersparnis pro Einheit.', tag: 'Bester Preis/Menge', tagStyle: 'bg-blue-100 text-blue-800' },
+    { value: 'alle', label: 'Beides / Egal', desc: 'Zeige alle verfügbaren Abpackungsgrößen.' },
+  ],
+}
+
+function materialStep(includePremium: boolean): StepDef {
+  const options: StepOption[] = [
+    { value: 'recycling', label: 'ECO / Recycling', desc: 'Aus 100 % Altpapier. Nachhaltig & kosteneffizient.', tag: 'Nachhaltig', tagStyle: 'bg-teal-100 text-teal-800' },
+    { value: 'zellstoff', label: 'Standard Zellstoff', desc: 'Aus Frischfasern. Weiß, weich und reißfest.', tag: 'Beliebteste Wahl', tagStyle: 'bg-blue-100 text-blue-800' },
+  ]
+  if (includePremium) {
+    options.push({ value: 'premium', label: 'Premium / Ultra Soft', desc: 'Höchste Qualität: Ultra Soft, Super Soft oder Gold.', tag: 'Premium', tagStyle: 'bg-amber-100 text-amber-800' })
+  }
+  options.push({ value: 'alle', label: 'Egal / Alle', desc: 'Zeige alle Qualitätsstufen.' })
+  return {
+    id: 'material', title: 'Welche Qualität?', subtitle: 'Wählen Sie entsprechend Ihrer Anforderungen und Ihres Budgets.',
+    answerKey: 'material', options,
+  }
+}
+
+// ── Category-Specific Flows ──
+function getStepsForCategory(answers: Answers): StepDef[] {
+  const steps: StepDef[] = []
+
+  switch (answers.category) {
+    case 'toilettenpapier': {
+      steps.push({
+        id: 'subtype', title: 'Welcher Rollentyp?', subtitle: 'Standardrollen für jeden Halter oder Jumborollen für Spender-Systeme?',
+        answerKey: 'subtype',
+        options: [
+          { value: 'kleinrollen', label: 'Kleinrollen', desc: 'Standard WC-Rollen (150–400 Blatt). Passend für jeden Rollenhalter.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
+          { value: 'jumborollen', label: 'Jumborollen', desc: 'Großrollen (130m–570m) für Jumborollenspender. Ideal für stark frequentierte WCs.', tag: 'Für Spender-Systeme', tagStyle: 'bg-teal-100 text-teal-800' },
+          { value: 'spender', label: 'Spender & Zubehör', desc: 'Jumborollenspender und Toilettenpapierspender.' },
+        ],
+      })
+      if (answers.subtype === 'spender') break
+      steps.push(QUANTITY_STEP)
+      steps.push(materialStep(true))
+      break
+    }
+
+    case 'papierhandtuecher': {
+      steps.push({
+        id: 'subtype', title: 'Welche Falzung?', subtitle: 'Wählen Sie die Falzung passend zu Ihrem Spender-System.',
+        answerKey: 'subtype',
+        options: [
+          { value: 'z-falz', label: 'Z-Falz', desc: 'Der Standard für die meisten Papierhandtuchspender. Einzelblattentnahme.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
+          { value: 'c-falz', label: 'C-Falz', desc: 'Breite Tücher (25×31 cm) für C-Falz Spender.' },
+          { value: 'interfold', label: 'Interfold', desc: 'Ineinandergefaltete Tücher für Interfold-Spender. Automatische Einzelentnahme.' },
+        ],
+      })
+      steps.push(QUANTITY_STEP)
+      steps.push(materialStep(true))
+      break
+    }
+
+    case 'handtuchrollen': {
+      steps.push({
+        id: 'subtype', title: 'Welches System?', subtitle: 'Wählen Sie den Rollentyp passend zu Ihrem Spender.',
+        answerKey: 'subtype',
+        options: [
+          { value: 'standard', label: 'Standard-Rollen', desc: 'Handtuchrollen für Innenabrollung und Außenabwicklung. Verschiedene Längen und Breiten.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
+          { value: 'autocut', label: 'Autocut-System', desc: 'Automatische Einzelblattentnahme. Spender und Startersets verfügbar.' },
+          { value: 'spender', label: 'Spender (Innenabrollung)', desc: 'Innenauszug-Spender in Schwarz oder Weiß.' },
+        ],
+      })
+      if (answers.subtype === 'autocut' || answers.subtype === 'spender') break
+      steps.push(QUANTITY_STEP)
+      steps.push(materialStep(false))
+      break
+    }
+
+    case 'putzpapier': {
+      steps.push({
+        id: 'subtype', title: 'Welches Produkt?', subtitle: 'Wählen Sie die passende Produktgruppe.',
+        answerKey: 'subtype',
+        options: [
+          { value: 'putzpapier', label: 'Putzpapier-Rollen', desc: 'Industrie-Putzrollen und Werkstatt-Papier. Verschiedene Breiten und Lagen.' },
+          { value: 'aerzte', label: 'Ärzte- & Liegenrollen', desc: 'Zellstoff-Rollen für Arztpraxen, Krankenhäuser und Therapieliegen.' },
+          { value: 'mikrofaser', label: 'Mikrofaser & Wischmop', desc: 'Wiederverwendbare Mikrofasertücher und Wischmops für professionelle Reinigung.' },
+        ],
+      })
+      steps.push(QUANTITY_STEP)
+      if (answers.subtype === 'putzpapier') {
+        steps.push(materialStep(false))
+      }
+      break
+    }
+
+    case 'kuechenrollen': {
+      steps.push({
+        id: 'subtype', title: 'Welches Produkt?', subtitle: 'Wählen Sie die gewünschte Unterkategorie.',
+        answerKey: 'subtype',
+        options: [
+          { value: 'kuechenrollen', label: 'Küchenrollen', desc: 'Klassische Küchenrollen in verschiedenen Größen und Qualitäten.' },
+          { value: 'servietten', label: 'Servietten', desc: 'Servietten für Gastronomie und Hotellerie.' },
+          { value: 'kosmetiktuecher', label: 'Kosmetiktücher', desc: 'Kosmetiktücher in der Box. Standard und Würfel-Boxen.' },
+        ],
+      })
+      steps.push(QUANTITY_STEP)
+      break
+    }
+
+    case 'spender': {
+      steps.push({
+        id: 'subtype', title: 'Spender für welches Produkt?', subtitle: 'Wählen Sie den passenden Spender-Typ.',
+        answerKey: 'subtype',
+        options: [
+          { value: 'papierhandtuecher', label: 'Papierhandtücher', desc: 'Spender für Falthandtücher (Z-Falz und Interfold).' },
+          { value: 'seife', label: 'Seife & Schaumseife', desc: 'Wiederbefüllbare Seifen- und Schaumseifenspender.' },
+          { value: 'jumborollen_spender', label: 'Jumborollen / WC', desc: 'Spender für Jumbo-Toilettenpapierrollen.' },
+          { value: 'servietten_spender', label: 'Servietten', desc: 'Serviettenspender mit antibakterieller Oberfläche.' },
+        ],
+      })
+      break
+    }
+
+    // seife + alle: no additional steps
+  }
+
+  return steps
+}
+
+// Determine relevant steps, skipping if already <=4 results
+function getActiveSteps(answers: Answers): StepDef[] {
+  const allSteps = getStepsForCategory(answers)
+  const result: StepDef[] = []
+
+  for (const step of allSteps) {
+    // If this step's answer is already set, include it but continue
+    if (answers[step.answerKey]) {
+      result.push(step)
+      continue
+    }
+    // Check if we already have few enough results
+    const count = filterProducts(answers).length
+    if (count <= 4) break
+    result.push(step)
+  }
+
+  return result
 }
 
 // ── Product Card ──
@@ -51,7 +287,6 @@ function ProductCard({ p, index }: { p: Product; index: number }) {
       className="bg-white border border-border rounded-xl overflow-hidden flex flex-col opacity-0 translate-y-2 animate-card-in hover:-translate-y-1 hover:scale-[1.01] hover:border-primary hover:shadow-lg transition-all duration-200"
       style={{ animationDelay: `${Math.min(index * 40, 400)}ms`, animationFillMode: 'forwards' }}
     >
-      {/* Image */}
       <div className="w-full aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden relative flex items-center justify-center">
         {p.img ? (
           <img
@@ -67,10 +302,7 @@ function ProductCard({ p, index }: { p: Product; index: number }) {
           </svg>
         )}
       </div>
-
-      {/* Body */}
       <div className="p-4 flex flex-col gap-2 flex-1">
-        {/* Tags */}
         <div className="flex flex-wrap gap-1">
           {p.quantity === 'palette' && <span className="tag-dark">Palette</span>}
           {p.quantity === 'karton'  && <span className="tag-blue">Karton</span>}
@@ -109,12 +341,12 @@ function Chip({ label, value }: { label: string; value: string }) {
   )
 }
 
-// ── Progress ──
-function ProgressBar({ step }: { step: 1 | 2 | 3 }) {
+// ── Dynamic Progress Bar ──
+function ProgressBar({ step, total }: { step: number; total: number }) {
   return (
     <div className="max-w-xs mx-auto mb-10">
       <div className="flex items-center">
-        {[1, 2, 3].map((n, i) => (
+        {Array.from({ length: total }, (_, i) => i + 1).map((n, i) => (
           <React.Fragment key={n}>
             <div className={cn(
               'w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold shrink-0 transition-all',
@@ -126,7 +358,7 @@ function ProgressBar({ step }: { step: 1 | 2 | 3 }) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 13l4 4L19 7"/></svg>
               ) : n}
             </div>
-            {i < 2 && (
+            {i < total - 1 && (
               <div key={`line-${n}`} className={cn('flex-1 h-0.5 transition-colors', n < step ? 'bg-primary' : 'bg-border')} />
             )}
           </React.Fragment>
@@ -137,175 +369,239 @@ function ProgressBar({ step }: { step: 1 | 2 | 3 }) {
 }
 
 // ── Main Component ──
-export default function ProductFinder() {
-  const [screen, setScreen] = useState<Screen>('step1')
-  const [state, setState] = useState<State>({ category: 'alle', quantity: 'alle', quality: 'alle' })
+export default function ProductFinder({ onBack }: { onBack?: () => void }) {
+  const [stepIndex, setStepIndex] = useState(0) // 0 = category selection
+  const [answers, setAnswers] = useState<Answers>({ category: 'alle' })
+  const [showResults, setShowResults] = useState(false)
 
-  const goTo = useCallback((next: Screen) => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    setScreen(next)
-  }, [])
+  const scrollTop = useCallback(() => window.scrollTo({ top: 0, behavior: 'smooth' }), [])
 
-  // ── Step 1: Category ──
+  const steps = useMemo(() => getActiveSteps(answers), [answers])
+
+  // Total steps = 1 (category) + category-specific steps
+  // On category screen (no category chosen yet), show minimum 2 so "1 von 1" doesn't appear
+  const totalSteps = 1 + Math.max(steps.length, stepIndex === 0 ? 1 : 0)
+
+  const goToResults = useCallback(() => {
+    scrollTop()
+    setShowResults(true)
+  }, [scrollTop])
+
+  const handleCategorySelect = useCallback((cat: Category) => {
+    const newAnswers: Answers = { category: cat }
+    setAnswers(newAnswers)
+
+    if (cat === 'alle' || cat === 'seife') {
+      setShowResults(true)
+      scrollTop()
+      return
+    }
+
+    // Check if this category has steps AND enough products to warrant them
+    const categorySteps = getActiveSteps(newAnswers)
+    if (categorySteps.length === 0 || filterProducts(newAnswers).length <= 4) {
+      setShowResults(true)
+      scrollTop()
+      return
+    }
+
+    setStepIndex(1)
+    setShowResults(false)
+    scrollTop()
+  }, [scrollTop])
+
+  const handleStepAnswer = useCallback((answerKey: keyof Answers, value: string) => {
+    const newAnswers = { ...answers, [answerKey]: value }
+    setAnswers(newAnswers)
+
+    // Re-evaluate steps with new answers
+    const remainingSteps = getActiveSteps(newAnswers)
+    const nextUnanswered = remainingSteps.findIndex(s => !newAnswers[s.answerKey])
+
+    if (nextUnanswered === -1 || filterProducts(newAnswers).length <= 4) {
+      setShowResults(true)
+      scrollTop()
+    } else {
+      setStepIndex(nextUnanswered + 1) // +1 because step 0 is category
+      setShowResults(false)
+      scrollTop()
+    }
+  }, [answers, scrollTop])
+
+  const goBack = useCallback(() => {
+    scrollTop()
+    if (showResults) {
+      // Go back to last answered step
+      const answeredSteps = steps.filter(s => answers[s.answerKey])
+      if (answeredSteps.length > 0) {
+        const lastStep = answeredSteps[answeredSteps.length - 1]
+        setAnswers(prev => ({ ...prev, [lastStep.answerKey]: undefined }))
+        setStepIndex(steps.indexOf(lastStep) + 1)
+        setShowResults(false)
+      } else {
+        // No steps were answered (direct-to-results: seife, alle, spender subtype, etc.)
+        // Go back to category selection
+        setAnswers({ category: 'alle' })
+        setStepIndex(0)
+        setShowResults(false)
+      }
+      return
+    }
+    if (stepIndex <= 1) {
+      // Go back to category selection
+      setStepIndex(0)
+      setAnswers({ category: 'alle' })
+    } else {
+      // Go back to previous step, clear current step's answer
+      const currentStep = steps[stepIndex - 1]
+      if (currentStep) {
+        setAnswers(prev => ({ ...prev, [currentStep.answerKey]: undefined }))
+      }
+      setStepIndex(stepIndex - 1)
+    }
+  }, [scrollTop, showResults, stepIndex, steps, answers])
+
+  const restart = useCallback(() => {
+    scrollTop()
+    setAnswers({ category: 'alle' })
+    setStepIndex(0)
+    setShowResults(false)
+  }, [scrollTop])
+
+  // ── Category Selection (Step 0) ──
   const categories: { id: Category; label: string; count: number; icon: React.ReactNode }[] = [
     { id: 'toilettenpapier', label: 'Toilettenpapier', count: 36, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="24" cy="24" rx="14" ry="18"/><ellipse cx="24" cy="24" rx="5" ry="7"/><line x1="24" y1="17" x2="24" y2="6"/><line x1="20" y1="8" x2="24" y2="6"/></svg> },
     { id: 'papierhandtuecher', label: 'Papierhandtücher', count: 43, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="8" y="12" width="32" height="8" rx="2"/><rect x="10" y="20" width="28" height="6" rx="1"/><rect x="12" y="26" width="24" height="6" rx="1"/><rect x="14" y="32" width="20" height="6" rx="1"/></svg> },
     { id: 'handtuchrollen', label: 'Handtuchrollen', count: 30, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="10" width="36" height="28" rx="3"/><circle cx="24" cy="24" r="9"/><circle cx="24" cy="24" r="3"/></svg> },
     { id: 'putzpapier', label: 'Putzpapier & Reinigung', count: 27, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 38 Q14 28 20 22 Q26 16 34 12"/><path d="M34 12 L38 8 L40 14 L34 12z" fill="currentColor" opacity=".3"/><ellipse cx="22" cy="32" rx="8" ry="4" transform="rotate(-35 22 32)"/></svg> },
     { id: 'spender', label: 'Spender & Zubehör', count: 10, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="14" y="6" width="20" height="32" rx="4"/><rect x="18" y="10" width="12" height="16" rx="2"/><path d="M24 38 v4"/><rect x="18" y="36" width="12" height="4" rx="2"/></svg> },
-    { id: 'kuechenrollen', label: 'Küchenrollen & Servietten', count: 16, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="24" cy="16" rx="12" ry="10"/><ellipse cx="24" cy="16" rx="5" ry="4"/><rect x="20" y="26" width="8" height="16" rx="2"/><line x1="14" y1="42" x2="34" y2="42"/></svg> },
+    { id: 'kuechenrollen', label: 'Küchenrollen & Servietten', count: 24, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="24" cy="16" rx="12" ry="10"/><ellipse cx="24" cy="16" rx="5" ry="4"/><rect x="20" y="26" width="8" height="16" rx="2"/><line x1="14" y1="42" x2="34" y2="42"/></svg> },
     { id: 'seife', label: 'Seife & Desinfektion', count: 3, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="14" y="14" width="20" height="26" rx="4"/><rect x="18" y="8" width="12" height="8" rx="2"/><path d="M24 8 v-4"/><rect x="18" y="22" width="12" height="3" rx="1.5"/></svg> },
     { id: 'alle', label: 'Alles anzeigen', count: 179, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="6" width="15" height="15" rx="3"/><rect x="27" y="6" width="15" height="15" rx="3"/><rect x="6" y="27" width="15" height="15" rx="3"/><rect x="27" y="27" width="15" height="15" rx="3"/></svg> },
   ]
 
-  if (screen === 'step1') return (
-    <div className="py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <ProgressBar step={1} />
-        <div className="text-center mb-10 animate-fade-up">
-          <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">Schritt 1 von 3</div>
-          <h2 className="font-display font-extrabold text-4xl uppercase text-navy">Was suchen Sie?</h2>
-          <p className="text-muted-foreground mt-2">Wählen Sie die Produktkategorie, die Sie benötigen.</p>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {categories.map(({ id, label, count, icon }, i) => (
-            <button
-              key={id}
-              onClick={() => {
-                setState(s => ({ ...s, category: id }))
-                if (id === 'alle') { setState({ category: 'alle', quantity: 'alle', quality: 'alle' }); goTo('results') }
-                else goTo('step2')
-              }}
-              className="bg-white border-2 border-border rounded-xl p-5 text-center flex flex-col items-center gap-2 min-h-[130px] hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all animate-card-entrance text-steel hover:text-primary"
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              {icon}
-              <span className="font-semibold text-sm text-navy leading-tight">{label}</span>
-              <span className="text-xs text-muted-foreground">{count} Produkte</span>
-            </button>
-          ))}
-        </div>
-        <div className="flex justify-start max-w-4xl mx-auto mt-8">
-          <button onClick={() => goTo('intro')} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
-            <ArrowLeft size={16} /> Zurück
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-
-  if (screen === 'step2') return (
-    <div className="py-12 px-4">
-      <div className="max-w-3xl mx-auto">
-        <ProgressBar step={2} />
-        <div className="text-center mb-10 animate-fade-up">
-          <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">Schritt 2 von 3</div>
-          <h2 className="font-display font-extrabold text-4xl uppercase text-navy">Wie viel benötigen Sie?</h2>
-          <p className="text-muted-foreground mt-2">Wählen Sie die Bestellmenge passend zu Ihrem Betrieb.</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { id: 'karton'  as Quantity, title: 'Karton',       desc: 'Kleine bis mittlere Bestellmengen. Ideal für kleine Büros, Praxen oder als Probemenge.', tag: 'Schnellversand möglich', tagStyle: 'bg-green-100 text-green-800', delay: 70 },
-            { id: 'palette' as Quantity, title: 'Palette',      desc: 'Großmengen für Hotels, Gastronomie, Industrie. Maximale Ersparnis pro Einheit.', tag: 'Bester Preis/Menge', tagStyle: 'bg-blue-100 text-blue-800', delay: 140 },
-            { id: 'alle'    as Quantity, title: 'Beides / Egal',desc: 'Zeige alle verfügbaren Abpackungsgrößen — Karton und Palette.', tag: null, tagStyle: '', delay: 210 },
-          ].map(({ id, title, desc, tag, tagStyle, delay }) => (
-            <button
-              key={id}
-              onClick={() => { setState(s => ({ ...s, quantity: id })); goTo('step3') }}
-              className="bg-white border-2 border-border rounded-xl p-6 text-left flex flex-col gap-2 hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-[.98] transition-all animate-card-entrance"
-              style={{ animationDelay: `${delay}ms` }}
-            >
-              <div className="font-display font-bold text-xl uppercase text-navy">{title}</div>
-              <div className="text-sm text-muted-foreground leading-relaxed">{desc}</div>
-              {tag && <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded w-fit mt-1 ${tagStyle}`}>✓ {tag}</span>}
-            </button>
-          ))}
-        </div>
-        <div className="flex justify-start mt-8">
-          <button onClick={() => goTo('step1')} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
-            <ArrowLeft size={16} /> Zurück
-          </button>
+  if (!showResults && stepIndex === 0) {
+    return (
+      <div className="py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <ProgressBar step={1} total={totalSteps} />
+          <div className="text-center mb-10 animate-fade-up">
+            <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">Schritt 1 von {totalSteps}</div>
+            <h2 className="font-display font-extrabold text-4xl uppercase text-navy">Was suchen Sie?</h2>
+            <p className="text-muted-foreground mt-2">Wählen Sie die Produktkategorie, die Sie benötigen.</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {categories.map(({ id, label, count, icon }, i) => (
+              <button
+                key={id}
+                onClick={() => handleCategorySelect(id)}
+                className="bg-white border-2 border-border rounded-xl p-5 text-center flex flex-col items-center gap-2 min-h-[130px] hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all animate-card-entrance text-steel hover:text-primary"
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
+                {icon}
+                <span className="font-semibold text-sm text-navy leading-tight">{label}</span>
+                <span className="text-xs text-muted-foreground">{count} Produkte</span>
+              </button>
+            ))}
+          </div>
+          {onBack && (
+            <div className="flex justify-start max-w-4xl mx-auto mt-8">
+              <button onClick={() => { scrollTop(); onBack() }} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
+                <ArrowLeft size={16} /> Zurück
+              </button>
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
-  if (screen === 'step3') return (
-    <div className="py-12 px-4">
-      <div className="max-w-3xl mx-auto">
-        <ProgressBar step={3} />
-        <div className="text-center mb-10 animate-fade-up">
-          <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">Schritt 3 von 3</div>
-          <h2 className="font-display font-extrabold text-4xl uppercase text-navy">Welche Qualität?</h2>
-          <p className="text-muted-foreground mt-2">Wählen Sie entsprechend Ihrer Anforderungen und Ihres Budgets.</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[
-            { id: 'recycling' as Quality, title: 'ECO / Recycling',      desc: 'Aus 100 % Altpapier. EU ECOLABEL oder Blauer Engel zertifiziert. Nachhaltig & kosteneffizient.', tag: 'Nachhaltig',      tagStyle: 'bg-teal-100 text-teal-800', delay: 70 },
-            { id: 'zellstoff' as Quality, title: 'Standard Zellstoff',   desc: 'Aus Frischfasern. Weiß, weich und reißfest. Ideale Balance aus Qualität und Preis.',               tag: 'Beliebteste Wahl', tagStyle: 'bg-blue-100 text-blue-800', delay: 140 },
-            { id: 'premium'   as Quality, title: 'Premium / Ultra Soft', desc: 'Höchste Qualität: Ultra Soft, Super Soft oder Gold. Für Hotels, Arztpraxen und höchste Ansprüche.',tag: 'Premium',          tagStyle: 'bg-amber-100 text-amber-800', delay: 210 },
-            { id: 'alle'      as Quality, title: 'Egal / Alle',          desc: 'Zeige alle Qualitätsstufen — sortiert nach Preis.', tag: null, tagStyle: '', delay: 280 },
-          ].map(({ id, title, desc, tag, tagStyle, delay }) => (
-            <button
-              key={id}
-              onClick={() => { setState(s => ({ ...s, quality: id })); goTo('results') }}
-              className="bg-white border-2 border-border rounded-xl p-6 text-left flex flex-col gap-2 hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-[.98] transition-all animate-card-entrance"
-              style={{ animationDelay: `${delay}ms` }}
-            >
-              <div className="font-display font-bold text-xl uppercase text-navy">{title}</div>
-              <div className="text-sm text-muted-foreground leading-relaxed">{desc}</div>
-              {tag && <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded w-fit mt-1 ${tagStyle}`}>{tag}</span>}
+  // ── Generic Step Screens ──
+  if (!showResults && stepIndex >= 1 && stepIndex <= steps.length) {
+    const step = steps[stepIndex - 1]
+    const gridCols = step.options.length <= 3
+      ? 'grid-cols-1 sm:grid-cols-3'
+      : 'grid-cols-1 sm:grid-cols-2'
+
+    return (
+      <div className="py-12 px-4">
+        <div className="max-w-3xl mx-auto">
+          <ProgressBar step={stepIndex + 1} total={totalSteps} />
+          <div className="text-center mb-10 animate-fade-up">
+            <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">
+              Schritt {stepIndex + 1} von {totalSteps}
+            </div>
+            <h2 className="font-display font-extrabold text-4xl uppercase text-navy">{step.title}</h2>
+            <p className="text-muted-foreground mt-2">{step.subtitle}</p>
+          </div>
+          <div className={`grid ${gridCols} gap-4`}>
+            {step.options.map(({ value, label, desc, tag, tagStyle }, i) => (
+              <button
+                key={value}
+                onClick={() => handleStepAnswer(step.answerKey, value)}
+                className="bg-white border-2 border-border rounded-xl p-6 text-left flex flex-col gap-2 hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-[.98] transition-all animate-card-entrance"
+                style={{ animationDelay: `${(i + 1) * 70}ms` }}
+              >
+                <div className="font-display font-bold text-xl uppercase text-navy">{label}</div>
+                <div className="text-sm text-muted-foreground leading-relaxed">{desc}</div>
+                {tag && <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded w-fit mt-1 ${tagStyle}`}>{tag}</span>}
+              </button>
+            ))}
+          </div>
+          <div className="flex justify-start mt-8">
+            <button onClick={goBack} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
+              <ArrowLeft size={16} /> Zurück
             </button>
-          ))}
-        </div>
-        <div className="flex justify-start mt-8">
-          <button onClick={() => goTo('step2')} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
-            <ArrowLeft size={16} /> Zurück
-          </button>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
-  if (screen === 'results') {
-    const all = filterProducts(state)
+  // ── Results ──
+  if (showResults) {
+    const all = filterProducts(answers)
     const shown = all.slice(0, 24)
+
     return (
       <div className="py-10 px-4">
-        {/* Results header */}
         <div className="max-w-6xl mx-auto mb-8 animate-fade-up">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h2 className="font-display font-extrabold text-3xl uppercase text-navy">
-                {state.category === 'alle' ? 'Alle Produkte' : CAT_LABELS[state.category]}
+                {answers.category === 'alle' ? 'Alle Produkte' : CAT_LABELS[answers.category]}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 {all.length === 0 ? 'Keine Produkte gefunden' : `${all.length} Produkte gefunden${all.length > 24 ? ' — Top 24 werden angezeigt' : ''}`}
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
-                {state.category !== 'alle' && <Chip label="Kategorie" value={CAT_LABELS[state.category] || state.category} />}
-                {state.quantity !== 'alle' && <Chip label="Menge"     value={QTY_LABELS[state.quantity]   || state.quantity} />}
-                {state.quality  !== 'alle' && <Chip label="Qualität"  value={QUAL_LABELS[state.quality]   || state.quality} />}
+                {(Object.keys(answers) as (keyof Answers)[]).map(key => {
+                  const value = answers[key]
+                  if (!value || value === 'alle') return null
+                  const chipLabel = CHIP_LABELS[key]
+                  const labels = VALUE_LABELS[key]
+                  if (!chipLabel || !labels) return null
+                  return <Chip key={key} label={chipLabel} value={labels[value] || value} />
+                })}
               </div>
             </div>
             <div className="flex gap-3 items-center">
-              <button onClick={() => goTo('step1')} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
+              <button onClick={goBack} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
                 <Edit size={15} /> Suche anpassen
               </button>
-              <button onClick={() => { setState({ category: 'alle', quantity: 'alle', quality: 'alle' }); goTo('intro') }} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
+              <button onClick={restart} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
                 <Home size={15} /> Neu starten
               </button>
             </div>
           </div>
         </div>
 
-        {/* Grid */}
         {shown.length === 0 ? (
           <div className="text-center py-16 max-w-sm mx-auto">
             <div className="text-5xl mb-4">🔍</div>
             <h3 className="font-display font-bold text-2xl uppercase text-navy mb-2">Keine Produkte gefunden</h3>
             <p className="text-muted-foreground text-sm mb-6">Mit diesen Filtereinstellungen haben wir leider keine Treffer. Versuchen Sie andere Kombinationen.</p>
-            <button onClick={() => { setState({ category: 'alle', quantity: 'alle', quality: 'alle' }); goTo('results') }} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
+            <button onClick={() => { setAnswers({ category: 'alle' }); goToResults() }} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
               Alle Produkte anzeigen
             </button>
           </div>

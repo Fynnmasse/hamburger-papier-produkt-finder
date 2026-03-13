@@ -5,8 +5,8 @@ export default function LoadingLines() {
   const [fadeOut, setFadeOut] = useState(false)
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setFadeOut(true), 2400)
-    const hideTimer = setTimeout(() => setVisible(false), 3000)
+    const fadeTimer = setTimeout(() => setFadeOut(true), 1800)
+    const hideTimer = setTimeout(() => setVisible(false), 2400)
     return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer) }
   }, [])
 

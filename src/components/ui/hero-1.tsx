@@ -41,6 +41,7 @@ interface HeroLandingProps {
   gradientColors?: { from: string; to: string }
   className?: string
   style?: React.CSSProperties
+  ready?: boolean
 }
 
 const defaultProps: Partial<HeroLandingProps> = {
@@ -51,7 +52,7 @@ export function HeroLanding(props: HeroLandingProps) {
   const {
     logo, navigation, loginText, loginHref,
     title, description, announcementBanner, callToActions,
-    titleSize, className, style,
+    titleSize, className, style, ready,
   } = { ...defaultProps, ...props }
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -189,7 +190,7 @@ export function HeroLanding(props: HeroLandingProps) {
           {announcementBanner && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
               transition={{ duration: 0.6 }}
               className="hidden sm:mb-6 sm:flex sm:justify-center"
             >
@@ -205,7 +206,7 @@ export function HeroLanding(props: HeroLandingProps) {
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.9, ease: 'easeOut', delay: 0.1 }}
             className={`${titleSizeClass} font-display font-bold tracking-tight text-balance text-white`}
           >
@@ -214,7 +215,7 @@ export function HeroLanding(props: HeroLandingProps) {
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.9, ease: 'easeOut', delay: 0.3 }}
             className="mt-6 sm:mt-8 text-base sm:text-lg font-medium text-pretty text-white/65 sm:text-xl/8 max-w-2xl mx-auto"
           >
@@ -224,7 +225,7 @@ export function HeroLanding(props: HeroLandingProps) {
           {callToActions && callToActions.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
               transition={{ duration: 0.8, ease: 'easeOut', delay: 0.55 }}
               className="mt-8 sm:mt-10 flex items-center justify-center gap-x-4 sm:gap-x-6"
             >

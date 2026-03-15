@@ -470,13 +470,13 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
 
   // ── Category Selection (Step 0) ──
   const categories: { id: Category; label: string; count: number; icon: React.ReactNode }[] = [
-    { id: 'toilettenpapier', label: 'Toilettenpapier', count: 36, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="24" cy="24" rx="14" ry="18"/><ellipse cx="24" cy="24" rx="5" ry="7"/><line x1="24" y1="17" x2="24" y2="6"/><line x1="20" y1="8" x2="24" y2="6"/></svg> },
-    { id: 'papierhandtuecher', label: 'Papierhandtücher', count: 43, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="8" y="12" width="32" height="8" rx="2"/><rect x="10" y="20" width="28" height="6" rx="1"/><rect x="12" y="26" width="24" height="6" rx="1"/><rect x="14" y="32" width="20" height="6" rx="1"/></svg> },
-    { id: 'handtuchrollen', label: 'Handtuchrollen', count: 30, icon: <img src="/Handtuchrollen.svg" alt="Handtuchrollen" width="40" height="40" /> },
-    { id: 'putzpapier', label: 'Putzpapier & Reinigung', count: 27, icon: <img src="/Putzpapier.svg" alt="Putzpapier & Reinigung" width="40" height="40" /> },
-    { id: 'spender', label: 'Spender & Zubehör', count: 10, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="14" y="6" width="20" height="32" rx="4"/><rect x="18" y="10" width="12" height="16" rx="2"/><path d="M24 38 v4"/><rect x="18" y="36" width="12" height="4" rx="2"/></svg> },
-    { id: 'kuechenrollen', label: 'Küchenrollen & Servietten', count: 24, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="24" cy="16" rx="12" ry="10"/><ellipse cx="24" cy="16" rx="5" ry="4"/><rect x="20" y="26" width="8" height="16" rx="2"/><line x1="14" y1="42" x2="34" y2="42"/></svg> },
-    { id: 'seife', label: 'Seife & Desinfektion', count: 3, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="14" y="14" width="20" height="26" rx="4"/><rect x="18" y="8" width="12" height="8" rx="2"/><path d="M24 8 v-4"/><rect x="18" y="22" width="12" height="3" rx="1.5"/></svg> },
+    { id: 'toilettenpapier', label: 'Toilettenpapier', count: 36, icon: <img src="/Toilettenpapier.svg" alt="Toilettenpapier" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
+    { id: 'papierhandtuecher', label: 'Papierhandtücher', count: 43, icon: <img src="/Papierhandtücher.svg" alt="Papierhandtücher" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
+    { id: 'handtuchrollen', label: 'Handtuchrollen', count: 30, icon: <img src="/Handtuchrollen.svg" alt="Handtuchrollen" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
+    { id: 'putzpapier', label: 'Putzpapier & Reinigung', count: 27, icon: <img src="/Putzpapier.svg" alt="Putzpapier & Reinigung" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
+    { id: 'spender', label: 'Spender & Zubehör', count: 10, icon: <img src="/Spender.svg" alt="Spender & Zubehör" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
+    { id: 'kuechenrollen', label: 'Küchenrollen & Servietten', count: 24, icon: <img src="/Küchenrollen.svg" alt="Küchenrollen & Servietten" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
+    { id: 'seife', label: 'Seife & Desinfektion', count: 3, icon: <img src="/Seife.svg" alt="Seife & Desinfektion" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
     { id: 'alle', label: 'Alles anzeigen', count: 179, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="6" width="15" height="15" rx="3"/><rect x="27" y="6" width="15" height="15" rx="3"/><rect x="6" y="27" width="15" height="15" rx="3"/><rect x="27" y="27" width="15" height="15" rx="3"/></svg> },
   ]
 

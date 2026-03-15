@@ -31,7 +31,7 @@ function AppContent({ view, setView, ready }: { view: View; setView: (v: View) =
         <header className="sticky top-0 z-50 bg-navy border-b-2 border-teal">
           <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
             <button onClick={() => setView('hero')} className="hover:opacity-80 transition-opacity">
-              <img src="https://www.hamburgpapier-shop.de/media/1b/1c/e4/1748405444/hamburgpapier_logo_breit.png?ts=1767613420" alt="Hamburg Papier" className="h-8 w-auto" />
+              <img src="/Logo.svg" alt="Hamburg Papier" className="h-8 w-auto" />
             </button>
             <a
               href="https://www.hamburgpapier-shop.de"
@@ -61,7 +61,7 @@ function AppContent({ view, setView, ready }: { view: View; setView: (v: View) =
   return (
     <HeroLanding
       ready={ready}
-      logo={{ src: 'https://www.hamburgpapier-shop.de/media/1b/1c/e4/1748405444/hamburgpapier_logo_breit.png?ts=1767613420', alt: 'Hamburg Papier Logo', companyName: '' }}
+      logo={{ src: '/Logo.svg', alt: 'Hamburg Papier Logo', companyName: '' }}
       navigation={[
         { name: 'Produkte',   href: 'https://www.hamburgpapier-shop.de' },
         { name: 'Kontakt',    href: 'https://www.hamburgpapier-shop.de/kontakt' },

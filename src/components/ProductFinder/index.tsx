@@ -278,20 +278,22 @@ function getActiveSteps(answers: Answers): StepDef[] {
 
 // ── Product Card ──
 function ProductCard({ p, index }: { p: Product; index: number }) {
-  const shopUrl = `https://www.hamburgpapier-shop.de/search?search=${encodeURIComponent(p.num)}`
-  const price   = p.price > 0 ? `${p.price.toFixed(2).replace('.', ',')} €` : 'Auf Anfrage'
+  const shopUrl = p.url || `https://www.hamburgpapier-shop.de/search?search=${encodeURIComponent(p.num)}`
+  const price   = p.price > 0 ? `${(p.price / 1.19).toFixed(2).replace('.', ',')} €` : 'Auf Anfrage'
   const name    = p.name.length > 80 ? p.name.substring(0, 77) + '…' : p.name
 
   return (
-    <article
-      className="bg-white border border-border rounded-xl overflow-hidden flex flex-col opacity-0 translate-y-2 animate-card-in hover:-translate-y-1 hover:scale-[1.01] hover:border-primary hover:shadow-lg transition-all duration-200"
+    <a
+      href={shopUrl} target="_blank" rel="noopener"
+      className="bg-white border border-border rounded-xl overflow-hidden flex flex-col opacity-0 translate-y-2 animate-card-in hover:-translate-y-1 hover:scale-[1.01] hover:border-primary hover:shadow-lg transition-all duration-200 cursor-pointer"
       style={{ animationDelay: `${Math.min(index * 40, 400)}ms`, animationFillMode: 'forwards' }}
+      aria-label={`Im Shop kaufen: ${p.name}`}
     >
-      <div className="w-full aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden relative flex items-center justify-center">
+      <div className="w-full aspect-[4/3] bg-white overflow-hidden relative flex items-center justify-center p-2">
         {p.img ? (
           <img
             src={p.img} alt={p.name} loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500"
+            className="w-full h-full object-contain opacity-0 transition-opacity duration-500"
             onLoad={e => (e.currentTarget.style.opacity = '1')}
             onError={e => (e.currentTarget.style.display = 'none')}
           />
@@ -316,19 +318,15 @@ function ProductCard({ p, index }: { p: Product; index: number }) {
         <div className="flex items-center justify-between gap-2 mt-1">
           <div>
             <div className="font-display font-extrabold text-xl text-navy leading-none">{price}</div>
-            <div className="text-xs text-muted-foreground mt-0.5">inkl. 19% MwSt.</div>
+            <div className="text-xs text-muted-foreground mt-0.5">zzgl. 19% MwSt.</div>
           </div>
-          <a
-            href={shopUrl} target="_blank" rel="noopener"
-            className="flex items-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[40px] hover:bg-primary/90 transition-colors group flex-shrink-0"
-            aria-label={`Im Shop kaufen: ${p.name}`}
-          >
+          <span className="flex items-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[40px] flex-shrink-0">
             Kaufen
-            <ExternalLink size={12} className="transition-transform group-hover:translate-x-0.5" />
-          </a>
+            <ExternalLink size={12} />
+          </span>
         </div>
       </div>
-    </article>
+    </a>
   )
 }
 

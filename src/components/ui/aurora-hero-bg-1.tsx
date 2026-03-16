@@ -1,5 +1,5 @@
 import React from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface AuroraHeroProps {
@@ -9,6 +9,8 @@ interface AuroraHeroProps {
 }
 
 export function AuroraHeroBg({ className, style, children }: AuroraHeroProps) {
+  const shouldReduceMotion = useReducedMotion()
+
   return (
     <section
       className={cn(
@@ -35,7 +37,7 @@ export function AuroraHeroBg({ className, style, children }: AuroraHeroProps) {
             backgroundSize: '300% 100%',
             filter: 'blur(80px)',
           }}
-          animate={{
+          animate={shouldReduceMotion ? false : {
             backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
           }}
           transition={{
@@ -65,7 +67,7 @@ export function AuroraHeroBg({ className, style, children }: AuroraHeroProps) {
             backgroundPosition: '50% 50%, 50% 50%',
             mixBlendMode: 'difference',
           }}
-          animate={{
+          animate={shouldReduceMotion ? false : {
             backgroundPosition: [
               '50% 50%, 50% 50%',
               '100% 50%, 150% 50%',

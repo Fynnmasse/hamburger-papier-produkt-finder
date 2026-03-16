@@ -5,14 +5,14 @@ export default function LoadingLines() {
   const [fadeOut, setFadeOut] = useState(false)
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setFadeOut(true), 1800)
-    const hideTimer = setTimeout(() => setVisible(false), 2400)
+    const fadeTimer = setTimeout(() => setFadeOut(true), 900)
+    const hideTimer = setTimeout(() => setVisible(false), 1400)
     return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer) }
   }, [])
 
   if (!visible) return null
 
-  const letters = 'Loading'.split('')
+  const letters = 'Laden'.split('')
 
   return (
     <div

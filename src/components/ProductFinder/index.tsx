@@ -285,7 +285,7 @@ function ProductCard({ p, index }: { p: Product; index: number }) {
   return (
     <a
       href={shopUrl} target="_blank" rel="noopener"
-      className="bg-white border border-border rounded-xl overflow-hidden flex flex-col opacity-0 translate-y-2 animate-card-in hover:-translate-y-1 hover:scale-[1.01] hover:border-primary hover:shadow-lg transition-all duration-200 cursor-pointer"
+      className="bg-white border border-border rounded-xl overflow-hidden flex flex-col opacity-0 translate-y-2 animate-card-in hover:-translate-y-1 hover:scale-[1.01] hover:border-primary hover:shadow-lg transition-[border-color,box-shadow,transform,opacity] duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       style={{ animationDelay: `${Math.min(index * 40, 400)}ms`, animationFillMode: 'forwards' }}
       aria-label={`Im Shop kaufen: ${p.name}`}
     >
@@ -293,6 +293,7 @@ function ProductCard({ p, index }: { p: Product; index: number }) {
         {p.img ? (
           <img
             src={p.img} alt={p.name} loading="lazy"
+            width={400} height={300}
             className="w-full h-full object-contain opacity-0 transition-opacity duration-500"
             onLoad={e => (e.currentTarget.style.opacity = '1')}
             onError={e => (e.currentTarget.style.display = 'none')}
@@ -468,13 +469,13 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
 
   // ── Category Selection (Step 0) ──
   const categories: { id: Category; label: string; count: number; icon: React.ReactNode }[] = [
-    { id: 'toilettenpapier', label: 'Toilettenpapier', count: 36, icon: <img src="/Toilettenpapier.svg" alt="Toilettenpapier" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
-    { id: 'papierhandtuecher', label: 'Papierhandtücher', count: 43, icon: <img src="/Papierhandtücher.svg" alt="Papierhandtücher" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
-    { id: 'handtuchrollen', label: 'Handtuchrollen', count: 30, icon: <img src="/Handtuchrollen.svg" alt="Handtuchrollen" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
-    { id: 'putzpapier', label: 'Putzpapier & Reinigung', count: 27, icon: <img src="/Putzpapier.svg" alt="Putzpapier & Reinigung" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
-    { id: 'spender', label: 'Spender & Zubehör', count: 10, icon: <img src="/Spender.svg" alt="Spender & Zubehör" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
-    { id: 'kuechenrollen', label: 'Küchenrollen & Servietten', count: 24, icon: <img src="/Küchenrollen.svg" alt="Küchenrollen & Servietten" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
-    { id: 'seife', label: 'Seife & Desinfektion', count: 3, icon: <img src="/Seife.svg" alt="Seife & Desinfektion" style={{ height: '40px', width: 'auto', display: 'block' }} /> },
+    { id: 'toilettenpapier', label: 'Toilettenpapier', count: 36, icon: <img src="/Toilettenpapier.svg" alt="Toilettenpapier" className="h-10 w-auto block" /> },
+    { id: 'papierhandtuecher', label: 'Papierhandtücher', count: 43, icon: <img src="/Papierhandtücher.svg" alt="Papierhandtücher" className="h-10 w-auto block" /> },
+    { id: 'handtuchrollen', label: 'Handtuchrollen', count: 30, icon: <img src="/Handtuchrollen.svg" alt="Handtuchrollen" className="h-10 w-auto block" /> },
+    { id: 'putzpapier', label: 'Putzpapier & Reinigung', count: 27, icon: <img src="/Putzpapier.svg" alt="Putzpapier & Reinigung" className="h-10 w-auto block" /> },
+    { id: 'spender', label: 'Spender & Zubehör', count: 10, icon: <img src="/Spender.svg" alt="Spender & Zubehör" className="h-10 w-auto block" /> },
+    { id: 'kuechenrollen', label: 'Küchenrollen & Servietten', count: 24, icon: <img src="/Küchenrollen.svg" alt="Küchenrollen & Servietten" className="h-10 w-auto block" /> },
+    { id: 'seife', label: 'Seife & Desinfektion', count: 3, icon: <img src="/Seife.svg" alt="Seife & Desinfektion" className="h-10 w-auto block" /> },
     { id: 'alle', label: 'Alles anzeigen', count: 179, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="6" width="15" height="15" rx="3"/><rect x="27" y="6" width="15" height="15" rx="3"/><rect x="6" y="27" width="15" height="15" rx="3"/><rect x="27" y="27" width="15" height="15" rx="3"/></svg> },
   ]
 
@@ -485,7 +486,7 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
           <ProgressBar step={1} total={totalSteps} />
           <div className="text-center mb-10 animate-fade-up">
             <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">Schritt 1 von {totalSteps}</div>
-            <h2 className="font-display font-extrabold text-4xl uppercase text-navy">Was suchen Sie?</h2>
+            <h2 className="font-display font-extrabold text-4xl uppercase text-navy text-balance">Was suchen Sie?</h2>
             <p className="text-muted-foreground mt-2">Wählen Sie die Produktkategorie, die Sie benötigen.</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -493,7 +494,7 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
               <button
                 key={id}
                 onClick={() => handleCategorySelect(id)}
-                className="bg-white border-2 border-border rounded-xl p-5 text-center flex flex-col items-center gap-2 min-h-[130px] hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all animate-card-entrance text-steel hover:text-primary"
+                className="bg-white border-2 border-border rounded-xl p-5 text-center flex flex-col items-center gap-2 min-h-[130px] hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-[border-color,box-shadow,transform,color] animate-card-entrance text-steel hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 {icon}
@@ -504,7 +505,7 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
           </div>
           {onBack && (
             <div className="flex justify-start max-w-4xl mx-auto mt-8">
-              <button onClick={() => { scrollTop(); onBack() }} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
+              <button onClick={() => { scrollTop(); onBack() }} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded">
                 <ArrowLeft size={16} /> Zurück
               </button>
             </div>
@@ -529,7 +530,7 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
             <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">
               Schritt {stepIndex + 1} von {totalSteps}
             </div>
-            <h2 className="font-display font-extrabold text-4xl uppercase text-navy">{step.title}</h2>
+            <h2 className="font-display font-extrabold text-4xl uppercase text-navy text-balance">{step.title}</h2>
             <p className="text-muted-foreground mt-2">{step.subtitle}</p>
           </div>
           <div className={`grid ${gridCols} gap-4`}>
@@ -537,7 +538,7 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
               <button
                 key={value}
                 onClick={() => handleStepAnswer(step.answerKey, value)}
-                className="bg-white border-2 border-border rounded-xl p-6 text-left flex flex-col gap-2 hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-[.98] transition-all animate-card-entrance"
+                className="bg-white border-2 border-border rounded-xl p-6 text-left flex flex-col gap-2 hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-[.98] transition-[border-color,box-shadow,transform] animate-card-entrance focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 style={{ animationDelay: `${(i + 1) * 70}ms` }}
               >
                 <div className="font-display font-bold text-xl uppercase text-navy">{label}</div>
@@ -547,7 +548,7 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
             ))}
           </div>
           <div className="flex justify-start mt-8">
-            <button onClick={goBack} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
+            <button onClick={goBack} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded">
               <ArrowLeft size={16} /> Zurück
             </button>
           </div>
@@ -569,7 +570,7 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
               <h2 className="font-display font-extrabold text-3xl uppercase text-navy">
                 {answers.category === 'alle' ? 'Alle Produkte' : CAT_LABELS[answers.category]}
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1" aria-live="polite" aria-atomic="true">
                 {all.length === 0 ? 'Keine Produkte gefunden' : `${all.length} Produkte gefunden${all.length > 24 ? ' — Top 24 werden angezeigt' : ''}`}
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -584,10 +585,10 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
               </div>
             </div>
             <div className="flex gap-3 items-center">
-              <button onClick={goBack} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
+              <button onClick={goBack} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded">
                 <Edit size={15} /> Suche anpassen
               </button>
-              <button onClick={restart} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors">
+              <button onClick={restart} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded">
                 <Home size={15} /> Neu starten
               </button>
             </div>
@@ -599,7 +600,7 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
             <div className="text-5xl mb-4">🔍</div>
             <h3 className="font-display font-bold text-2xl uppercase text-navy mb-2">Keine Produkte gefunden</h3>
             <p className="text-muted-foreground text-sm mb-6">Mit diesen Filtereinstellungen haben wir leider keine Treffer. Versuchen Sie andere Kombinationen.</p>
-            <button onClick={() => { setAnswers({ category: 'alle' }); goToResults() }} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
+            <button onClick={() => { setAnswers({ category: 'alle' }); goToResults() }} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
               Alle Produkte anzeigen
             </button>
           </div>

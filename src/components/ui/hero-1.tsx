@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Menu, X } from 'lucide-react'
 import { AuroraHeroBg } from '@/components/ui/aurora-hero-bg-1'
@@ -56,6 +56,7 @@ export function HeroLanding(props: HeroLandingProps) {
   } = { ...defaultProps, ...props }
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const shouldReduceMotion = useReducedMotion()
 
   const titleSizeClass =
     titleSize === 'small'  ? 'text-2xl sm:text-3xl md:text-5xl' :
@@ -73,9 +74,9 @@ export function HeroLanding(props: HeroLandingProps) {
           key={index}
           href={cta.href ?? '#'}
           onClick={handleClick}
-          whileHover={{ y: -2 }}
-          whileTap={{ y: 0 }}
-          className="rounded-lg bg-primary px-5 py-2.5 sm:px-6 sm:py-3 text-sm font-semibold text-primary-foreground shadow-lg hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors"
+          whileHover={shouldReduceMotion ? {} : { y: -2 }}
+          whileTap={shouldReduceMotion ? {} : { y: 0 }}
+          className="rounded-lg bg-primary px-5 py-2.5 sm:px-6 sm:py-3 text-sm font-semibold text-primary-foreground shadow-lg hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-colors"
         >
           {cta.text}
         </motion.a>
@@ -86,7 +87,7 @@ export function HeroLanding(props: HeroLandingProps) {
         key={index}
         href={cta.href ?? '#'}
         onClick={handleClick}
-        className="text-sm font-semibold text-white/80 hover:text-white transition-colors group"
+        className="text-sm font-semibold text-white/80 hover:text-white transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy rounded"
       >
         {cta.text} <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">→</span>
       </a>
@@ -102,7 +103,7 @@ export function HeroLanding(props: HeroLandingProps) {
             <a href="#" className="-m-1.5 p-1.5 flex items-center gap-2">
               <span className="sr-only">{logo?.companyName}</span>
               {logo?.src
-                ? <img alt={logo.alt} src={logo.src} className="h-8 sm:h-10 w-auto" />
+                ? <img alt={logo.alt} src={logo.src} width="200" height="53" className="h-8 sm:h-10 w-auto" fetchPriority="high" />
                 : logo?.companyName && (
                   <span className="font-display font-bold text-xl tracking-widest uppercase text-white">
                     {logo.companyName}
@@ -126,7 +127,7 @@ export function HeroLanding(props: HeroLandingProps) {
           {navigation && navigation.length > 0 && (
             <div className="hidden lg:flex lg:gap-x-8 xl:gap-x-12">
               {navigation.map((item) => (
-                <a key={item.name} href={item.href} className="text-sm/6 font-semibold text-white/80 hover:text-white transition-colors">
+                <a key={item.name} href={item.href} className="text-sm/6 font-semibold text-white/80 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy rounded">
                   {item.name}
                 </a>
               ))}
@@ -135,7 +136,7 @@ export function HeroLanding(props: HeroLandingProps) {
 
           {loginText && loginHref && (
             <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-              <a href={loginHref} className="text-sm/6 font-semibold text-white/80 hover:text-white transition-colors">
+              <a href={loginHref} className="text-sm/6 font-semibold text-white/80 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy rounded">
                 {loginText} <span aria-hidden="true">&rarr;</span>
               </a>
             </div>
@@ -189,8 +190,8 @@ export function HeroLanding(props: HeroLandingProps) {
           {/* Announcement banner */}
           {announcementBanner && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+              animate={shouldReduceMotion ? undefined : (ready ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 })}
               transition={{ duration: 0.6 }}
               className="hidden sm:mb-6 sm:flex sm:justify-center"
             >
@@ -205,8 +206,8 @@ export function HeroLanding(props: HeroLandingProps) {
           )}
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
+            animate={shouldReduceMotion ? undefined : (ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 })}
             transition={{ duration: 0.9, ease: 'easeOut', delay: 0.1 }}
             className={`${titleSizeClass} font-display font-bold tracking-tight text-balance text-white`}
           >
@@ -214,8 +215,8 @@ export function HeroLanding(props: HeroLandingProps) {
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+            animate={shouldReduceMotion ? undefined : (ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 })}
             transition={{ duration: 0.9, ease: 'easeOut', delay: 0.3 }}
             className="mt-6 sm:mt-8 text-base sm:text-lg font-medium text-pretty text-white/65 sm:text-xl/8 max-w-2xl mx-auto"
           >
@@ -224,8 +225,8 @@ export function HeroLanding(props: HeroLandingProps) {
 
           {callToActions && callToActions.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 15 }}
+              animate={shouldReduceMotion ? undefined : (ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 })}
               transition={{ duration: 0.8, ease: 'easeOut', delay: 0.55 }}
               className="mt-8 sm:mt-10 flex items-center justify-center gap-x-4 sm:gap-x-6"
             >

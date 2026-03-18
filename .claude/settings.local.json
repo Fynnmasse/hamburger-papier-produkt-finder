@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"c:/Users/Gastoben/hamburger-papier-produkt-finder\" log --oneline -10)"
+    ]
+  }
+}

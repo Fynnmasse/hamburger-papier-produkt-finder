@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { HeroLanding } from '@/components/ui/hero-1'
-import ProductFinder from '@/components/ProductFinder'
 import LoadingLines from '@/components/ui/loading-lines'
+
+const ProductFinder = lazy(() => import('@/components/ProductFinder'))
 
 type View = 'hero' | 'finder'
 
@@ -10,7 +11,7 @@ export default function App() {
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    const t = setTimeout(() => setReady(true), 2400)
+    const t = setTimeout(() => setReady(true), 1400)
     return () => clearTimeout(t)
   }, [])
 
@@ -26,12 +27,12 @@ function AppContent({ view, setView, ready }: { view: View; setView: (v: View) =
 
   if (view === 'finder') {
     return (
-      <div className="min-h-screen bg-sand font-body">
+      <div className="min-h-screen bg-sand font-body flex flex-col">
         {/* Sticky header */}
         <header className="sticky top-0 z-50 bg-navy border-b-2 border-teal">
           <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
-            <button onClick={() => setView('hero')} className="hover:opacity-80 transition-opacity">
-              <img src="/Logo.svg" alt="Hamburg Papier" className="h-8 w-auto" />
+            <button onClick={() => setView('hero')} className="hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded">
+              <img src="/Logo.svg" alt="Hamburg Papier" width="160" height="42" className="h-8 w-auto" />
             </button>
             <a
               href="https://www.hamburgpapier-shop.de"
@@ -43,12 +44,15 @@ function AppContent({ view, setView, ready }: { view: View; setView: (v: View) =
           </div>
         </header>
 
-        <main>
-          <ProductFinder onBack={() => setView('hero')} />
+        <main className="flex-1">
+          <h1 className="sr-only">Hamburg Papier Produktberater</h1>
+          <Suspense fallback={<div className="min-h-screen bg-sand" />}>
+            <ProductFinder onBack={() => setView('hero')} />
+          </Suspense>
         </main>
 
         <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35">
-          © 2025 Hamburg Papier ·{' '}
+          © {new Date().getFullYear()} Hamburg Papier ·{' '}
           <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
             hamburgpapier-shop.de
           </a>

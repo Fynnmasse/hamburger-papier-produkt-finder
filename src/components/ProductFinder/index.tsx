@@ -469,14 +469,14 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
 
   // ── Category Selection (Step 0) ──
   const categories: { id: Category; label: string; count: number; icon: React.ReactNode }[] = [
-    { id: 'toilettenpapier', label: 'Toilettenpapier', count: 36, icon: <img src="/Toilettenpapier.svg" alt="Toilettenpapier" className="h-10 w-auto block" /> },
-    { id: 'papierhandtuecher', label: 'Papierhandtücher', count: 43, icon: <img src="/Papierhandtücher.svg" alt="Papierhandtücher" className="h-10 w-auto block" /> },
-    { id: 'handtuchrollen', label: 'Handtuchrollen', count: 30, icon: <img src="/Handtuchrollen.svg" alt="Handtuchrollen" className="h-10 w-auto block" /> },
-    { id: 'putzpapier', label: 'Putzpapier & Reinigung', count: 27, icon: <img src="/Putzpapier.svg" alt="Putzpapier & Reinigung" className="h-10 w-auto block" /> },
-    { id: 'spender', label: 'Spender & Zubehör', count: 10, icon: <img src="/Spender.svg" alt="Spender & Zubehör" className="h-10 w-auto block" /> },
-    { id: 'kuechenrollen', label: 'Küchenrollen & Servietten', count: 24, icon: <img src="/Küchenrollen.svg" alt="Küchenrollen & Servietten" className="h-10 w-auto block" /> },
-    { id: 'seife', label: 'Seife & Desinfektion', count: 3, icon: <img src="/Seife.svg" alt="Seife & Desinfektion" className="h-10 w-auto block" /> },
-    { id: 'alle', label: 'Alles anzeigen', count: 179, icon: <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="6" width="15" height="15" rx="3"/><rect x="27" y="6" width="15" height="15" rx="3"/><rect x="6" y="27" width="15" height="15" rx="3"/><rect x="27" y="27" width="15" height="15" rx="3"/></svg> },
+    { id: 'toilettenpapier', label: 'Toilettenpapier', count: 36, icon: <img src="/Toilettenpapier.svg" alt="Toilettenpapier" className="h-14 w-auto block" /> },
+    { id: 'papierhandtuecher', label: 'Papierhandtücher', count: 43, icon: <img src="/Papierhandtücher.svg" alt="Papierhandtücher" className="h-14 w-auto block" /> },
+    { id: 'handtuchrollen', label: 'Handtuchrollen', count: 30, icon: <img src="/Handtuchrollen.svg" alt="Handtuchrollen" className="h-14 w-auto block" /> },
+    { id: 'putzpapier', label: 'Putzpapier & Reinigung', count: 27, icon: <img src="/Putzpapier.svg" alt="Putzpapier & Reinigung" className="h-14 w-auto block" /> },
+    { id: 'spender', label: 'Spender & Zubehör', count: 10, icon: <img src="/Spender.svg" alt="Spender & Zubehör" className="h-14 w-auto block" /> },
+    { id: 'kuechenrollen', label: 'Küchenrollen & Servietten', count: 24, icon: <img src="/Küchenrollen.svg" alt="Küchenrollen & Servietten" className="h-14 w-auto block" /> },
+    { id: 'seife', label: 'Seife & Desinfektion', count: 3, icon: <img src="/Seife.svg" alt="Seife & Desinfektion" className="h-14 w-auto block" /> },
+    { id: 'alle', label: 'Alles anzeigen', count: 179, icon: <svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="6" width="15" height="15" rx="3"/><rect x="27" y="6" width="15" height="15" rx="3"/><rect x="6" y="27" width="15" height="15" rx="3"/><rect x="27" y="27" width="15" height="15" rx="3"/></svg> },
   ]
 
   if (!showResults && stepIndex === 0) {
@@ -489,16 +489,16 @@ export default function ProductFinder({ onBack }: { onBack?: () => void }) {
             <h2 className="font-display font-extrabold text-4xl uppercase text-navy text-balance">Was suchen Sie?</h2>
             <p className="text-muted-foreground mt-2">Wählen Sie die Produktkategorie, die Sie benötigen.</p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {categories.map(({ id, label, count, icon }, i) => (
               <button
                 key={id}
                 onClick={() => handleCategorySelect(id)}
-                className="bg-white border-2 border-border rounded-xl p-5 text-center flex flex-col items-center gap-2 min-h-[130px] hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-[border-color,box-shadow,transform,color] animate-card-entrance text-steel hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="bg-white border-2 border-border rounded-xl p-6 text-center flex flex-col items-center gap-3 min-h-[170px] hover:border-primary hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-[border-color,box-shadow,transform,color] animate-card-entrance text-steel hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 {icon}
-                <span className="font-semibold text-sm text-navy leading-tight">{label}</span>
+                <span className="font-semibold text-base text-navy leading-tight">{label}</span>
                 <span className="text-xs text-muted-foreground">{count} Produkte</span>
               </button>
             ))}

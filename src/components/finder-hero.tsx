@@ -1,13 +1,73 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { motion, useReducedMotion } from 'framer-motion'
 import type { CategoryDef } from '@/lib/finder-config'
 import DynamicWaveBackground from '@/components/ui/dynamic-wave-background'
 
+// ── Animation Variants ──
+
+const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: EASE_OUT },
+  },
+}
+
+const fadeDownVariants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: EASE_OUT },
+  },
+}
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+      delayChildren: 0.25,
+    },
+  },
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring' as const,
+      stiffness: 300,
+      damping: 24,
+    },
+  },
+}
+
+// ── Component ──
+
 export function FinderHero({ categories }: { categories: CategoryDef[] }) {
+  const shouldReduceMotion = useReducedMotion()
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 250)
+    return () => clearTimeout(t)
+  }, [])
+
+  const animate = shouldReduceMotion ? 'visible' : (ready ? 'visible' : 'hidden')
+
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden bg-navy">
+    <section className="relative min-h-[100dvh] flex flex-col overflow-hidden bg-navy">
       {/* WebGL Background */}
       <DynamicWaveBackground />
 
@@ -23,66 +83,118 @@ export function FinderHero({ categories }: { categories: CategoryDef[] }) {
       {/* Content */}
       <div className="relative z-10 flex flex-col flex-1">
         {/* Header */}
-        <header className="flex items-center justify-between px-4 sm:px-6 lg:px-8 pt-4 pb-2">
-          <a href="https://www.hamburgpapier-shop.de" className="-m-1.5 p-1.5">
+        <motion.header
+          initial={shouldReduceMotion ? false : 'hidden'}
+          animate={animate}
+          variants={fadeDownVariants}
+          className="flex items-center justify-between px-4 sm:px-6 lg:px-8 pt-4 pb-2"
+        >
+          <a
+            href="https://www.hamburgpapier-shop.de"
+            className="-m-1.5 p-1.5 min-h-[44px] inline-flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
+          >
             <Image src="/Logo.svg" alt="Hamburg Papier" width={200} height={53} className="h-8 sm:h-10 w-auto" priority />
           </a>
           <a
             href="https://www.hamburgpapier-shop.de"
-            className="text-xs sm:text-sm font-semibold text-white/60 hover:text-white transition-colors"
+            className="min-h-[44px] inline-flex items-center text-xs sm:text-sm font-semibold text-white/80 hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
           >
-            Zum Shop <span aria-hidden="true">&rarr;</span>
+            Zum Shop <span aria-hidden="true" className="ml-1">&rarr;</span>
           </a>
-        </header>
+        </motion.header>
 
-        {/* Main: Headline + Grid — vertically centered */}
-        <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 pb-8">
+        {/* Main: Headline + Trust Bar + Grid — vertically centered */}
+        <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 pb-4 sm:pb-8">
           <div className="max-w-5xl mx-auto w-full">
+
             {/* Headline */}
-            <div className="text-center mb-6 sm:mb-8">
-              <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl tracking-tight text-white text-balance">
-                Finden Sie das richtige Hygienepapier — in 3 Klicks
+            <motion.div
+              initial={shouldReduceMotion ? false : 'hidden'}
+              animate={animate}
+              variants={fadeUpVariants}
+              className="text-center mb-2 sm:mb-3"
+            >
+              <h1 className="font-display font-bold text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-tight text-white text-balance">
+                Finden Sie das richtige Hygienepapier — in{' '}
+                <span className="text-teal">3 Klicks</span>
               </h1>
-              <p className="text-white/50 mt-2 text-sm sm:text-base">
-                Wählen Sie eine Kategorie um zu starten
-              </p>
-            </div>
+            </motion.div>
+
+            {/* Subtitle */}
+            <motion.p
+              initial={shouldReduceMotion ? false : 'hidden'}
+              animate={animate}
+              variants={fadeUpVariants}
+              className="text-center text-white/70 text-sm sm:text-base mb-3 sm:mb-4"
+            >
+              Wählen Sie eine Kategorie um zu starten
+            </motion.p>
+
+            {/* Trust Badges */}
+            <motion.div
+              initial={shouldReduceMotion ? false : 'hidden'}
+              animate={animate}
+              variants={fadeUpVariants}
+              className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-white/60 text-xs sm:text-sm mb-6 sm:mb-8"
+            >
+              <span>179 Produkte</span>
+              <span aria-hidden="true" className="text-white/30">·</span>
+              <span>Kostenloser Versand ab Palette</span>
+              <span aria-hidden="true" className="text-white/30">·</span>
+              <span>B2B Großhandelspreise</span>
+            </motion.div>
 
             {/* Category Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-              {categories.map(({ slug, label, icon }, i) => (
-                <Link
+            <motion.div
+              initial={shouldReduceMotion ? false : 'hidden'}
+              animate={animate}
+              variants={containerVariants}
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 lg:gap-5"
+            >
+              {categories.map(({ slug, label, icon }) => (
+                <motion.div
                   key={slug}
-                  href={`/${slug}`}
-                  className="group bg-white/[0.07] backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-5 text-center flex flex-col items-center gap-2 sm:gap-3 hover:bg-white/[0.14] hover:border-white/25 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 animate-card-entrance focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
-                  style={{ animationDelay: `${i * 60}ms` }}
+                  variants={cardVariants}
+                  whileHover={shouldReduceMotion ? undefined : { y: -4, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                 >
-                  <Image
-                    src={`/${icon}`}
-                    alt={label}
-                    width={56}
-                    height={56}
-                    className="h-10 sm:h-14 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
-                  />
-                  <span className="font-semibold text-sm sm:text-base text-white/85 group-hover:text-white leading-tight transition-colors">
-                    {label}
-                  </span>
-                </Link>
+                  <Link
+                    href={`/${slug}`}
+                    className="group relative bg-white/[0.09] backdrop-blur-md border border-white/[0.15] rounded-xl p-3.5 sm:p-5 lg:p-6 text-center flex flex-col items-center gap-2 sm:gap-3 overflow-hidden hover:bg-white/[0.16] hover:border-white/30 hover:shadow-lg hover:shadow-teal/5 transition-[background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent"
+                  >
+                    <Image
+                      src={`/${icon}`}
+                      alt={label}
+                      width={64}
+                      height={64}
+                      className="h-9 sm:h-12 lg:h-16 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
+                    />
+                    <span className="font-semibold text-sm sm:text-base text-white/85 group-hover:text-white leading-tight transition-colors">
+                      {label}
+                    </span>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {/* Shop link */}
-            <div className="text-center mt-6">
+            <motion.div
+              initial={shouldReduceMotion ? false : 'hidden'}
+              animate={animate}
+              variants={fadeUpVariants}
+              className="text-center mt-5 sm:mt-6"
+            >
               <a
                 href="https://www.hamburgpapier-shop.de"
                 target="_blank"
                 rel="noopener"
-                className="inline-flex items-center gap-1 text-sm text-white/40 hover:text-white/70 transition-colors"
+                className="group inline-flex items-center gap-1 text-sm text-white/70 hover:text-white/90 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
               >
                 oder alle 179 Produkte im Shop ansehen
-                <span aria-hidden="true">→</span>
+                <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">→</span>
               </a>
-            </div>
+            </motion.div>
+
           </div>
         </div>
       </div>

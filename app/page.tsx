@@ -1,32 +1,18 @@
-import { HeroSection } from '@/components/hero-section'
-import { CategoryGrid } from '@/components/category-grid'
+import { FinderHero } from '@/components/finder-hero'
 import { CATEGORIES } from '@/lib/finder-config'
 
 export default function HomePage() {
   return (
     <>
-      <HeroSection />
-      <section id="finder" className="bg-sand font-body py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="font-display font-extrabold text-4xl uppercase text-navy text-balance">
-              Was suchen Sie?
-            </h2>
-            <p className="text-muted-foreground mt-2">
-              Wählen Sie die Produktkategorie, die Sie benötigen.
-            </p>
-          </div>
-          <CategoryGrid categories={CATEGORIES} />
-        </div>
-      </section>
+      <FinderHero categories={CATEGORIES} />
 
-      {/* SEO Content Block */}
+      {/* SEO Content Block — unter den Kacheln */}
       <section className="bg-white font-body py-16 px-4">
-        <div className="max-w-3xl mx-auto prose prose-navy">
+        <div className="max-w-3xl mx-auto">
           <h2 className="font-display font-bold text-2xl text-navy mb-4">
             Finden Sie das richtige Hygienepapier für Ihren Betrieb — in nur 3 Klicks
           </h2>
-          <p className="text-steel leading-relaxed">
+          <p className="text-steel leading-relaxed mb-4">
             Unser Produktberater hilft Ihnen, aus über 179 Produkten genau das richtige
             Hygienepapier für Ihren Bedarf zu finden. Ob Toilettenpapier, Papierhandtücher,
             Putzpapier oder Spender — beantworten Sie einfach ein paar kurze Fragen zu
@@ -80,7 +66,7 @@ export default function HomePage() {
                 name: 'Welche Papierhandtücher passen in meinen Spender?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Die Falzung entscheidet: Z-Falz ist der Standard für die meisten Spender. C-Falz-Tücher passen in ältere C-Falz-Spender, und Interfold-Tücher sind für Interfold-Spendersysteme konzipiert. Prüfen Sie die Spenderbezeichnung oder fragen Sie uns.',
+                  text: 'Die Falzung entscheidet: Z-Falz ist der Standard für die meisten Spender. C-Falz-Tücher passen in ältere C-Falz-Spender, und Interfold-Tücher sind für Interfold-Spendersysteme konzipiert.',
                 },
               },
               {
@@ -88,7 +74,7 @@ export default function HomePage() {
                 name: 'Was ist der Unterschied zwischen Recycling- und Zellstoff-Papier?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Recycling-Papier wird aus 100% Altpapier hergestellt, ist nachhaltig und kostengünstig. Zellstoff-Papier besteht aus Frischfasern und ist weicher, weißer und saugstärker. Für repräsentative Bereiche empfehlen wir Zellstoff, für Hochfrequenzbereiche Recycling.',
+                  text: 'Recycling-Papier wird aus 100% Altpapier hergestellt, ist nachhaltig und kostengünstig. Zellstoff-Papier besteht aus Frischfasern und ist weicher, weißer und saugstärker.',
                 },
               },
               {
@@ -96,7 +82,7 @@ export default function HomePage() {
                 name: 'Ab welcher Menge lohnt sich eine Palette?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Eine Palette bietet den besten Preis pro Einheit und lohnt sich bereits ab mittlerem Verbrauch. Hotels, Gastronomie und Industriebetriebe bestellen in der Regel palettenweise. Für kleinere Bestellungen oder Erstbestellungen bieten wir Kartonversand an.',
+                  text: 'Eine Palette bietet den besten Preis pro Einheit und lohnt sich bereits ab mittlerem Verbrauch. Für kleinere Bestellungen bieten wir Kartonversand an.',
                 },
               },
             ],

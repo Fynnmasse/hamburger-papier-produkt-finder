@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  content: ['./app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -41,8 +41,8 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        display: ['Comfortaa', 'sans-serif'],
-        body:    ['"DM Sans"', 'system-ui', 'sans-serif'],
+        display: ['var(--font-comfortaa)', 'Comfortaa', 'sans-serif'],
+        body:    ['var(--font-dm-sans)', '"DM Sans"', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': { from: { height: '0' }, to: { height: 'var(--radix-accordion-content-height)' } },

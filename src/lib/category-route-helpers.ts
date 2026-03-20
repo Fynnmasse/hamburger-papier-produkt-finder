@@ -1,0 +1,50 @@
+import type { Metadata } from 'next'
+import {
+  CATEGORY_MAP,
+  STEP_VALUE_LABELS,
+  getAllStaticPaths,
+  type CategorySlug,
+} from './finder-config'
+
+/** Generate metadata for a category page (root or with steps) */
+export function generateCategoryMetadata(
+  kategorie: CategorySlug,
+  segments: string[] = []
+): Metadata {
+  const catDef = CATEGORY_MAP.get(kategorie)
+  if (!catDef) return {}
+
+  if (segments.length === 0) {
+    return {
+      title: catDef.metaTitle,
+      description: catDef.metaDescription,
+      alternates: {
+        canonical: `/produktberater/${kategorie}`,
+      },
+    }
+  }
+
+  // Build title from segments
+  const labels = segments.map((seg, i) => {
+    const stepDef = catDef.steps[i]
+    if (!stepDef) return seg
+    const labelMap = STEP_VALUE_LABELS[stepDef.slug]
+    return labelMap?.[seg] || seg
+  })
+
+  const title = `${catDef.label} ${labels.join(' ')} | Hamburg Papier Produktfinder`
+  const desc = `Finden Sie ${catDef.label} — ${labels.join(', ')}. B2B Großhandel von Hamburg Papier. Kostenloser Versand, kostenlose Muster.`
+  const canonical = `/produktberater/${kategorie}/${segments.join('/')}`
+
+  return {
+    title,
+    description: desc,
+    alternates: { canonical },
+  }
+}
+
+/** Generate static params for [...schritte] catch-all routes */
+export function generateCategoryStaticParams(kategorie: CategorySlug) {
+  const paths = getAllStaticPaths(kategorie)
+  return paths.map(segments => ({ schritte: segments }))
+}

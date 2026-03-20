@@ -9,27 +9,29 @@
 ## Project Overview
 
 B2B-Produktberater für **Hamburg Papier** (Hygienepapier-Großhandel).
-Single-Page-App mit animierter Hero-Landingpage und mehrstufigem Produkt-Finder-Wizard.
-Der Wizard führt B2B-Kunden durch kategoriespezifische Fragen und zeigt am Ende 1–4 passende Produkte.
+Next.js App Router mit SSR/SSG, SEO-optimierter URL-Struktur und mehrstufigem Produkt-Finder.
+Jede Kategorie und jeder Wizard-Schritt hat eine eigene, crawlbare URL.
 
 - **Live-Shop:** https://www.hamburgpapier-shop.de
 - **Zielgruppe:** B2B-Kunden (Gastronomie, Hotels, Facility Management, Arztpraxen)
 - **Sprache:** Deutsch (UI-Texte, Commits, Kommentare)
+- **Deploy:** Vercel (automatisch bei git push)
 
 ---
 
 ## Tech-Stack
 
-| Bereich       | Technologie                                      |
-|---------------|--------------------------------------------------|
-| Framework     | React 19 + TypeScript 5.9                        |
-| Build         | Vite 8                                           |
-| Styling       | Tailwind CSS 3.4 + Custom CSS Keyframes          |
-| Animationen   | Framer Motion 12                                 |
-| UI-Primitives | Radix UI (Dialog, Slot), Lucide Icons            |
-| Utilities     | clsx + tailwind-merge (`cn()` Helper)            |
-| Linting       | ESLint 9 + react-hooks + react-refresh           |
-| Fonts         | Google Fonts: DM Sans (Body), Comfortaa (Display)|
+| Bereich       | Technologie                                        |
+|---------------|----------------------------------------------------|
+| Framework     | Next.js 16 (App Router) + React 19 + TypeScript 5.9|
+| Rendering     | SSG (Static Site Generation) für alle Seiten       |
+| Styling       | Tailwind CSS 3.4 + Custom CSS Keyframes            |
+| Animationen   | Framer Motion 12                                   |
+| Icons         | Lucide React                                       |
+| Utilities     | clsx + tailwind-merge (`cn()` Helper)              |
+| Fonts         | next/font: DM Sans (Body), Comfortaa (Display)     |
+| SEO           | generateMetadata, generateStaticParams, JSON-LD    |
+| Background    | WebGL Fragment Shader (GPU-beschleunigt)            |
 
 ---
 
@@ -41,63 +43,110 @@ Der Wizard führt B2B-Kunden durch kategoriespezifische Fragen und zeigt am Ende
 4. **Deutsche UI-Texte** — Alle sichtbaren Texte auf Deutsch. Keine englischen Strings in der UI.
 5. **Keine neuen Abhängigkeiten** ohne explizite Zustimmung. Das Projekt soll schlank bleiben.
 6. **Kein Over-Engineering** — Keine Abstraktion für einmalige Operationen. Einfachste Lösung bevorzugen.
+7. **Server Components bevorzugen** — `'use client'` nur wenn nötig (Interaktivität, Hooks, Browser-APIs).
 
 ---
 
 ## File Structure
 
 ```
-├── public/                    # Statische Assets (SVG-Icons, Logo, Favicon)
-│   ├── Logo.svg
-│   ├── Favicon.svg
-│   └── [Kategorie].svg       # Icons pro Produktkategorie
+├── app/                        # Next.js App Router
+│   ├── layout.tsx              # Root-Layout (next/font, Tailwind, Metadata)
+│   ├── page.tsx                # Startseite: Hero + Kategorie-Grid + SEO-Content
+│   ├── sitemap.ts              # Dynamische XML-Sitemap (alle Finder-URLs)
+│   ├── robots.ts               # robots.txt
+│   ├── toilettenpapier/        # Kategorie-Route
+│   │   ├── page.tsx            # Erster Schritt (Typ-Auswahl)
+│   │   └── [...schritte]/page.tsx  # Weitere Schritte + Ergebnisse (SSG)
+│   ├── papierhandtuecher/      # Analog
+│   ├── handtuchrollen/
+│   ├── putzpapier/
+│   ├── kuechenrollen/
+│   ├── spender/
+│   └── seife/                  # Direkt Ergebnisse (keine Steps)
+├── public/                     # Statische Assets (SVG-Icons, Logo, Favicon)
 ├── src/
-│   ├── main.tsx               # React-Entrypoint (StrictMode)
-│   ├── App.tsx                # Root-Komponente: View-Routing (hero ↔ finder), Loading-State
-│   ├── index.css              # Tailwind-Setup, CSS-Variablen, Keyframe-Animationen, Tag-Styles
+│   ├── index.css               # Tailwind-Setup, CSS-Variablen, Keyframe-Animationen
 │   ├── components/
-│   │   ├── ProductFinder/
-│   │   │   └── index.tsx      # ⭐ Kern: Mehrstufiger Wizard mit kategoriespezifischen Flows
+│   │   ├── hero-section.tsx    # Client: Hero-Landingpage mit Framer-Motion
+│   │   ├── category-grid.tsx   # Client: Kategorie-Kacheln (Link-basiert)
+│   │   ├── category-page.tsx   # Server: Shared Layout für alle Kategorie-Seiten
+│   │   ├── step-selection.tsx  # Client: Step-Optionen als Links
+│   │   ├── product-card.tsx    # Server: Produktkarte mit UTM-Links
+│   │   ├── product-results.tsx # Server: Ergebnis-Grid mit Produktkarten
+│   │   ├── finder-header.tsx   # Client: Sticky Header im Finder
+│   │   ├── breadcrumbs.tsx     # Server: Breadcrumb-Nav + JSON-LD Schema
 │   │   └── ui/
-│   │       ├── hero-1.tsx     # Hero-Landingpage mit Framer-Motion-Animationen
-│   │       ├── loading-lines.tsx  # Loading-Splash-Screen (CSS-Keyframe-Animation)
-│   │       ├── aurora-hero-bg-1.tsx  # Animierter Hintergrund-Gradient
-│   │       └── dialog.tsx     # Radix-Dialog-Wrapper
+│   │       ├── loading-lines.tsx           # Loading-Splash-Screen
+│   │       ├── aurora-hero-bg-1.tsx        # Hero-Hintergrund-Wrapper
+│   │       └── dynamic-wave-background.tsx # WebGL Shader (GPU)
 │   └── lib/
-│       ├── products.ts        # ⭐ Produktdaten (179 Produkte) + Product-Interface
-│       └── utils.ts           # cn() Helper (clsx + tailwind-merge)
-├── tailwind.config.js         # Brand-Farben, Custom-Fonts, Keyframes, Animationen
-├── vite.config.ts             # Vite + React-Plugin, @/-Alias auf ./src
-└── tsconfig.json              # TypeScript-Projekt-Referenzen
+│       ├── products.ts              # ⭐ Produktdaten (179 Produkte) + Product-Interface
+│       ├── finder-config.ts         # ⭐ Kategorie-Definitionen, Steps, Filter-Logik
+│       ├── category-route-helpers.ts # generateMetadata + generateStaticParams Helpers
+│       └── utils.ts                 # cn() Helper (clsx + tailwind-merge)
+├── next.config.ts              # Next.js Config (Images remote patterns)
+├── tailwind.config.js          # Brand-Farben, Custom-Fonts, Keyframes
+└── tsconfig.json               # TypeScript Config
 ```
+
+---
+
+## URL-Struktur (SEO-optimiert)
+
+```
+/                                    → Hero + Kategorie-Auswahl
+/toilettenpapier                     → Typ-Auswahl (Kleinrollen/Jumborollen/Spender)
+/toilettenpapier/kleinrollen         → Menge-Auswahl
+/toilettenpapier/kleinrollen/karton  → Qualitäts-Auswahl
+/toilettenpapier/kleinrollen/karton/recycling → Ergebnis-Seite
+/papierhandtuecher                   → Falzung-Auswahl
+/papierhandtuecher/z-falz/palette/zellstoff → Ergebnis-Seite
+... (analog für alle Kategorien)
+/sitemap.xml                         → Dynamische Sitemap
+/robots.txt                          → robots.txt
+```
+
+Alle Seiten werden bei `npm run build` statisch vorgerendert (SSG).
 
 ---
 
 ## Key Commands
 
 ```bash
-npm run dev       # Vite Dev-Server starten (HMR)
-npm run build     # TypeScript prüfen + Vite Production-Build
-npm run lint      # ESLint ausführen
-npm run preview   # Production-Build lokal testen
+npm run dev       # Next.js Dev-Server starten (Turbopack)
+npm run build     # Next.js Production-Build (SSG)
+npm run start     # Production-Build lokal starten
+npm run lint      # Next.js Lint
 ```
 
-**Vor jedem Commit:** `npm run build` muss fehlerfrei durchlaufen (inkl. TypeScript-Check).
+**Vor jedem Commit:** `npm run build` muss fehlerfrei durchlaufen.
 
 ---
 
-## State & Data Handling
+## Routing & Data Flow
 
-- **Kein externer State-Manager** — Reines `useState` + Props-Drilling.
-- **View-Routing:** `App.tsx` verwaltet `view: 'hero' | 'finder'` als State (kein Router).
-- **Loading-Timing:** `ready`-State wird nach 2400ms gesetzt (synchronisiert mit Loading-Animation).
-- **Produktdaten:** Statisch in `src/lib/products.ts` als Array. Kein API-Call, kein Lazy-Loading.
-- **ProductFinder-Flow:**
-  - `Answers`-Objekt sammelt Wizard-Antworten (`category`, `subtype`, `quantity`, `material`)
-  - `getStepsForCategory()` gibt kategoriespezifische Schritte zurück
-  - `getActiveSteps()` überspringt Schritte, wenn bereits ≤4 Produkte gefiltert sind
-  - `filterProducts()` filtert die 179 Produkte basierend auf `Answers`
-  - `matchesSubtype()` nutzt **Regex auf Produktnamen** für feinere Zuordnung
+- **File-Based Routing:** Next.js App Router. Jede Kategorie hat eigene Route.
+- **Catch-All Routes:** `[...schritte]` fängt alle Step-Kombinationen ab.
+- **`finder-config.ts`:** Zentrale Konfiguration aller Kategorien, Steps, Labels.
+- **`parseStepParams()`:** URL-Segmente → FilterParams-Objekt.
+- **`filterProducts()`:** Filtert 179 Produkte basierend auf Params.
+- **`getCurrentStep()`:** Bestimmt den aktuellen Wizard-Schritt oder ob Ergebnisse gezeigt werden.
+- **`getAllStaticPaths()`:** Generiert alle Kombinationen für `generateStaticParams()`.
+- **Produktdaten:** Statisch in `src/lib/products.ts`. Kein API-Call.
+
+---
+
+## SEO Features
+
+- **Eigene URL pro Schritt:** Jede Auswahl hat eine crawlbare URL.
+- **`generateMetadata()`:** Title + Description pro Seite.
+- **`generateStaticParams()`:** Alle ~200 Seiten werden statisch vorgerendert.
+- **Breadcrumbs:** Navigation + `BreadcrumbList` JSON-LD Schema.
+- **Structured Data:** `WebApplication`, `FAQPage`, `ItemList` JSON-LD.
+- **Sitemap:** Dynamisch generiert mit allen Finder-URLs.
+- **SEO-Content-Blöcke:** Informativer Text pro Kategorie (200–400 Wörter).
+- **UTM-Parameter:** Alle Shop-Links enthalten `utm_source=produktfinder`.
 
 ---
 
@@ -112,15 +161,15 @@ npm run preview   # Production-Build lokal testen
 | Sand     | `#f0f6fb` | `bg-sand`                 |
 | Lt. Teal | `#00c4d0` | (CSS-Keyframes)           |
 
-### Fonts
+### Fonts (next/font)
 - **Display:** `font-display` → Comfortaa (Überschriften, Buttons)
 - **Body:** `font-body` → DM Sans (Fließtext, UI-Elemente)
 
 ### Regeln
 - Tags/Badges nutzen vordefinierte `.tag-*` Klassen aus `index.css`
-- Animationen: Framer Motion für Layout-Transitionen, CSS-Keyframes für Loading-Screen
+- Animationen: Framer Motion für Hero, CSS-Keyframes für Loading-Screen
 - Responsive: Mobile-first mit Tailwind-Breakpoints (`sm:`, `md:`, `lg:`)
-- Hover-States: `transition-colors` / `transition-opacity` für weiche Übergänge
+- Hero-Hintergrund: WebGL Fragment Shader (GPU-beschleunigt, 60fps)
 
 ---
 

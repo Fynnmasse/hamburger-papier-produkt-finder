@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Menu, X } from 'lucide-react'
 import { AuroraHeroBg } from '@/components/ui/aurora-hero-bg-1'
+import { cn } from '@/lib/utils'
 
 interface NavigationItem {
   name: string
@@ -57,6 +57,11 @@ export function HeroLanding(props: HeroLandingProps) {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const shouldReduceMotion = useReducedMotion()
+
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileMenuOpen])
 
   const titleSizeClass =
     titleSize === 'small'  ? 'text-2xl sm:text-3xl md:text-5xl' :
@@ -143,45 +148,61 @@ export function HeroLanding(props: HeroLandingProps) {
           )}
         </nav>
 
-        {/* Mobile menu dialog */}
-        <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <DialogContent className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-[#0f2035] px-4 py-4 sm:px-6 sm:py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10 lg:hidden">
-            <div className="flex items-center justify-between">
-              <a href="#" className="-m-1.5 p-1.5">
-                <span className="sr-only">{logo?.companyName}</span>
-                {logo?.companyName && (
-                  <span className="font-display font-extrabold text-lg tracking-widest uppercase text-white">
-                    {logo.companyName}
-                  </span>
-                )}
-              </a>
-              <button type="button" onClick={() => setMobileMenuOpen(false)} className="-m-2.5 rounded-md p-2.5 text-white/70 hover:text-white transition-colors">
-                <span className="sr-only">Menü schließen</span>
-                <X aria-hidden="true" className="size-6" />
-              </button>
-            </div>
-            <div className="mt-2 flow-root">
-              <div className="-my-6 divide-y divide-white/10">
-                {navigation && navigation.length > 0 && (
-                  <div className="space-y-2 py-6">
-                    {navigation.map((item) => (
-                      <a key={item.name} href={item.href} className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors">
-                        {item.name}
-                      </a>
-                    ))}
-                  </div>
-                )}
-                {loginText && loginHref && (
-                  <div className="py-6">
-                    <a href={loginHref} className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors">
-                      {loginText}
+        {/* Mobile menu — Backdrop */}
+        <div
+          className={cn(
+            'fixed inset-0 z-40 bg-black/60 lg:hidden transition-opacity duration-300',
+            mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          )}
+          aria-hidden="true"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+
+        {/* Mobile menu — Slide-in panel */}
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation"
+          className={cn(
+            'fixed inset-y-0 right-0 z-50 w-full sm:max-w-sm bg-[#0f2035] px-4 py-4 sm:px-6 sm:py-6 overflow-y-auto sm:ring-1 sm:ring-white/10 lg:hidden transition-transform duration-300 ease-in-out',
+            mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <a href="#" className="-m-1.5 p-1.5">
+              <span className="sr-only">{logo?.companyName}</span>
+              {logo?.companyName && (
+                <span className="font-display font-extrabold text-lg tracking-widest uppercase text-white">
+                  {logo.companyName}
+                </span>
+              )}
+            </a>
+            <button type="button" onClick={() => setMobileMenuOpen(false)} className="-m-2.5 rounded-md p-2.5 text-white/70 hover:text-white transition-colors">
+              <span className="sr-only">Menü schließen</span>
+              <X aria-hidden="true" className="size-6" />
+            </button>
+          </div>
+          <div className="mt-2 flow-root">
+            <div className="-my-6 divide-y divide-white/10">
+              {navigation && navigation.length > 0 && (
+                <div className="space-y-2 py-6">
+                  {navigation.map((item) => (
+                    <a key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)} className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+                      {item.name}
                     </a>
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
+              {loginText && loginHref && (
+                <div className="py-6">
+                  <a href={loginHref} className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+                    {loginText}
+                  </a>
+                </div>
+              )}
             </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </div>
       </header>
 
       {/* Hero content */}

@@ -24,7 +24,7 @@ export default function HomePage() {
             <ul className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-steel text-xs sm:text-sm mb-8 list-none p-0 m-0">
               <li>179 Produkte</li>
               <li aria-hidden="true" className="text-steel/40">·</li>
-              <li>Kostenloser Versand ab Palette</li>
+              <li>Kostenloser Versand</li>
               <li aria-hidden="true" className="text-steel/40">·</li>
               <li>B2B Großhandelspreise</li>
             </ul>

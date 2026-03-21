@@ -1,18 +1,10 @@
 import { FinderHeader } from '@/components/finder-header'
 import { CategoryGrid } from '@/components/category-grid'
-import { AuroraBackground } from '@/components/ui/aurora-background'
 import { CATEGORIES } from '@/lib/finder-config'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-sand font-body flex flex-col relative">
-      {/* Aurora im Hintergrund (subtil) */}
-      <div className="fixed inset-0 z-0 opacity-30 pointer-events-none" aria-hidden="true">
-        <AuroraBackground showRadialGradient>
-          <div />
-        </AuroraBackground>
-      </div>
-
+    <div className="min-h-screen bg-sand/60 font-body flex flex-col relative">
       <FinderHeader />
 
       <main className="flex-1 relative z-10">

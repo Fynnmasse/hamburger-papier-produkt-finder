@@ -64,7 +64,7 @@ export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
     : '/'
 
   return (
-    <div className="min-h-screen bg-sand font-body flex flex-col">
+    <div className="min-h-screen bg-sand/60 font-body flex flex-col relative z-10">
       <FinderHeader />
 
       <main className="flex-1">

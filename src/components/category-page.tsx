@@ -7,6 +7,7 @@ import { ProductResults } from '@/components/product-results'
 import {
   CATEGORY_MAP,
   STEP_VALUE_LABELS,
+  DIMENSION_SEO,
   filterProducts,
   parseStepParams,
   getCurrentStep,
@@ -60,6 +61,12 @@ export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
   const totalSteps = steps.length + 1 // +1 for results
   const currentStepNum = segments.length + 1
 
+  // Spender path detection
+  const isSpenderPath = kategorie === 'papierhandtuecher' && segments[0] === 'spender'
+  const isOhneSpenderPath = kategorie === 'papierhandtuecher' && segments[0] === 'ohne-spender'
+  const dimensionSlug = isSpenderPath && segments.length >= 2 ? segments[1] : null
+  const dimensionSeoText = dimensionSlug ? DIMENSION_SEO[dimensionSlug] : null
+
   // Back href
   const backHref = segments.length > 0
     ? `/${kategorie}/${segments.slice(0, -1).join('/')}`
@@ -78,12 +85,32 @@ export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
           </div>
 
           {isResults ? (
-            <ProductResults
-              products={products}
-              title={catDef.label}
-              kategorie={kategorie}
-              backHref={backHref}
-            />
+            <>
+              {isSpenderPath && products.length > 0 && (
+                <div className="max-w-6xl mx-auto mb-4 animate-fade-up">
+                  <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 text-sm font-medium px-4 py-2 rounded-lg">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.3 4.3a1 1 0 0 1 0 1.4l-6 6a1 1 0 0 1-1.4 0l-3-3a1 1 0 1 1 1.4-1.4L6.6 9.6l5.3-5.3a1 1 0 0 1 1.4 0z" fill="currentColor"/></svg>
+                    Passt in Ihren vorhandenen Spender
+                  </div>
+                </div>
+              )}
+              <ProductResults
+                products={products}
+                title={catDef.label}
+                kategorie={kategorie}
+                backHref={backHref}
+              />
+              {isOhneSpenderPath && isResults && products.length > 0 && (
+                <div className="max-w-6xl mx-auto mt-8 animate-fade-up">
+                  <Link
+                    href="/spender/papierhandtuecher"
+                    className="inline-flex items-center gap-2 bg-white border border-border rounded-lg px-5 py-3 text-sm font-medium text-navy hover:border-primary hover:shadow-md transition-[border-color,box-shadow]"
+                  >
+                    Dazu passender Spender finden →
+                  </Link>
+                </div>
+              )}
+            </>
           ) : (
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-10 animate-fade-up">
@@ -110,11 +137,18 @@ export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
           )}
         </div>
 
-        {/* SEO Content Block (only on first step / category page) */}
+        {/* SEO Content Block */}
         {segments.length === 0 && (
           <section className="bg-white py-12 px-4 mt-4">
             <div className="max-w-3xl mx-auto">
               <p className="text-steel leading-relaxed text-sm">{catDef.seoContent}</p>
+            </div>
+          </section>
+        )}
+        {dimensionSeoText && !isResults && (
+          <section className="bg-white py-12 px-4 mt-4">
+            <div className="max-w-3xl mx-auto">
+              <p className="text-steel leading-relaxed text-sm">{dimensionSeoText}</p>
             </div>
           </section>
         )}
@@ -125,7 +159,7 @@ export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
         <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
           hamburgpapier-shop.de
         </a>
-        {' '}· Alle Preise inkl. 19% MwSt.
+        {' '}· Alle Preise zzgl. 19% MwSt.
       </footer>
 
       {/* Breadcrumb JSON-LD */}

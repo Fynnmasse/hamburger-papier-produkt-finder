@@ -52,6 +52,33 @@ const QUANTITY_STEP: StepDef = {
   ],
 }
 
+// ── Dimension config for papierhandtuecher "spender" path ──
+export interface DimensionConfig {
+  regex: RegExp
+  layers: number[]
+  falzung: string
+  label: string
+  labelFolded: string
+}
+
+export const DIMENSION_CONFIG: Record<string, DimensionConfig> = {
+  '21x21cm': { regex: /21\s*x\s*21/i, layers: [2], falzung: 'z-falz', label: '21 × 21 cm', labelFolded: '21 × 10,5 cm' },
+  '24x21cm': { regex: /24\s*x\s*21/i, layers: [1, 2, 3], falzung: 'z-falz', label: '24 × 21 cm', labelFolded: '24 × 10,5 cm' },
+  '25x21cm': { regex: /25\s*x\s*21/i, layers: [1, 2], falzung: 'z-falz', label: '25 × 21 cm', labelFolded: '25 × 10,5 cm' },
+  '25x23cm': { regex: /25\s*x\s*23/i, layers: [1], falzung: 'z-falz', label: '25 × 23 cm', labelFolded: '25 × 11,5 cm' },
+  '20-5x24cm': { regex: /20[,.]5\s*x\s*24/i, layers: [2], falzung: 'interfold', label: '20,5 × 24 cm', labelFolded: '20,5 × 8 cm' },
+  '25x31cm': { regex: /25\s*x\s*31/i, layers: [1, 2], falzung: 'c-falz', label: '25 × 31 cm', labelFolded: '25 × 10,3 cm' },
+}
+
+export const DIMENSION_SEO: Record<string, string> = {
+  '21x21cm': 'Papierhandtücher mit 21 × 21 cm sind ein kompaktes Format für kleinere Z-Falz-Spender. Gefaltet messen sie nur 21 × 10,5 cm und passen in platzsparende Spender-Modelle.',
+  '24x21cm': 'Papierhandtücher mit 24 × 21 cm (gefaltet 24 × 10,5 cm) sind eines der verbreitetsten Formate für Z-Falz-Spender. Diese Größe bietet eine gute Ergiebigkeit und ist in 1-, 2- und 3-lagiger Ausführung erhältlich.',
+  '25x21cm': 'Papierhandtücher mit 25 × 21 cm (gefaltet 25 × 10,5 cm) sind ein gängiges Format für größere Z-Falz-Spender und bieten etwas mehr Fläche als das 24 × 21 cm Format.',
+  '25x23cm': 'Papierhandtücher mit 25 × 23 cm (gefaltet 25 × 11,5 cm) sind das Standardmaß für die meisten handelsüblichen Z-Falz-Spender. Diese Größe bietet eine gute Balance zwischen Ergiebigkeit und Handlichkeit und ist besonders in Büros, Arztpraxen und der Gastronomie verbreitet.',
+  '20-5x24cm': 'Papierhandtücher mit 20,5 × 24 cm (gefaltet 20,5 × 8 cm) sind im Interfold-Format gefaltet und passen in spezielle Interfold-Spender. Die ineinandergefalteten Blätter ermöglichen eine besonders hygienische Einzelblattentnahme.',
+  '25x31cm': 'Papierhandtücher mit 25 × 31 cm (gefaltet 25 × 10,3 cm) sind C-Falz-Tücher — das breiteste gängige Format. Sie passen in C-Falz-Spender und bieten die größte Fläche pro Blatt zum Händetrocknen.',
+}
+
 function materialStep(includePremium: boolean): StepDef {
   const options: StepOption[] = [
     { value: 'recycling', label: 'ECO / Recycling', desc: 'Aus 100 % Altpapier. Nachhaltig & kosteneffizient.', tag: 'Nachhaltig', tagStyle: 'bg-teal-100 text-teal-800' },
@@ -61,6 +88,39 @@ function materialStep(includePremium: boolean): StepDef {
     options.push({ value: 'premium', label: 'Premium / Ultra Soft', desc: 'Höchste Qualität: Ultra Soft, Super Soft oder Gold.', tag: 'Premium', tagStyle: 'bg-amber-100 text-amber-800' })
   }
   options.push({ value: 'alle', label: 'Egal / Alle', desc: 'Zeige alle Qualitätsstufen.' })
+  return {
+    id: 'material',
+    slug: 'qualitaet',
+    title: 'Welche Qualität?',
+    subtitle: 'Wählen Sie entsprechend Ihrer Anforderungen und Ihres Budgets.',
+    options,
+  }
+}
+
+/** Material-Step der nur Optionen zeigt, für die tatsächlich Produkte existieren (Spender-Pfad) */
+function makeAvailableMaterialStep(dimension: string, layerSlug: string): StepDef {
+  const dimConfig = DIMENSION_CONFIG[dimension]
+  if (!dimConfig) return materialStep(true)
+
+  const layerNum = parseInt(layerSlug)
+
+  const matching = PRODUCTS.filter(
+    p => p.category === 'papierhandtuecher' && dimConfig.regex.test(p.name) && p.layers === layerNum
+  )
+  const availableMaterials = new Set(matching.map(p => p.material))
+
+  const options: StepOption[] = []
+  if (availableMaterials.has('recycling')) {
+    options.push({ value: 'recycling', label: 'ECO / Recycling', desc: 'Aus 100 % Altpapier. Nachhaltig & kosteneffizient.', tag: 'Nachhaltig', tagStyle: 'bg-teal-100 text-teal-800' })
+  }
+  if (availableMaterials.has('zellstoff')) {
+    options.push({ value: 'zellstoff', label: 'Standard Zellstoff', desc: 'Aus Frischfasern. Weiß, weich und reißfest.', tag: 'Beliebteste Wahl', tagStyle: 'bg-blue-100 text-blue-800' })
+  }
+  if (availableMaterials.has('premium')) {
+    options.push({ value: 'premium', label: 'Premium / Ultra Soft', desc: 'Höchste Qualität: Ultra Soft, Super Soft oder Gold.', tag: 'Premium', tagStyle: 'bg-amber-100 text-amber-800' })
+  }
+  options.push({ value: 'alle', label: 'Egal / Alle', desc: 'Zeige alle Qualitätsstufen.' })
+
   return {
     id: 'material',
     slug: 'qualitaet',
@@ -131,20 +191,25 @@ const ANWENDUNG_STEP: StepDef = {
   ],
 }
 
-// Produkt-Zuordnung nach Branche (Artikelnummern — wird später befüllt)
+// Alle Putzpapier-Rollen-SKUs (ohne Ärzte-/Liegenrollen und Mikrofaser)
+const PUTZPAPIER_ROLL_NUMS = PRODUCTS
+  .filter(p => p.category === 'putzpapier' && /putz|werkstatt/i.test(p.name))
+  .map(p => p.num)
+
+// Produkt-Zuordnung nach Branche (alle Putzpapier-Rollen pro Branche — feinere Zuordnung bei Bedarf)
 export const PRODUCT_BRANCHE_MAP: Record<string, string[]> = {
-  'automobil-industrie': [],
-  'gastronomie': [],
-  'fitness-solarien': [],
-  'lebensmittelindustrie': [],
+  'automobil-industrie': PUTZPAPIER_ROLL_NUMS,
+  'gastronomie': PUTZPAPIER_ROLL_NUMS,
+  'fitness-solarien': PUTZPAPIER_ROLL_NUMS,
+  'lebensmittelindustrie': PUTZPAPIER_ROLL_NUMS,
 }
 
-// Produkt-Zuordnung nach Anwendung (Artikelnummern — wird später befüllt)
+// Produkt-Zuordnung nach Anwendung (alle Putzpapier-Rollen pro Anwendung — feinere Zuordnung bei Bedarf)
 export const PRODUCT_ANWENDUNG_MAP: Record<string, string[]> = {
-  'fluessigkeiten': [],
-  'oberflaechen': [],
-  'haende': [],
-  'allzweck': [],
+  'fluessigkeiten': PUTZPAPIER_ROLL_NUMS,
+  'oberflaechen': PUTZPAPIER_ROLL_NUMS,
+  'haende': PUTZPAPIER_ROLL_NUMS,
+  'allzweck': PUTZPAPIER_ROLL_NUMS,
 }
 
 /** Dynamische Steps für Putzpapier-Kategorie */
@@ -201,6 +266,106 @@ function getPutzpapierAllPaths(): string[][] {
   return paths
 }
 
+// ── Papierhandtücher: Spender-Pfad ──
+const SPENDER_FRAGE_STEP: StepDef = {
+  id: 'spenderFrage',
+  slug: 'spender-wahl',
+  title: 'Haben Sie bereits einen Spender?',
+  subtitle: 'Wenn Sie bereits einen Spender haben, helfen wir Ihnen die passende Größe zu finden.',
+  options: [
+    { value: 'spender', label: 'Ja, ich habe einen Spender', desc: 'Finden Sie Papierhandtücher die exakt in Ihren vorhandenen Spender passen.', tag: 'Empfohlen für Nachbestellung', tagStyle: 'bg-blue-100 text-blue-800' },
+    { value: 'ohne-spender', label: 'Nein / Ich bin nicht sicher', desc: 'Wählen Sie nach Falzung, Menge und Qualität — wie gewohnt.' },
+  ],
+}
+
+const ABMESSUNG_STEP: StepDef = {
+  id: 'abmessung',
+  slug: 'abmessung',
+  title: 'Welche Abmessungen haben Ihre aktuellen Papierhandtücher?',
+  subtitle: 'Nicht sicher welche Größe? Messen Sie ein gefaltetes Handtuch aus Ihrem Spender — Breite × Höhe in cm.',
+  options: Object.entries(DIMENSION_CONFIG).map(([value, dim]) => ({
+    value,
+    label: dim.label,
+    desc: `Ausgefaltet: ${dim.label} · Gefaltet: ${dim.labelFolded}`,
+    tag: dim.falzung === 'z-falz' ? 'Z-Falz' : dim.falzung === 'c-falz' ? 'C-Falz' : 'Interfold',
+    tagStyle: dim.falzung === 'z-falz' ? 'bg-blue-100 text-blue-800' : dim.falzung === 'c-falz' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800',
+  })),
+}
+
+function makeLagenStep(layers: number[]): StepDef {
+  return {
+    id: 'lagen',
+    slug: 'lagen',
+    title: 'Wie viele Lagen?',
+    subtitle: 'Mehr Lagen bedeuten mehr Saugfähigkeit und Weichheit.',
+    options: layers.map(l => ({
+      value: `${l}-lagig`,
+      label: `${l}-lagig`,
+      desc: l === 1 ? 'Einlagig — wirtschaftlich und funktional.' : l === 2 ? 'Zweilagig — gute Balance aus Qualität und Preis.' : 'Dreilagig — Premium-Qualität, weich und saugstark.',
+    })),
+  }
+}
+
+const PAPIERHANDTUECHER_FALZUNG_STEP: StepDef = {
+  id: 'subtype', slug: 'falzung',
+  title: 'Welche Falzung?',
+  subtitle: 'Wählen Sie die Falzung passend zu Ihrem Spender-System.',
+  options: [
+    { value: 'z-falz', label: 'Z-Falz', desc: 'Der Standard für die meisten Papierhandtuchspender. Einzelblattentnahme.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
+    { value: 'c-falz', label: 'C-Falz', desc: 'Breite Tücher (25×31 cm) für C-Falz Spender.' },
+    { value: 'interfold', label: 'Interfold', desc: 'Ineinandergefaltete Tücher für Interfold-Spender. Automatische Einzelentnahme.' },
+  ],
+}
+
+function getPapierhandtuecherSteps(segments: string[]): StepDef[] {
+  if (segments.length === 0) return [SPENDER_FRAGE_STEP]
+
+  if (segments[0] === 'spender') {
+    if (segments.length < 2) return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP]
+    const dimension = segments[1]
+    const dimConfig = DIMENSION_CONFIG[dimension]
+    const lagenStep = makeLagenStep(dimConfig?.layers || [1, 2])
+    if (segments.length < 3) return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP, lagenStep]
+    const layerSlug = segments[2]
+    return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP, lagenStep, makeAvailableMaterialStep(dimension, layerSlug)]
+  }
+
+  // ohne-spender: original flow
+  return [SPENDER_FRAGE_STEP, PAPIERHANDTUECHER_FALZUNG_STEP, QUANTITY_STEP, materialStep(true)]
+}
+
+function getPapierhandtuecherAllPaths(): string[][] {
+  const paths: string[][] = []
+
+  // Spender path
+  paths.push(['spender'])
+  for (const [dimKey, dim] of Object.entries(DIMENSION_CONFIG)) {
+    paths.push(['spender', dimKey])
+    for (const layer of dim.layers) {
+      const layerSlug = `${layer}-lagig`
+      paths.push(['spender', dimKey, layerSlug])
+      const matStep = makeAvailableMaterialStep(dimKey, layerSlug)
+      for (const mOpt of matStep.options) {
+        paths.push(['spender', dimKey, layerSlug, mOpt.value])
+      }
+    }
+  }
+
+  // Ohne-spender path (original flow)
+  paths.push(['ohne-spender'])
+  for (const falzOpt of PAPIERHANDTUECHER_FALZUNG_STEP.options) {
+    paths.push(['ohne-spender', falzOpt.value])
+    for (const qOpt of QUANTITY_STEP.options) {
+      paths.push(['ohne-spender', falzOpt.value, qOpt.value])
+      for (const mOpt of materialStep(true).options) {
+        paths.push(['ohne-spender', falzOpt.value, qOpt.value, mOpt.value])
+      }
+    }
+  }
+
+  return paths
+}
+
 // ── Category Definitions ──
 export const CATEGORIES: CategoryDef[] = [
   {
@@ -231,21 +396,10 @@ export const CATEGORIES: CategoryDef[] = [
     icon: 'Papierhandtücher.svg',
     metaTitle: 'Papierhandtücher B2B kaufen | Hamburg Papier Produktfinder',
     metaDescription: 'Papierhandtücher in Z-Falz, C-Falz oder Interfold für Ihren Spender finden. Recycling oder Zellstoff, als Karton oder Palette. 43 Produkte.',
-    seoContent: 'Papierhandtücher unterscheiden sich vor allem in der Falzung — und die muss zum Spender passen. Z-Falz (Zickzack-Faltung) ist der Standard: Die Tücher werden einzeln entnommen, was Verbrauch reduziert und Hygiene erhöht. C-Falz-Tücher sind breiter (25×31 cm) und eignen sich für C-Falz-Spender, wie sie häufig in älteren Sanitäranlagen zu finden sind. Interfold-Papierhandtücher sind ineinander gefaltet und ermöglichen eine besonders gleichmäßige Einzelblattentnahme. Bei der Qualität gilt: Recycling-Papier ist die wirtschaftliche Wahl für Hochfrequenzbereiche, Zellstoff bietet mehr Saugstärke und Weichheit.',
-    steps: [
-      {
-        id: 'subtype', slug: 'falzung',
-        title: 'Welche Falzung?',
-        subtitle: 'Wählen Sie die Falzung passend zu Ihrem Spender-System.',
-        options: [
-          { value: 'z-falz', label: 'Z-Falz', desc: 'Der Standard für die meisten Papierhandtuchspender. Einzelblattentnahme.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
-          { value: 'c-falz', label: 'C-Falz', desc: 'Breite Tücher (25×31 cm) für C-Falz Spender.' },
-          { value: 'interfold', label: 'Interfold', desc: 'Ineinandergefaltete Tücher für Interfold-Spender. Automatische Einzelentnahme.' },
-        ],
-      },
-      QUANTITY_STEP,
-      materialStep(true),
-    ],
+    seoContent: 'Die richtige Größe ist entscheidend: Papierhandtücher, die nicht in Ihren Spender passen, verursachen Staus, reißen beim Entnehmen oder lassen sich gar nicht erst einlegen. Mit unserem Produktfinder finden Sie in wenigen Klicks die exakt passenden Papierhandtücher für Ihren vorhandenen Spender — egal ob Z-Falz, Interfold oder C-Falz.',
+    steps: [SPENDER_FRAGE_STEP, PAPIERHANDTUECHER_FALZUNG_STEP, QUANTITY_STEP, materialStep(true)],
+    getSteps: getPapierhandtuecherSteps,
+    getAllPaths: getPapierhandtuecherAllPaths,
   },
   {
     slug: 'handtuchrollen',
@@ -363,6 +517,9 @@ export const STEP_VALUE_LABELS: Record<string, Record<string, string>> = {
     haende: 'Hände abwischen',
     allzweck: 'Allzweck',
   },
+  'spender-wahl': { spender: 'Spender vorhanden', 'ohne-spender': 'Ohne Spender' },
+  abmessung: Object.fromEntries(Object.entries(DIMENSION_CONFIG).map(([k, v]) => [k, v.label])),
+  lagen: { '1-lagig': '1-lagig', '2-lagig': '2-lagig', '3-lagig': '3-lagig' },
 }
 
 // ── Product Filtering ──
@@ -412,6 +569,8 @@ export interface FilterParams {
   material?: string
   branche?: string
   anwendung?: string
+  abmessung?: string
+  layers?: number
 }
 
 export function filterProducts(params: FilterParams): Product[] {
@@ -433,6 +592,15 @@ export function filterProducts(params: FilterParams): Product[] {
     // Material
     if (params.material && params.material !== 'alle') {
       if (p.material !== params.material) return false
+    }
+    // Abmessung (dimension regex for papierhandtuecher spender path)
+    if (params.abmessung) {
+      const dimConfig = DIMENSION_CONFIG[params.abmessung]
+      if (dimConfig && !dimConfig.regex.test(p.name)) return false
+    }
+    // Layers (exact layer count filter)
+    if (params.layers) {
+      if (p.layers !== params.layers) return false
     }
     // Branche (filtert nach Artikelnummern aus PRODUCT_BRANCHE_MAP)
     if (params.branche && params.branche !== 'alle') {
@@ -476,7 +644,9 @@ export function parseStepParams(
       else if (step.id === 'material') params.material = val
       else if (step.id === 'branche') params.branche = val
       else if (step.id === 'anwendung') params.anwendung = val
-      // searchMethod ist nur Routing — kein Filter
+      else if (step.id === 'abmessung') params.abmessung = val
+      else if (step.id === 'lagen') params.layers = parseInt(val)
+      // searchMethod / spenderFrage sind nur Routing — kein Filter
     }
   })
 

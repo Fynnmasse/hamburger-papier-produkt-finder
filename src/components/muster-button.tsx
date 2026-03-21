@@ -1,3 +1,4 @@
+import { ShoppingCart } from 'lucide-react'
 import { SAMPLE_ID } from '@/lib/sample-products'
 
 interface MusterButtonProps {
@@ -10,7 +11,7 @@ export function MusterButton({ referencedId, kategorie }: MusterButtonProps) {
     <form
       method="POST"
       action="https://www.hamburgpapier-shop.de/checkout/sample-line-item/add"
-      target="_blank"
+      target="hamburgpapier-shop"
     >
       <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page" />
       <input type="hidden" name={`lineItems[${referencedId}][id]`} value={referencedId} />
@@ -32,10 +33,12 @@ export function MusterButton({ referencedId, kategorie }: MusterButtonProps) {
       )}
       <button
         type="submit"
-        className="flex items-center justify-center gap-1 border-2 border-primary text-primary text-xs font-semibold px-3 py-2 rounded-lg min-h-[40px] w-full hover:bg-primary/5 transition-colors"
+        className="flex items-center justify-center gap-1.5 border-2 border-primary text-primary text-xs font-semibold px-3 py-2 rounded-lg min-h-[40px] w-full hover:bg-primary/10 transition-colors"
       >
-        Kostenlos testen
+        <ShoppingCart size={14} />
+        Gratis Muster bestellen
       </button>
+
     </form>
   )
 }

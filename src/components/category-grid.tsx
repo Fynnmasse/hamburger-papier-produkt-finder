@@ -2,9 +2,14 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import type { CategoryDef } from '@/lib/finder-config'
 
-export function CategoryGrid({ categories }: { categories: CategoryDef[] }) {
+interface CategoryGridItem {
+  slug: string
+  label: string
+  icon: string
+}
+
+export function CategoryGrid({ categories }: { categories: CategoryGridItem[] }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {categories.map(({ slug, label, icon }, i) => (

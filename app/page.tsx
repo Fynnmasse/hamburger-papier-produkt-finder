@@ -30,7 +30,7 @@ export default function HomePage() {
             </ul>
 
             {/* Category Grid — identisch zu Unterseiten */}
-            <CategoryGrid categories={CATEGORIES} />
+            <CategoryGrid categories={CATEGORIES.map(({ slug, label, icon }) => ({ slug, label, icon }))} />
           </div>
         </div>
 

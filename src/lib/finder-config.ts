@@ -16,6 +16,7 @@ export interface StepOption {
   desc: string
   tag?: string
   tagStyle?: string
+  image?: string // Optional: Bild-Pfad in /public (z.B. für Illustrations-Icons)
 }
 
 export interface StepDef {
@@ -34,6 +35,8 @@ export interface CategoryDef {
   metaDescription: string
   seoContent: string
   steps: StepDef[]
+  getSteps?: (segments: string[]) => StepDef[]  // Dynamische Step-Resolution (optional)
+  getAllPaths?: () => string[][]                  // Custom SSG-Pfade (optional)
 }
 
 // ── Shared Steps ──
@@ -65,6 +68,137 @@ function materialStep(includePremium: boolean): StepDef {
     subtitle: 'Wählen Sie entsprechend Ihrer Anforderungen und Ihres Budgets.',
     options,
   }
+}
+
+// ── Putzpapier-Rollen: Suche nach Branche / Anwendung ──
+const PUTZPAPIER_SUBTYPE_STEP: StepDef = {
+  id: 'subtype', slug: 'produkt',
+  title: 'Welches Produkt?',
+  subtitle: 'Wählen Sie die passende Produktgruppe.',
+  options: [
+    { value: 'putzpapier', label: 'Putzpapier-Rollen', desc: 'Industrie-Putzrollen und Werkstatt-Papier. Verschiedene Breiten und Lagen.' },
+    { value: 'aerzte', label: 'Ärzte- & Liegenrollen', desc: 'Zellstoff-Rollen für Arztpraxen, Krankenhäuser und Therapieliegen.' },
+    { value: 'mikrofaser', label: 'Mikrofaser & Wischmop', desc: 'Wiederverwendbare Mikrofasertücher und Wischmops für professionelle Reinigung.' },
+  ],
+}
+
+const SEARCH_METHOD_STEP: StepDef = {
+  id: 'searchMethod',
+  slug: 'suchmethode',
+  title: 'Wie möchten Sie suchen?',
+  subtitle: 'Finden Sie das passende Putzpapier für Ihre Branche oder Anwendung.',
+  options: [
+    {
+      value: 'branche',
+      label: 'Nach Branche',
+      desc: 'Finden Sie Putzpapier passend zu Ihrer Branche — Automobil, Gastronomie, Fitness und mehr.',
+      tag: 'Empfohlen',
+      tagStyle: 'bg-blue-100 text-blue-800',
+      image: 'Produktsuche nach Branche.svg',
+    },
+    {
+      value: 'anwendung',
+      label: 'Nach Anwendung',
+      desc: 'Wählen Sie nach Einsatzzweck — z.\u00A0B. Aufnahme von Flüssigkeiten, Ölen & Fetten.',
+      image: 'Produktsuche nach Anwendung.svg',
+    },
+  ],
+}
+
+const BRANCHE_STEP: StepDef = {
+  id: 'branche',
+  slug: 'branche',
+  title: 'Für welche Branche?',
+  subtitle: 'Wählen Sie Ihre Branche für passende Putzpapier-Empfehlungen.',
+  options: [
+    { value: 'automobil-industrie', label: 'Automobil · Werkstatt · Tankstelle · Industrie', desc: 'Robustes Putzpapier für ölige und stark verschmutzte Umgebungen in Werkstätten, Tankstellen und Industriebetrieben.' },
+    { value: 'gastronomie', label: 'Gastronomie', desc: 'Putzpapier für Küche, Service und Reinigung in der Gastronomie.' },
+    { value: 'fitness-solarien', label: 'Fitness · Solarien', desc: 'Hygienisches Putzpapier für Geräte, Liegen und Kabinen.' },
+    { value: 'lebensmittelindustrie', label: 'Lebensmittelindustrie', desc: 'Lebensmittelechtes Putzpapier für Produktions- und Verarbeitungsumgebungen.' },
+  ],
+}
+
+const ANWENDUNG_STEP: StepDef = {
+  id: 'anwendung',
+  slug: 'anwendung',
+  title: 'Für welche Anwendung?',
+  subtitle: 'Für welche Anwendung wird das Papier hauptsächlich benötigt?',
+  options: [
+    { value: 'fluessigkeiten', label: 'Aufnahme von Flüssigkeiten, Ölen & Fetten', desc: 'Saugstarkes Putzpapier für Flüssigkeiten, Öle und Fette in Werkstatt und Industrie.' },
+    { value: 'oberflaechen', label: 'Oberflächen reinigen & trocknen', desc: 'Putzpapier zum Reinigen und Trockenwischen von Oberflächen, Geräten und Maschinen.' },
+    { value: 'haende', label: 'Hände abwischen & trocknen', desc: 'Weiches Putzpapier zum Händetrocknen in Werkstatt, Küche und Produktion.' },
+    { value: 'allzweck', label: 'Allzweck / Universell', desc: 'Vielseitig einsetzbares Putzpapier für verschiedenste Reinigungsaufgaben.' },
+  ],
+}
+
+// Produkt-Zuordnung nach Branche (Artikelnummern — wird später befüllt)
+export const PRODUCT_BRANCHE_MAP: Record<string, string[]> = {
+  'automobil-industrie': [],
+  'gastronomie': [],
+  'fitness-solarien': [],
+  'lebensmittelindustrie': [],
+}
+
+// Produkt-Zuordnung nach Anwendung (Artikelnummern — wird später befüllt)
+export const PRODUCT_ANWENDUNG_MAP: Record<string, string[]> = {
+  'fluessigkeiten': [],
+  'oberflaechen': [],
+  'haende': [],
+  'allzweck': [],
+}
+
+/** Dynamische Steps für Putzpapier-Kategorie */
+function getPutzpapierSteps(segments: string[]): StepDef[] {
+  // Ärzte / Mikrofaser: normaler linearer Flow
+  if (segments.length > 0 && segments[0] !== 'putzpapier') {
+    return [PUTZPAPIER_SUBTYPE_STEP, QUANTITY_STEP, materialStep(false)]
+  }
+  // Putzpapier-Rollen: Branche oder Anwendung → Qualität → Menge
+  if (segments.length >= 2 && segments[1] === 'branche') {
+    return [PUTZPAPIER_SUBTYPE_STEP, SEARCH_METHOD_STEP, BRANCHE_STEP, materialStep(false), QUANTITY_STEP]
+  }
+  if (segments.length >= 2 && segments[1] === 'anwendung') {
+    return [PUTZPAPIER_SUBTYPE_STEP, SEARCH_METHOD_STEP, ANWENDUNG_STEP, materialStep(false), QUANTITY_STEP]
+  }
+  // Default: zeige Suchmethode-Wahl
+  return [PUTZPAPIER_SUBTYPE_STEP, SEARCH_METHOD_STEP]
+}
+
+/** Alle SSG-Pfade für Putzpapier-Kategorie */
+function getPutzpapierAllPaths(): string[][] {
+  const paths: string[][] = []
+
+  for (const subOpt of PUTZPAPIER_SUBTYPE_STEP.options) {
+    paths.push([subOpt.value])
+
+    if (subOpt.value === 'putzpapier') {
+      // Suchmethode-Wahl
+      const matOpts = materialStep(false).options
+      for (const method of SEARCH_METHOD_STEP.options) {
+        paths.push([subOpt.value, method.value])
+        const nextStep = method.value === 'branche' ? BRANCHE_STEP : ANWENDUNG_STEP
+        for (const opt of nextStep.options) {
+          paths.push([subOpt.value, method.value, opt.value])
+          // Qualität → Menge
+          for (const mOpt of matOpts) {
+            paths.push([subOpt.value, method.value, opt.value, mOpt.value])
+            for (const qOpt of QUANTITY_STEP.options) {
+              paths.push([subOpt.value, method.value, opt.value, mOpt.value, qOpt.value])
+            }
+          }
+        }
+      }
+    } else {
+      // Ärzte / Mikrofaser: linearer Flow
+      for (const qOpt of QUANTITY_STEP.options) {
+        paths.push([subOpt.value, qOpt.value])
+        for (const mOpt of materialStep(false).options) {
+          paths.push([subOpt.value, qOpt.value, mOpt.value])
+        }
+      }
+    }
+  }
+  return paths
 }
 
 // ── Category Definitions ──
@@ -142,20 +276,9 @@ export const CATEGORIES: CategoryDef[] = [
     metaTitle: 'Putzpapier & Reinigungstücher B2B | Hamburg Papier Produktfinder',
     metaDescription: 'Putzpapier, Ärzte- und Liegenrollen oder Mikrofasertücher für Ihren Betrieb finden. Verschiedene Qualitäten, als Karton oder Palette. 27 Produkte.',
     seoContent: 'Putzpapier ist aus dem professionellen Reinigungsalltag nicht wegzudenken. Industrie-Putzrollen eignen sich für Werkstätten, Produktionshallen und Reinräume. Ärzte- und Liegenrollen aus Zellstoff sind in Arztpraxen, Krankenhäusern und Physiotherapiepraxen Standard — sie bieten eine hygienische Auflage und sind in verschiedenen Breiten erhältlich. Mikrofasertücher und Wischmops sind die wiederverwendbare Alternative: Sie nehmen Schmutz und Feuchtigkeit besonders effektiv auf und eignen sich für die tägliche Unterhaltsreinigung in Büros, Hotels und Gastronomiebetrieben.',
-    steps: [
-      {
-        id: 'subtype', slug: 'produkt',
-        title: 'Welches Produkt?',
-        subtitle: 'Wählen Sie die passende Produktgruppe.',
-        options: [
-          { value: 'putzpapier', label: 'Putzpapier-Rollen', desc: 'Industrie-Putzrollen und Werkstatt-Papier. Verschiedene Breiten und Lagen.' },
-          { value: 'aerzte', label: 'Ärzte- & Liegenrollen', desc: 'Zellstoff-Rollen für Arztpraxen, Krankenhäuser und Therapieliegen.' },
-          { value: 'mikrofaser', label: 'Mikrofaser & Wischmop', desc: 'Wiederverwendbare Mikrofasertücher und Wischmops für professionelle Reinigung.' },
-        ],
-      },
-      QUANTITY_STEP,
-      materialStep(false),
-    ],
+    steps: [PUTZPAPIER_SUBTYPE_STEP, QUANTITY_STEP, materialStep(false)],
+    getSteps: getPutzpapierSteps,
+    getAllPaths: getPutzpapierAllPaths,
   },
   {
     slug: 'kuechenrollen',
@@ -227,6 +350,19 @@ export const STEP_VALUE_LABELS: Record<string, Record<string, string>> = {
   },
   menge: { karton: 'Karton', palette: 'Palette', alle: 'Alle' },
   qualitaet: { recycling: 'ECO / Recycling', zellstoff: 'Zellstoff', premium: 'Premium', alle: 'Alle' },
+  suchmethode: { branche: 'Nach Branche', anwendung: 'Nach Anwendung' },
+  branche: {
+    'automobil-industrie': 'Automobil / Werkstatt / Industrie',
+    gastronomie: 'Gastronomie',
+    'fitness-solarien': 'Fitness / Solarien',
+    lebensmittelindustrie: 'Lebensmittelindustrie',
+  },
+  anwendung: {
+    fluessigkeiten: 'Flüssigkeiten & Öle & Fette',
+    oberflaechen: 'Oberflächen reinigen',
+    haende: 'Hände abwischen',
+    allzweck: 'Allzweck',
+  },
 }
 
 // ── Product Filtering ──
@@ -274,6 +410,8 @@ export interface FilterParams {
   subtype?: string
   quantity?: string
   material?: string
+  branche?: string
+  anwendung?: string
 }
 
 export function filterProducts(params: FilterParams): Product[] {
@@ -296,12 +434,27 @@ export function filterProducts(params: FilterParams): Product[] {
     if (params.material && params.material !== 'alle') {
       if (p.material !== params.material) return false
     }
+    // Branche (filtert nach Artikelnummern aus PRODUCT_BRANCHE_MAP)
+    if (params.branche && params.branche !== 'alle') {
+      const nums = PRODUCT_BRANCHE_MAP[params.branche]
+      if (nums && nums.length > 0 && !nums.includes(p.num)) return false
+    }
+    // Anwendung (filtert nach Artikelnummern aus PRODUCT_ANWENDUNG_MAP)
+    if (params.anwendung && params.anwendung !== 'alle') {
+      const nums = PRODUCT_ANWENDUNG_MAP[params.anwendung]
+      if (nums && nums.length > 0 && !nums.includes(p.num)) return false
+    }
     return true
   }).sort((a, b) => {
     const ai = a.img ? 1 : 0, bi = b.img ? 1 : 0
     if (bi !== ai) return bi - ai
     return a.price - b.price
   })
+}
+
+/** Resolve steps for a category — uses dynamic getSteps if available */
+export function resolveSteps(catDef: CategoryDef, segments: string[]): StepDef[] {
+  return catDef.getSteps ? catDef.getSteps(segments) : catDef.steps
 }
 
 /** Parse URL segments into filter params for a given category */
@@ -312,14 +465,18 @@ export function parseStepParams(
   const catDef = CATEGORY_MAP.get(categorySlug)
   if (!catDef) return { category: categorySlug }
 
+  const steps = resolveSteps(catDef, segments)
   const params: FilterParams = { category: categorySlug }
 
-  catDef.steps.forEach((step, i) => {
+  steps.forEach((step, i) => {
     if (i < segments.length) {
       const val = segments[i]
       if (step.id === 'subtype') params.subtype = val
       else if (step.id === 'quantity') params.quantity = val
       else if (step.id === 'material') params.material = val
+      else if (step.id === 'branche') params.branche = val
+      else if (step.id === 'anwendung') params.anwendung = val
+      // searchMethod ist nur Routing — kein Filter
     }
   })
 
@@ -334,21 +491,25 @@ export function getCurrentStep(
   const catDef = CATEGORY_MAP.get(categorySlug)
   if (!catDef) return null
 
+  const steps = resolveSteps(catDef, segments)
   const stepIndex = segments.length
-  if (stepIndex >= catDef.steps.length) return null
+  if (stepIndex >= steps.length) return null
 
   // Check if enough products are already filtered
   const params = parseStepParams(categorySlug, segments)
   const products = filterProducts(params)
   if (products.length <= 4) return null
 
-  return catDef.steps[stepIndex]
+  return steps[stepIndex]
 }
 
 /** Generate all possible step combinations for static generation */
 export function getAllStaticPaths(categorySlug: CategorySlug): string[][] {
   const catDef = CATEGORY_MAP.get(categorySlug)
   if (!catDef || catDef.steps.length === 0) return []
+
+  // Custom SSG-Pfade wenn vorhanden (z.B. Putzpapier mit Branching)
+  if (catDef.getAllPaths) return catDef.getAllPaths()
 
   const paths: string[][] = []
 

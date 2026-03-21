@@ -3,6 +3,7 @@ import {
   CATEGORY_MAP,
   STEP_VALUE_LABELS,
   getAllStaticPaths,
+  resolveSteps,
   type CategorySlug,
 } from './finder-config'
 
@@ -25,8 +26,9 @@ export function generateCategoryMetadata(
   }
 
   // Build title from segments
+  const steps = resolveSteps(catDef, segments)
   const labels = segments.map((seg, i) => {
-    const stepDef = catDef.steps[i]
+    const stepDef = steps[i]
     if (!stepDef) return seg
     const labelMap = STEP_VALUE_LABELS[stepDef.slug]
     return labelMap?.[seg] || seg

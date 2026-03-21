@@ -10,6 +10,7 @@ import {
   filterProducts,
   parseStepParams,
   getCurrentStep,
+  resolveSteps,
   type CategorySlug,
 } from '@/lib/finder-config'
 
@@ -36,9 +37,10 @@ export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
   ]
 
   // Add segments to breadcrumbs
+  const steps = resolveSteps(catDef, segments)
   let path = `/${kategorie}`
   segments.forEach((seg, i) => {
-    const stepDef = catDef.steps[i]
+    const stepDef = steps[i]
     if (!stepDef) return
     const labelMap = STEP_VALUE_LABELS[stepDef.slug]
     const label = labelMap?.[seg] || seg
@@ -55,7 +57,7 @@ export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
   }
 
   // Step progress
-  const totalSteps = catDef.steps.length + 1 // +1 for results
+  const totalSteps = steps.length + 1 // +1 for results
   const currentStepNum = segments.length + 1
 
   // Back href

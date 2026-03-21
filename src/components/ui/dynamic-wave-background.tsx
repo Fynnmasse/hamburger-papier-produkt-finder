@@ -31,11 +31,13 @@ void main() {
 `
 
 export default function DynamicWaveBackground() {
+  const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    const container = containerRef.current
+    if (!canvas || !container) return
 
     const gl = canvas.getContext('webgl')
     if (!gl) return
@@ -53,7 +55,6 @@ export default function DynamicWaveBackground() {
     gl.linkProgram(prog)
     gl.useProgram(prog)
 
-    // Fullscreen-Quad (zwei Dreiecke)
     const buf = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, buf)
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW)
@@ -64,31 +65,60 @@ export default function DynamicWaveBackground() {
     const uTime = gl.getUniformLocation(prog, 'u_time')
     const uRes = gl.getUniformLocation(prog, 'u_res')
 
+    let resizeTimer: ReturnType<typeof setTimeout>
     const resize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-      gl.viewport(0, 0, canvas.width, canvas.height)
-      gl.uniform2f(uRes, canvas.width, canvas.height)
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(() => {
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        gl.viewport(0, 0, canvas.width, canvas.height)
+        gl.uniform2f(uRes, canvas.width, canvas.height)
+      }, 100)
     }
     window.addEventListener('resize', resize)
-    resize()
+    // Initial size without debounce
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.uniform2f(uRes, canvas.width, canvas.height)
 
     const startTime = Date.now()
     let animId: number
+    let isVisible = true
 
     const render = () => {
+      if (!isVisible) return
       animId = requestAnimationFrame(render)
       gl.uniform1f(uTime, (Date.now() - startTime) * 0.001)
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     }
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting
+        if (isVisible) {
+          animId = requestAnimationFrame(render)
+        } else {
+          cancelAnimationFrame(animId)
+        }
+      },
+      { threshold: 0.05 }
+    )
+    observer.observe(container)
+
     animId = requestAnimationFrame(render)
 
     return () => {
       cancelAnimationFrame(animId)
+      clearTimeout(resizeTimer)
       window.removeEventListener('resize', resize)
+      observer.disconnect()
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+  return (
+    <div ref={containerRef} className="absolute inset-0 w-full h-full bg-navy" aria-hidden="true">
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+    </div>
+  )
 }

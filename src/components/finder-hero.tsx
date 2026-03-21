@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
@@ -57,25 +57,24 @@ const cardVariants = {
 
 export function FinderHero({ categories }: { categories: CategoryDef[] }) {
   const shouldReduceMotion = useReducedMotion()
-  const [ready, setReady] = useState(false)
+  const [ready, setReady] = useState(shouldReduceMotion ?? false)
 
   useEffect(() => {
-    const t = setTimeout(() => setReady(true), 250)
-    return () => clearTimeout(t)
-  }, [])
+    if (!ready) requestAnimationFrame(() => setReady(true))
+  }, [ready])
 
-  const animate = shouldReduceMotion ? 'visible' : (ready ? 'visible' : 'hidden')
+  const animate = ready ? 'visible' : 'hidden'
 
   return (
     <section className="relative min-h-[100dvh] flex flex-col overflow-hidden bg-navy">
       {/* WebGL Background */}
       <DynamicWaveBackground />
 
-      {/* Vignette overlay */}
+      {/* Contrast overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at center, transparent 20%, rgba(10, 22, 40, 0.85) 100%)',
+          background: 'linear-gradient(to bottom, rgba(10, 22, 40, 0.45) 0%, rgba(10, 22, 40, 0.25) 40%, rgba(10, 22, 40, 0.55) 100%), radial-gradient(ellipse at center, transparent 15%, rgba(10, 22, 40, 0.80) 100%)',
         }}
         aria-hidden="true"
       />
@@ -114,7 +113,7 @@ export function FinderHero({ categories }: { categories: CategoryDef[] }) {
               variants={fadeUpVariants}
               className="text-center mb-2 sm:mb-3"
             >
-              <h1 className="font-display font-bold text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-tight text-white text-balance">
+              <h1 className="font-display font-bold text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-tight text-white text-balance">
                 Finden Sie das richtige Hygienepapier — in{' '}
                 <span className="text-teal">3 Klicks</span>
               </h1>
@@ -125,31 +124,33 @@ export function FinderHero({ categories }: { categories: CategoryDef[] }) {
               initial={shouldReduceMotion ? false : 'hidden'}
               animate={animate}
               variants={fadeUpVariants}
-              className="text-center text-white/70 text-sm sm:text-base mb-3 sm:mb-4"
+              className="text-center text-white/75 text-base sm:text-lg mb-3 sm:mb-4"
             >
               Wählen Sie eine Kategorie um zu starten
             </motion.p>
 
             {/* Trust Badges */}
-            <motion.div
+            <motion.ul
               initial={shouldReduceMotion ? false : 'hidden'}
               animate={animate}
               variants={fadeUpVariants}
-              className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-white/60 text-xs sm:text-sm mb-6 sm:mb-8"
+              className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-white/65 text-xs sm:text-sm mb-6 sm:mb-8 list-none p-0 m-0"
+              role="list"
+              aria-label="Vorteile"
             >
-              <span>179 Produkte</span>
-              <span aria-hidden="true" className="text-white/30">·</span>
-              <span>Kostenloser Versand ab Palette</span>
-              <span aria-hidden="true" className="text-white/30">·</span>
-              <span>B2B Großhandelspreise</span>
-            </motion.div>
+              <li>179 Produkte</li>
+              <li aria-hidden="true" className="text-white/30">·</li>
+              <li>Kostenloser Versand ab Palette</li>
+              <li aria-hidden="true" className="text-white/30">·</li>
+              <li>B2B Großhandelspreise</li>
+            </motion.ul>
 
             {/* Category Grid */}
             <motion.div
               initial={shouldReduceMotion ? false : 'hidden'}
               animate={animate}
               variants={containerVariants}
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 lg:gap-5"
+              className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 lg:gap-5"
             >
               {categories.map(({ slug, label, icon }) => (
                 <motion.div
@@ -157,19 +158,22 @@ export function FinderHero({ categories }: { categories: CategoryDef[] }) {
                   variants={cardVariants}
                   whileHover={shouldReduceMotion ? undefined : { y: -4, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
                   whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                  className="w-[calc(50%-5px)] sm:w-[calc(33.333%-9.34px)] lg:w-[calc(25%-15px)]"
                 >
                   <Link
                     href={`/${slug}`}
-                    className="group relative bg-white/[0.09] backdrop-blur-md border border-white/[0.15] rounded-xl p-3.5 sm:p-5 lg:p-6 text-center flex flex-col items-center gap-2 sm:gap-3 overflow-hidden hover:bg-white/[0.16] hover:border-white/30 hover:shadow-lg hover:shadow-teal/5 transition-[background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent"
+                    className="group relative h-full bg-white/[0.12] backdrop-blur-md border border-white/[0.18] rounded-xl p-3.5 sm:p-5 lg:p-6 text-center flex flex-col items-center justify-center gap-2 sm:gap-3 overflow-hidden hover:bg-white/[0.18] hover:border-white/30 hover:shadow-lg hover:shadow-teal/5 transition-[background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent"
                   >
-                    <Image
-                      src={`/${icon}`}
-                      alt={label}
-                      width={64}
-                      height={64}
-                      className="h-9 sm:h-12 lg:h-16 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
-                    />
-                    <span className="font-semibold text-sm sm:text-base text-white/85 group-hover:text-white leading-tight transition-colors">
+                    <div className="flex items-center justify-center h-9 sm:h-12 lg:h-16">
+                      <Image
+                        src={`/${icon}`}
+                        alt={label}
+                        width={64}
+                        height={64}
+                        className="h-full w-auto opacity-80 group-hover:opacity-100 transition-opacity"
+                      />
+                    </div>
+                    <span className="font-semibold text-sm sm:text-base text-white/90 group-hover:text-white leading-tight transition-colors min-h-[2.5em] flex items-center justify-center text-center">
                       {label}
                     </span>
                   </Link>

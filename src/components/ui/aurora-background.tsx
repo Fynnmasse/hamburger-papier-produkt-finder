@@ -35,6 +35,7 @@ export function AuroraBackground({
             after:[background-image:var(--white-gradient),var(--aurora)]
             after:[background-size:200%,_100%]
             after:animate-aurora after:[background-attachment:fixed] after:mix-blend-difference
+            motion-reduce:after:animate-none
             pointer-events-none
             absolute -inset-[10px] opacity-75 will-change-transform`,
             showRadialGradient &&

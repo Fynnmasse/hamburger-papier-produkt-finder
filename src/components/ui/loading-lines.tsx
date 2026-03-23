@@ -12,10 +12,12 @@ export default function LoadingLines() {
 
   if (!visible) return null
 
-  const letters = 'Laden'.split('')
+  const letters = 'Laden\u2026'.split('')
 
   return (
     <div
+      role="status"
+      aria-label="Seite wird geladen"
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-navy transition-opacity duration-500"
       style={{ opacity: fadeOut ? 0 : 1, pointerEvents: fadeOut ? 'none' : 'all' }}
     >

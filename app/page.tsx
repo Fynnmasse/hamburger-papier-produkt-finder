@@ -40,7 +40,7 @@ export default function HomePage() {
                 href="/vergleich"
                 className="inline-flex items-center gap-2 text-sm font-medium text-steel hover:text-navy transition-colors"
               >
-                <BarChart3 size={16} />
+                <BarChart3 size={16} aria-hidden="true" />
                 Preisvergleich — Günstigsten Preis pro Rolle finden
               </Link>
             </div>
@@ -70,7 +70,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="relative z-10 bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35">
+      <footer className="relative z-10 bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35" suppressHydrationWarning>
         © {new Date().getFullYear()} Hamburg Papier ·{' '}
         <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
           hamburgpapier-shop.de

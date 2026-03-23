@@ -250,7 +250,6 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                           {displayPrice > 0 ? `ab ${formatPreis(displayPrice)} €` : 'Auf Anfrage'}
                         </div>
                       )}
-                      <div className="text-xs text-muted-foreground">zzgl. 19% MwSt.</div>
                     </div>
                     <a
                       href={utmUrl}

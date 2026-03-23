@@ -319,7 +319,6 @@ function ProductCard({ p, index }: { p: Product; index: number }) {
         <div className="flex items-center justify-between gap-2 mt-1">
           <div>
             <div className="font-display font-extrabold text-xl text-navy leading-none">{price}</div>
-            <div className="text-xs text-muted-foreground mt-0.5">zzgl. 19% MwSt.</div>
           </div>
           <span className="flex items-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[40px] flex-shrink-0">
             Kaufen

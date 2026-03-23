@@ -86,7 +86,6 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
                 = {formatPreis(grundpreis)} € / {einheit}
               </div>
             )}
-            <div className="text-xs text-muted-foreground mt-0.5">zzgl. 19% MwSt.</div>
           </div>
         </div>
       </a>

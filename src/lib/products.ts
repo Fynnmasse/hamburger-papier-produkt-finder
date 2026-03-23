@@ -21,6 +21,7 @@ export interface Product {
   layers: number;
   eco: string[];
   staffelpreise?: Staffelpreis[];
+  minPurchase?: number;
 }
 
 export const PRODUCTS: Product[] = [

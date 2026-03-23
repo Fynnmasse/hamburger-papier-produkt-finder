@@ -28,6 +28,7 @@ export interface ShopwareProduct {
       unitName: string;
     };
   }>;
+  minPurchase: number | null;
   purchaseUnit: number | null;
   referenceUnit: number | null;
   unit: {
@@ -86,7 +87,7 @@ export async function fetchAllProducts(): Promise<ShopwareProduct[]> {
             product: [
               'id', 'productNumber', 'name', 'active', 'available',
               'cover', 'calculatedPrice', 'calculatedPrices',
-              'purchaseUnit', 'referenceUnit', 'unit',
+              'minPurchase', 'purchaseUnit', 'referenceUnit', 'unit',
               'categories', 'properties', 'seoUrls',
             ],
             product_media: ['media'],

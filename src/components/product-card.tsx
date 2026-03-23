@@ -103,12 +103,14 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
               </tr>
             </thead>
             <tbody>
-              {p.staffelpreise!.map((tier, i) => (
+              {p.staffelpreise!.map((tier, i) => {
+                const displayQty = i === 0 ? Math.max(tier.quantity, p.minPurchase ?? 1) : tier.quantity
+                return (
                 <tr
                   key={tier.quantity}
                   className={i === p.staffelpreise!.length - 1 ? 'font-bold text-navy' : 'text-steel'}
                 >
-                  <td className="py-1 px-2">{tier.quantity} Stk.</td>
+                  <td className="py-1 px-2">ab {displayQty}</td>
                   <td className="text-right py-1 px-2">{formatPreis(tier.unitPrice)} €</td>
                   <td className="text-right py-1 px-2">
                     {tier.referencePrice
@@ -116,7 +118,8 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
                       : '—'}
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>

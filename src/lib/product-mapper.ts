@@ -176,6 +176,7 @@ export function mapShopwareToProducts(shopwareProducts: ShopwareProduct[]): Prod
             } : undefined,
           }))
         : undefined,
+      minPurchase: sp.minPurchase ?? undefined,
     });
   }
   return results;

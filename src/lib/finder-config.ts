@@ -376,9 +376,9 @@ const HANDTUCHROLLEN_ABWICKLUNG_STEP: StepDef = {
   title: 'Welche Art der Abwicklung?',
   subtitle: 'Wählen Sie passend zu Ihrem Spendersystem.',
   options: [
-    { value: 'aussenabwicklung', label: 'Außenabwicklung', desc: 'Klassische Handtuchrollen für Spender mit Außenabwicklung.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
-    { value: 'innenauszug-aussenabwicklung', label: 'Innenauszug + Außenabwicklung', desc: 'Flexible Rollen — nutzbar mit Innenauszug und Außenabwicklung.' },
-    { value: 'innenauszug', label: 'Innenauszug', desc: 'Rollen für Spender mit reinem Innenauszug.' },
+    { value: 'aussenabwicklung', label: 'Außenabwicklung', desc: 'Klassische Handtuchrollen für Spender mit Außenabwicklung.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800', image: 'Handtuchrolle Außenabwicklung.svg' },
+    { value: 'innenauszug-aussenabwicklung', label: 'Innenauszug + Außenabwicklung', desc: 'Flexible Rollen — nutzbar mit Innenauszug und Außenabwicklung.', image: 'Handtuchrolle Innen und Außenabwicklung.svg' },
+    { value: 'innenauszug', label: 'Innenauszug', desc: 'Rollen für Spender mit reinem Innenauszug.', image: 'Handtuchrolle Innenabwickung.svg' },
   ],
 }
 

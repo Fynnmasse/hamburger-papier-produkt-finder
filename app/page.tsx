@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { BarChart3, Package, Truck, BadgePercent } from 'lucide-react'
 import { FinderHeader } from '@/components/finder-header'
 import { CategoryGrid } from '@/components/category-grid'
-import { AuroraBackground } from '@/components/ui/aurora-background'
+
 import { CATEGORIES } from '@/lib/finder-config'
 
 export default function HomePage() {
@@ -11,7 +11,7 @@ export default function HomePage() {
       <FinderHeader />
 
       <main className="flex-1 relative z-10">
-        <AuroraBackground className="py-14 md:py-20 px-4">
+        <div className="bg-sand py-14 md:py-20 px-4">
           <div className="max-w-4xl mx-auto relative z-10">
             {/* Titel-Block */}
             <div className="text-center mb-12 animate-fade-up">
@@ -56,7 +56,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-        </AuroraBackground>
+        </div>
 
         {/* SEO Content Block */}
         <section className="bg-white py-12 px-4 mt-4">

@@ -54,7 +54,6 @@ export default {
         cardIn:       { from: { opacity: '0', transform: 'translateY(8px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
         chipIn:       { from: { opacity: '0', transform: 'scale(0.7) translateY(6px)' }, to: { opacity: '1', transform: 'scale(1) translateY(0)' } },
         badgePulse:   { '0%,100%': { boxShadow: '0 0 0 0 rgba(0,132,144,0)' }, '50%': { boxShadow: '0 0 0 7px rgba(0,132,144,.18)' } },
-        aurora:       { from: { backgroundPosition: '50% 50%, 50% 50%' }, to: { backgroundPosition: '350% 50%, 350% 50%' } },
       },
       animation: {
         'fade-up':       'fadeUp .55s cubic-bezier(0.16,1,0.3,1) both',
@@ -64,7 +63,6 @@ export default {
         'card-in':       'cardIn .3s ease forwards',
         'chip-in':       'chipIn .38s cubic-bezier(0.34,1.56,0.64,1) both',
         'badge-pulse':   'badgePulse 3s ease-in-out 1.4s infinite',
-        aurora:          'aurora 60s linear infinite',
       },
     },
   },

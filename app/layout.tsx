@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { AuroraBackground } from '@/components/ui/aurora-background'
+
 import { DM_Sans, Comfortaa } from 'next/font/google'
 import '@/index.css'
 
@@ -61,12 +61,7 @@ export default function RootLayout({
         >
           Zum Inhalt springen
         </a>
-        <div className="fixed inset-0 z-0 opacity-70 pointer-events-none" aria-hidden="true">
-          <AuroraBackground showRadialGradient>
-            <div />
-          </AuroraBackground>
-        </div>
-        <main id="main-content" className="relative z-10">{children}</main>
+        <main id="main-content">{children}</main>
       </body>
     </html>
   )

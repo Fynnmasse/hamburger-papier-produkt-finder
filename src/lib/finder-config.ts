@@ -691,8 +691,6 @@ export function getCurrentStep(
   // Wenn keine echten Optionen übrig → Ergebnisse zeigen
   const realOptions = availableOptions.filter(o => o.value !== 'alle')
   if (realOptions.length === 0) return null
-  // Wenn nur 1 echte Option → Step überspringen (überflüssig)
-  if (realOptions.length === 1 && availableOptions.length <= 2) return null
 
   return { ...step, options: availableOptions }
 }

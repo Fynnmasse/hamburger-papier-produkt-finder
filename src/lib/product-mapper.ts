@@ -72,7 +72,7 @@ function resolveCategory(product: ShopwareProduct): string | null {
 function resolveQuantity(product: ShopwareProduct): string {
   const name = product.name.toLowerCase();
   if (name.includes('palette')) return 'palette';
-  if (name.includes('karton') || name.includes('krt')) return 'karton';
+  if (name.includes('karton') || name.includes('krt') || /\bve\b/.test(name)) return 'karton';
   return 'stueck';
 }
 

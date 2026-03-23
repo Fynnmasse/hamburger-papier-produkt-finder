@@ -14,19 +14,27 @@ import {
   resolveSteps,
   type CategorySlug,
 } from '@/lib/finder-config'
+import { fetchAllProducts } from '@/lib/shopware-api'
+import { mapShopwareToProducts } from '@/lib/product-mapper'
 
 interface CategoryPageProps {
   kategorie: CategorySlug
   segments: string[] // additional URL segments after category
 }
 
-export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
+export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
   const catDef = CATEGORY_MAP.get(kategorie)
   if (!catDef) return null
 
+  // Produkte von Shopware laden und mappen (gecacht, alle 30 Sek aktualisiert)
+  const shopwareProducts = await fetchAllProducts()
+  const mappedProducts = mapShopwareToProducts(shopwareProducts)
+  // Shopware-Produkte nutzen wenn verfügbar, sonst Fallback auf statische Daten
+  const externalProducts = mappedProducts.length > 0 ? mappedProducts : undefined
+
   const params = parseStepParams(kategorie, segments)
-  const products = filterProducts(params)
-  const currentStep = getCurrentStep(kategorie, segments)
+  const products = filterProducts(params, externalProducts)
+  const currentStep = getCurrentStep(kategorie, segments, externalProducts)
   const isResults = !currentStep
 
   // Build breadcrumbs
@@ -117,7 +125,7 @@ export function CategoryPage({ kategorie, segments }: CategoryPageProps) {
                 <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">
                   Schritt {currentStepNum} von {totalSteps}
                 </div>
-                <h2 className="font-display font-extrabold text-4xl uppercase text-navy text-balance">
+                <h2 className="font-display font-extrabold text-2xl sm:text-3xl md:text-4xl uppercase text-navy text-balance">
                   {currentStep.title}
                 </h2>
                 <p className="text-muted-foreground mt-2">{currentStep.subtitle}</p>

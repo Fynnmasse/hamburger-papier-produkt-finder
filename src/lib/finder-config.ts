@@ -573,8 +573,8 @@ export interface FilterParams {
   layers?: number
 }
 
-export function filterProducts(params: FilterParams): Product[] {
-  return PRODUCTS.filter(p => {
+export function filterProducts(params: FilterParams, externalProducts?: Product[]): Product[] {
+  return (externalProducts ?? PRODUCTS).filter(p => {
     // Category
     if (params.category === 'kuechenrollen') {
       if (!['kuechenrollen', 'servietten', 'kosmetiktuecher'].includes(p.category)) return false
@@ -656,7 +656,8 @@ export function parseStepParams(
 /** Get the current step definition to show, or null if we're at results */
 export function getCurrentStep(
   categorySlug: CategorySlug,
-  segments: string[]
+  segments: string[],
+  externalProducts?: Product[]
 ): StepDef | null {
   const catDef = CATEGORY_MAP.get(categorySlug)
   if (!catDef) return null
@@ -667,7 +668,7 @@ export function getCurrentStep(
 
   // Check if enough products are already filtered
   const params = parseStepParams(categorySlug, segments)
-  const products = filterProducts(params)
+  const products = filterProducts(params, externalProducts)
   if (products.length <= 4) return null
 
   return steps[stepIndex]

@@ -671,7 +671,27 @@ export function getCurrentStep(
   const products = filterProducts(params, externalProducts)
   if (products.length <= 4) return null
 
-  return steps[stepIndex]
+  const step = steps[stepIndex]
+
+  // Routing-Steps (keine Filter-Wirkung) immer komplett zeigen
+  if (step.id === 'spenderFrage' || step.id === 'searchMethod') return step
+
+  // Optionen filtern: nur solche behalten die zu >0 Produkten führen
+  const availableOptions = step.options.filter(opt => {
+    if (opt.value === 'alle') return true
+    const testSegments = [...segments, opt.value]
+    const testParams = parseStepParams(categorySlug, testSegments)
+    const testProducts = filterProducts(testParams, externalProducts)
+    return testProducts.length > 0
+  })
+
+  // Wenn keine echten Optionen übrig → Ergebnisse zeigen
+  const realOptions = availableOptions.filter(o => o.value !== 'alle')
+  if (realOptions.length === 0) return null
+  // Wenn nur 1 echte Option → Step überspringen (überflüssig)
+  if (realOptions.length === 1 && availableOptions.length <= 2) return null
+
+  return { ...step, options: availableOptions }
 }
 
 /** Generate all possible step combinations for static generation */

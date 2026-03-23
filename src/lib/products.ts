@@ -384,7 +384,7 @@ export const PRODUCTS: Product[] = [
     "url": "https://www.hamburgpapier-shop.de/detail/00000000000000000000000000000f54",
     "category": "papierhandtuecher",
     "quantity": "palette",
-    "material": "recycling",
+    "material": "zellstoff",
     "layers": 2,
     "eco": []
   },
@@ -396,7 +396,7 @@ export const PRODUCTS: Product[] = [
     "url": "https://www.hamburgpapier-shop.de/detail/00000000000000000000000000000f16",
     "category": "papierhandtuecher",
     "quantity": "karton",
-    "material": "recycling",
+    "material": "zellstoff",
     "layers": 2,
     "eco": []
   },

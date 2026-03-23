@@ -78,10 +78,32 @@ function resolveQuantity(product: ShopwareProduct): string {
 
 function resolveMaterial(product: ShopwareProduct): string {
   const name = product.name.toLowerCase();
+  // 1) Premium (spezifischste Keywords zuerst)
+  if (name.includes('ultra soft') || name.includes('super soft') || name.includes('gold') || name.includes('premium')) {
+    return 'premium';
+  }
+  // 2) Explizit Recycling
   if (name.includes('recycling')) return 'recycling';
-  if (name.includes('zellstoff') || name.includes('hochweiß') || name.includes('hochweiss')) return 'zellstoff';
-  if (name.includes('premium')) return 'premium';
-  return 'mischung';
+  // 3) Farb-Indikatoren: GRAU/GRÜN ohne "zellstoff" = Recycling
+  if ((name.includes('grau') || name.includes('grün') || name.includes('gruen')) && !name.includes('zellstoff')) {
+    return 'recycling';
+  }
+  // 4) Zellstoff
+  if (name.includes('zellstoff') || name.includes('hochweiß') || name.includes('hochweiss')) {
+    return 'zellstoff';
+  }
+  // 5) Shopware Properties als Fallback
+  for (const prop of product.properties ?? []) {
+    const pn = prop.name.toLowerCase();
+    const gn = prop.group?.name?.toLowerCase() ?? '';
+    if (gn.includes('material') || gn.includes('qualit')) {
+      if (pn.includes('recycling')) return 'recycling';
+      if (pn.includes('zellstoff')) return 'zellstoff';
+      if (pn.includes('premium')) return 'premium';
+    }
+  }
+  // 6) Default: zellstoff (kein Produkt nutzt "mischung")
+  return 'zellstoff';
 }
 
 function resolveLayers(product: ShopwareProduct): number {
@@ -92,12 +114,30 @@ function resolveLayers(product: ShopwareProduct): number {
 function resolveEco(product: ShopwareProduct): string[] {
   const eco: string[] = [];
   const name = product.name.toLowerCase();
-  if (name.includes('blauer engel')) eco.push('blauer-engel');
-  if (name.includes('ecolabel') || name.includes('eco label')) eco.push('ecolabel');
+
+  // Aus Produktname
+  if (name.includes('blauer engel') || name.includes('blauer-engel')) eco.push('blauer-engel');
+  if (/eco\s*label|eu[\s-]eco/i.test(product.name)) eco.push('ecolabel');
+  if (name.includes('ohne plastik') || name.includes('ohne-plastik')) eco.push('ohne-plastik');
+
+  // Aus Shopware Properties (Name + Group)
   for (const prop of product.properties ?? []) {
-    const propName = prop.name.toLowerCase();
-    if (propName.includes('blauer engel') && !eco.includes('blauer-engel')) eco.push('blauer-engel');
-    if (propName.includes('ecolabel') && !eco.includes('ecolabel')) eco.push('ecolabel');
+    const pn = prop.name.toLowerCase();
+    const gn = prop.group?.name?.toLowerCase() ?? '';
+
+    // Direkte Property-Name Prüfung
+    if ((pn.includes('blauer engel') || pn.includes('blauer-engel')) && !eco.includes('blauer-engel')) {
+      eco.push('blauer-engel');
+    }
+    if ((pn.includes('ecolabel') || pn.includes('eco label') || pn.includes('eu ecolabel') || pn.includes('eco-label')) && !eco.includes('ecolabel')) {
+      eco.push('ecolabel');
+    }
+
+    // Group-basierte Erkennung (Gruppe "Umweltzeichen", "Zertifikate", etc.)
+    if (gn.includes('umwelt') || gn.includes('zertifi') || gn.includes('siegel') || gn.includes('eco') || gn.includes('label')) {
+      if (pn.includes('blauer engel') && !eco.includes('blauer-engel')) eco.push('blauer-engel');
+      if ((pn.includes('ecolabel') || pn.includes('eu')) && !eco.includes('ecolabel')) eco.push('ecolabel');
+    }
   }
   return eco;
 }

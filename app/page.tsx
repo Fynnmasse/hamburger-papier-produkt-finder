@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { BarChart3 } from 'lucide-react'
+import { BarChart3, Package, Truck, BadgePercent } from 'lucide-react'
 import { FinderHeader } from '@/components/finder-header'
 import { CategoryGrid } from '@/components/category-grid'
+import { AuroraBackground } from '@/components/ui/aurora-background'
 import { CATEGORIES } from '@/lib/finder-config'
 
 export default function HomePage() {
@@ -10,42 +11,52 @@ export default function HomePage() {
       <FinderHeader />
 
       <main className="flex-1 relative z-10">
-        <div className="py-10 px-4">
-          <div className="max-w-4xl mx-auto">
+        <AuroraBackground className="py-14 md:py-20 px-4">
+          <div className="max-w-4xl mx-auto relative z-10">
             {/* Titel-Block */}
-            <div className="text-center mb-10 animate-fade-up">
-              <h1 className="font-display font-extrabold text-2xl sm:text-3xl md:text-4xl uppercase text-navy text-balance">
-                Finden Sie das richtige Hygienepapier
+            <div className="text-center mb-12 animate-fade-up">
+              <span className="inline-block text-[.7rem] font-bold tracking-[.2em] uppercase text-primary mb-3 bg-primary/10 rounded-full px-3 py-1">
+                Produktberater
+              </span>
+              <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl uppercase text-navy text-balance">
+                Finden Sie das <span className="text-primary">richtige</span> Hygienepapier
               </h1>
-              <p className="text-muted-foreground mt-2">
+              <p className="text-steel mt-3 text-base sm:text-lg">
                 Wählen Sie eine Kategorie um zu starten
               </p>
             </div>
 
             {/* Trust Badges */}
-            <ul className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-steel text-xs sm:text-sm mb-8 list-none p-0 m-0">
-              <li>179 Produkte</li>
-              <li aria-hidden="true" className="text-steel/40">·</li>
-              <li>Kostenloser Versand</li>
-              <li aria-hidden="true" className="text-steel/40">·</li>
-              <li>B2B Großhandelspreise</li>
+            <ul className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10 list-none p-0 m-0">
+              <li className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm text-navy text-xs sm:text-sm font-medium rounded-full px-3 py-1.5">
+                <Package size={14} className="text-primary" aria-hidden="true" />
+                179 Produkte
+              </li>
+              <li className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm text-navy text-xs sm:text-sm font-medium rounded-full px-3 py-1.5">
+                <Truck size={14} className="text-primary" aria-hidden="true" />
+                Kostenloser Versand
+              </li>
+              <li className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm text-navy text-xs sm:text-sm font-medium rounded-full px-3 py-1.5">
+                <BadgePercent size={14} className="text-primary" aria-hidden="true" />
+                B2B Großhandelspreise
+              </li>
             </ul>
 
-            {/* Category Grid — identisch zu Unterseiten */}
+            {/* Category Grid */}
             <CategoryGrid categories={CATEGORIES.map(({ slug, label, icon }) => ({ slug, label, icon }))} />
 
             {/* Preisvergleich Link */}
-            <div className="mt-6 text-center">
+            <div className="mt-8 text-center">
               <Link
                 href="/vergleich"
-                className="inline-flex items-center gap-2 text-sm font-medium text-steel hover:text-navy transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium text-steel hover:text-navy bg-white/60 backdrop-blur-sm rounded-full px-4 py-2 transition-colors"
               >
                 <BarChart3 size={16} aria-hidden="true" />
                 Preisvergleich — Günstigsten Preis pro Rolle finden
               </Link>
             </div>
           </div>
-        </div>
+        </AuroraBackground>
 
         {/* SEO Content Block */}
         <section className="bg-white py-12 px-4 mt-4">

@@ -370,6 +370,79 @@ function getPapierhandtuecherAllPaths(): string[][] {
 }
 
 // ── Category Definitions ──
+// ── Handtuchrollen Steps ──
+const HANDTUCHROLLEN_ABWICKLUNG_STEP: StepDef = {
+  id: 'subtype', slug: 'abwicklung',
+  title: 'Welche Art der Abwicklung?',
+  subtitle: 'Wählen Sie passend zu Ihrem Spendersystem.',
+  options: [
+    { value: 'aussenabwicklung', label: 'Außenabwicklung', desc: 'Klassische Handtuchrollen für Spender mit Außenabwicklung.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
+    { value: 'innenauszug-aussenabwicklung', label: 'Innenauszug + Außenabwicklung', desc: 'Flexible Rollen — nutzbar mit Innenauszug und Außenabwicklung.' },
+    { value: 'innenauszug', label: 'Innenauszug', desc: 'Rollen für Spender mit reinem Innenauszug.' },
+  ],
+}
+
+const HANDTUCHROLLEN_LEBENSMITTEL_STEP: StepDef = {
+  id: 'lebensmittel', slug: 'lebensmittelzulassung',
+  title: 'Lebensmittelzulassung benötigt?',
+  subtitle: 'Für den Einsatz in der Lebensmittelindustrie.',
+  options: [
+    { value: 'mit', label: 'Mit Lebensmittelzulassung', desc: 'Zertifiziert für den Kontakt mit Lebensmitteln.', tag: 'Lebensmittelindustrie', tagStyle: 'bg-green-100 text-green-800' },
+    { value: 'ohne', label: 'Ohne Lebensmittelzulassung', desc: 'Standard-Rollen ohne spezielle Zulassung.' },
+    { value: 'alle', label: 'Egal / Alle', desc: 'Zeige alle Produkte.' },
+  ],
+}
+
+const HANDTUCHROLLEN_LAGEN_STEP: StepDef = {
+  id: 'lagen', slug: 'lagen',
+  title: 'Wie viele Lagen?',
+  subtitle: 'Mehr Lagen = weicher und saugstärker.',
+  options: [
+    { value: '1-lagig', label: '1-lagig', desc: 'Wirtschaftlich und ergiebig. Ideal für hohen Verbrauch.' },
+    { value: '2-lagig', label: '2-lagig', desc: 'Der Allrounder: gute Saugkraft bei fairem Preis.', tag: 'Beliebteste Wahl', tagStyle: 'bg-blue-100 text-blue-800' },
+    { value: '3-lagig', label: '3-lagig', desc: 'Besonders weich und saugstark. Für repräsentative Bereiche.' },
+  ],
+}
+
+const HANDTUCHROLLEN_MENGE_STEP: StepDef = {
+  id: 'quantity', slug: 'menge',
+  title: 'Wie viel benötigen Sie?',
+  subtitle: 'Wählen Sie die Bestellmenge passend zu Ihrem Betrieb.',
+  options: [
+    { value: 'karton', label: 'Karton', desc: 'Kleine bis mittlere Bestellmengen. Ideal für Büros, Praxen oder als Erstbestellung.', tag: 'Schnellversand möglich', tagStyle: 'bg-green-100 text-green-800' },
+    { value: 'palette', label: 'Palette', desc: 'Großmengen für Hotels, Gastronomie, Industrie. Maximale Ersparnis pro Einheit.', tag: 'Bester Preis/Menge', tagStyle: 'bg-blue-100 text-blue-800' },
+  ],
+}
+
+/** Dynamische Steps für Handtuchrollen — Außenabwicklung überspringt Lebensmittelzulassung */
+function getHandtuchrollenSteps(segments: string[]): StepDef[] {
+  if (segments.length > 0 && segments[0] === 'aussenabwicklung') {
+    return [HANDTUCHROLLEN_ABWICKLUNG_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
+  }
+  return [HANDTUCHROLLEN_ABWICKLUNG_STEP, HANDTUCHROLLEN_LEBENSMITTEL_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
+}
+
+/** Alle SSG-Pfade für Handtuchrollen */
+function getHandtuchrollenAllPaths(): string[][] {
+  const paths: string[][] = []
+  for (const abw of HANDTUCHROLLEN_ABWICKLUNG_STEP.options) {
+    paths.push([abw.value])
+    const steps = abw.value === 'aussenabwicklung'
+      ? [HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
+      : [HANDTUCHROLLEN_LEBENSMITTEL_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
+    function generate(stepIdx: number, current: string[]) {
+      if (stepIdx >= steps.length) return
+      for (const opt of steps[stepIdx].options) {
+        const next = [...current, opt.value]
+        paths.push(next)
+        generate(stepIdx + 1, next)
+      }
+    }
+    generate(0, [abw.value])
+  }
+  return paths
+}
+
 export const CATEGORIES: CategoryDef[] = [
   {
     slug: 'toilettenpapier',
@@ -409,22 +482,11 @@ export const CATEGORIES: CategoryDef[] = [
     label: 'Handtuchrollen',
     icon: 'Handtuchrollen.svg',
     metaTitle: 'Handtuchrollen B2B bestellen | Hamburg Papier Produktfinder',
-    metaDescription: 'Handtuchrollen für Innenabrollung, Autocut-Systeme oder als Spender. Standard oder Zellstoff, als Karton oder Palette. 30 Produkte.',
-    seoContent: 'Handtuchrollen sind die hygienische Alternative zu Falthandtüchern und besonders in Waschräumen mit hoher Frequenz beliebt. Standard-Rollen gibt es für Innenabrollung und Außenabwicklung in verschiedenen Breiten (20–26 cm). Autocut-Systeme schneiden automatisch einzelne Blätter ab — das reduziert den Verbrauch um bis zu 40 % gegenüber offenen Spendersystemen. Spender für Handtuchrollen mit Innenabrollung sind platzsparend und einfach nachzufüllen. Bei der Qualität empfehlen wir Zellstoff für repräsentative Bereiche und Recycling für Produktionsumgebungen.',
-    steps: [
-      {
-        id: 'subtype', slug: 'system',
-        title: 'Welches System?',
-        subtitle: 'Wählen Sie den Rollentyp passend zu Ihrem Spender.',
-        options: [
-          { value: 'standard', label: 'Standard-Rollen', desc: 'Handtuchrollen für Innenabrollung und Außenabwicklung. Verschiedene Längen und Breiten.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
-          { value: 'autocut', label: 'Autocut-System', desc: 'Automatische Einzelblattentnahme. Spender und Startersets verfügbar.' },
-          { value: 'spender', label: 'Spender (Innenabrollung)', desc: 'Innenauszug-Spender in Schwarz oder Weiß.' },
-        ],
-      },
-      QUANTITY_STEP,
-      materialStep(false),
-    ],
+    metaDescription: 'Handtuchrollen mit Außenabwicklung, Innenauszug oder beidem. Mit und ohne Lebensmittelzulassung, als Karton oder Palette.',
+    seoContent: 'Handtuchrollen sind die hygienische Alternative zu Falthandtüchern und besonders in Waschräumen mit hoher Frequenz beliebt. Rollen mit Außenabwicklung sind der Klassiker für die meisten Spendersysteme. Rollen mit Innenauszug + Außenabwicklung bieten maximale Flexibilität und passen in beide Spendertypen. Reine Innenauszug-Rollen eignen sich für kompakte Spender mit Papierentnahme von innen. Für den Einsatz in der Lebensmittelindustrie bieten wir Rollen mit Lebensmittelzulassung an. Bei der Qualität empfehlen wir Zellstoff für repräsentative Bereiche und Recycling für Produktionsumgebungen.',
+    steps: [HANDTUCHROLLEN_ABWICKLUNG_STEP, HANDTUCHROLLEN_LEBENSMITTEL_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP],
+    getSteps: getHandtuchrollenSteps,
+    getAllPaths: getHandtuchrollenAllPaths,
   },
   {
     slug: 'putzpapier',
@@ -472,6 +534,7 @@ export const CATEGORIES: CategoryDef[] = [
         subtitle: 'Wählen Sie den passenden Spender-Typ.',
         options: [
           { value: 'papierhandtuecher', label: 'Papierhandtücher', desc: 'Spender für Falthandtücher (Z-Falz und Interfold).' },
+          { value: 'handtuchrollen', label: 'Handtuchrollen', desc: 'Autocut-Spender und Innenauszug-Spender für Handtuchrollen.' },
           { value: 'seife', label: 'Seife & Schaumseife', desc: 'Wiederbefüllbare Seifen- und Schaumseifenspender.' },
           { value: 'jumborollen_spender', label: 'Jumborollen / WC', desc: 'Spender für Jumbo-Toilettenpapierrollen.' },
           { value: 'servietten_spender', label: 'Servietten', desc: 'Serviettenspender mit antibakterieller Oberfläche.' },
@@ -496,11 +559,13 @@ export const CATEGORY_MAP = new Map(CATEGORIES.map(c => [c.slug, c]))
 export const STEP_VALUE_LABELS: Record<string, Record<string, string>> = {
   typ: {
     kleinrollen: 'Kleinrollen', jumborollen: 'Jumborollen', spender: 'Spender',
-    papierhandtuecher: 'Papierhandtücher', seife: 'Seife & Schaumseife',
+    papierhandtuecher: 'Papierhandtücher', handtuchrollen: 'Handtuchrollen',
+    seife: 'Seife & Schaumseife',
     jumborollen_spender: 'Jumborollen / WC', servietten_spender: 'Servietten',
   },
   falzung: { 'z-falz': 'Z-Falz', 'c-falz': 'C-Falz', interfold: 'Interfold' },
-  system: { standard: 'Standard-Rollen', autocut: 'Autocut-System', spender: 'Spender' },
+  abwicklung: { aussenabwicklung: 'Außenabwicklung', 'innenauszug-aussenabwicklung': 'Innenauszug + Außenabwicklung', innenauszug: 'Innenauszug' },
+  lebensmittelzulassung: { mit: 'Mit Lebensmittelzulassung', ohne: 'Ohne Lebensmittelzulassung', alle: 'Alle' },
   produkt: {
     putzpapier: 'Putzpapier-Rollen', aerzte: 'Ärzte- & Liegenrollen', mikrofaser: 'Mikrofaser',
     kuechenrollen: 'Küchenrollen', servietten: 'Servietten', kosmetiktuecher: 'Kosmetiktücher',
@@ -525,6 +590,18 @@ export const STEP_VALUE_LABELS: Record<string, Record<string, string>> = {
   lagen: { '1-lagig': '1-lagig', '2-lagig': '2-lagig', '3-lagig': '3-lagig' },
 }
 
+// ── Lebensmittelzulassung ──
+const LEBENSMITTEL_NUMS = new Set([
+  '7095Karton', 'ZU50497095',   // Handtuchrollen blau
+  '8700Karton', 'ZU50498700',   // Handtuchrollen
+  '420Karton', 'ZU50490420',    // Putzpapier blau
+  '480Karton', 'ZU50490480',    // Putzpapier blau
+])
+
+function hatLebensmittelzulassung(p: Product): boolean {
+  return LEBENSMITTEL_NUMS.has(p.num) || p.name.toLowerCase().includes('blau')
+}
+
 // ── Product Filtering ──
 function matchesSubtype(p: Product, category: string, subtype: string): boolean {
   const name = p.name.toLowerCase()
@@ -541,9 +618,9 @@ function matchesSubtype(p: Product, category: string, subtype: string): boolean 
       if (subtype === 'interfold') return /interfold/i.test(p.name)
       break
     case 'handtuchrollen':
-      if (subtype === 'standard') return p.layers > 0 && !name.includes('autocut') && !name.includes('starterset') && !name.includes('spender')
-      if (subtype === 'autocut') return name.includes('autocut') || name.includes('starterset')
-      if (subtype === 'spender') return name.includes('spender') && p.layers === 0
+      if (subtype === 'aussenabwicklung') return p.layers > 0 && !name.includes('innenauszug')
+      if (subtype === 'innenauszug-aussenabwicklung') return name.includes('innenauszug') && name.includes('außenabwicklung')
+      if (subtype === 'innenauszug') return name.includes('innenauszug') && !name.includes('außenabwicklung')
       break
     case 'putzpapier':
       if (subtype === 'putzpapier') return /putz|werkstatt/i.test(p.name)
@@ -557,6 +634,7 @@ function matchesSubtype(p: Product, category: string, subtype: string): boolean 
       break
     case 'spender':
       if (subtype === 'papierhandtuecher') return /papierhandtuchspender/i.test(p.name)
+      if (subtype === 'handtuchrollen') return /autocutspender|innenauszug[\s-]?spender|starterset.*handtuchroll/i.test(p.name)
       if (subtype === 'seife') return /seifenspender|schaumseifenspender/i.test(p.name)
       if (subtype === 'jumborollen_spender') return /jumborollen\s*spender/i.test(p.name)
       if (subtype === 'servietten_spender') return /serviettenspender/i.test(p.name)
@@ -574,6 +652,7 @@ export interface FilterParams {
   anwendung?: string
   abmessung?: string
   layers?: number
+  lebensmittel?: string
 }
 
 export function filterProducts(params: FilterParams, externalProducts?: Product[]): Product[] {
@@ -595,6 +674,12 @@ export function filterProducts(params: FilterParams, externalProducts?: Product[
     // Material
     if (params.material && params.material !== 'alle') {
       if (p.material !== params.material) return false
+    }
+    // Lebensmittelzulassung
+    if (params.lebensmittel && params.lebensmittel !== 'alle') {
+      const hat = hatLebensmittelzulassung(p)
+      if (params.lebensmittel === 'mit' && !hat) return false
+      if (params.lebensmittel === 'ohne' && hat) return false
     }
     // Abmessung (dimension regex for papierhandtuecher spender path)
     if (params.abmessung) {
@@ -649,6 +734,7 @@ export function parseStepParams(
       else if (step.id === 'anwendung') params.anwendung = val
       else if (step.id === 'abmessung') params.abmessung = val
       else if (step.id === 'lagen') params.layers = parseInt(val)
+      else if (step.id === 'lebensmittel') params.lebensmittel = val
       // searchMethod / spenderFrage sind nur Routing — kein Filter
     }
   })
@@ -688,9 +774,9 @@ export function getCurrentStep(
     return testProducts.length > 0
   })
 
-  // Wenn keine echten Optionen übrig → Ergebnisse zeigen
+  // Wenn 0 oder nur 1 echte Option übrig → Step überspringen
   const realOptions = availableOptions.filter(o => o.value !== 'alle')
-  if (realOptions.length === 0) return null
+  if (realOptions.length <= 1) return null
 
   return { ...step, options: availableOptions }
 }

@@ -179,5 +179,14 @@ export function mapShopwareToProducts(shopwareProducts: ShopwareProduct[]): Prod
       minPurchase: sp.minPurchase ?? undefined,
     });
   }
+  // Autocut-Spender, Innenauszug-Spender und Startersets → Spender-Kategorie
+  for (const p of results) {
+    if (p.category === 'handtuchrollen') {
+      const lower = p.name.toLowerCase();
+      if (lower.includes('autocutspender') || /innenauszug[\s-]?spender/i.test(p.name) || lower.includes('starterset')) {
+        p.category = 'spender';
+      }
+    }
+  }
   return results;
 }

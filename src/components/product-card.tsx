@@ -3,21 +3,34 @@ import { ExternalLink } from 'lucide-react'
 import type { Product } from '@/lib/products'
 import { getReferencedId, sampleProductIds } from '@/lib/sample-products'
 import { MusterButton } from '@/components/muster-button'
+import { formatPreis, getGuenstigsterGrundpreis, getGrundpreisEinheit } from '@/lib/price-utils'
 
 interface ProductCardProps {
   p: Product
   index: number
   kategorie?: string
+  isBesterPreis?: boolean
 }
 
-export function ProductCard({ p, index, kategorie }: ProductCardProps) {
+export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardProps) {
   const utmBestellen = `utm_source=produktfinder&utm_medium=bestellen&utm_campaign=${kategorie || 'allgemein'}`
   const shopUrl = p.url
     ? `${p.url}?${utmBestellen}`
     : `https://www.hamburgpapier-shop.de/search?search=${encodeURIComponent(p.num)}&${utmBestellen}`
-  const price = p.price > 0 ? `${(p.price / 1.19).toFixed(2).replace('.', ',')} €` : 'Auf Anfrage'
-  const name = p.name.length > 80 ? p.name.substring(0, 77) + '…' : p.name
 
+  const hasStaffel = p.staffelpreise && p.staffelpreise.length > 0
+  const grundpreis = getGuenstigsterGrundpreis(p)
+  const einheit = getGrundpreisEinheit(p)
+
+  // Preis: günstigster Staffelpreis oder Fallback auf price/1.19
+  const displayPrice = hasStaffel
+    ? p.staffelpreise![p.staffelpreise!.length - 1].unitPrice
+    : p.price > 0 ? p.price / 1.19 : 0
+  const priceLabel = displayPrice > 0
+    ? `${hasStaffel ? 'ab ' : ''}${formatPreis(displayPrice)} €`
+    : 'Auf Anfrage'
+
+  const name = p.name.length > 80 ? p.name.substring(0, 77) + '…' : p.name
   const referencedId = p.url ? getReferencedId(p.url) : null
   const canSample = referencedId !== null && sampleProductIds.has(referencedId)
 
@@ -34,6 +47,11 @@ export function ProductCard({ p, index, kategorie }: ProductCardProps) {
         className="flex flex-col flex-1 cursor-pointer focus-visible:outline-none"
       >
         <div className="w-full aspect-[4/3] bg-white overflow-hidden relative flex items-center justify-center p-2">
+          {isBesterPreis && (
+            <span className="absolute top-2 left-2 z-10 bg-green-100 text-green-800 text-[.65rem] font-bold tracking-wide uppercase px-2 py-0.5 rounded">
+              Bester Preis pro {einheit}
+            </span>
+          )}
           {p.img ? (
             <Image
               src={p.img}
@@ -62,11 +80,48 @@ export function ProductCard({ p, index, kategorie }: ProductCardProps) {
           </div>
           <p className="text-sm font-semibold text-navy leading-snug flex-1">{name}</p>
           <div className="mt-1">
-            <div className="font-display font-extrabold text-xl text-navy leading-none">{price}</div>
+            <div className="font-display font-extrabold text-xl text-navy leading-none">{priceLabel}</div>
+            {grundpreis !== null && (
+              <div className="text-xs text-primary font-semibold mt-0.5">
+                = {formatPreis(grundpreis)} € / {einheit}
+              </div>
+            )}
             <div className="text-xs text-muted-foreground mt-0.5">zzgl. 19% MwSt.</div>
           </div>
         </div>
       </a>
+
+      {/* Staffelpreis-Tabelle */}
+      {hasStaffel && p.staffelpreise!.length > 1 && (
+        <div className="px-4 pb-2">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="bg-sand/60 text-steel">
+                <th className="text-left py-1 px-2 font-semibold">Ab</th>
+                <th className="text-right py-1 px-2 font-semibold">Stückpreis</th>
+                <th className="text-right py-1 px-2 font-semibold">Grundpreis</th>
+              </tr>
+            </thead>
+            <tbody>
+              {p.staffelpreise!.map((tier, i) => (
+                <tr
+                  key={tier.quantity}
+                  className={i === p.staffelpreise!.length - 1 ? 'font-bold text-navy' : 'text-steel'}
+                >
+                  <td className="py-1 px-2">{tier.quantity} Stk.</td>
+                  <td className="text-right py-1 px-2">{formatPreis(tier.unitPrice)} €</td>
+                  <td className="text-right py-1 px-2">
+                    {tier.referencePrice
+                      ? `${formatPreis(tier.referencePrice.price)} € / ${tier.referencePrice.unitName}`
+                      : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <div className="px-4 pb-4 pt-2">
         <div className={`grid gap-2 ${canSample ? 'grid-cols-2' : 'grid-cols-1'}`}>
           <a

@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { Home, Edit } from 'lucide-react'
+import { Home, Edit, BarChart3 } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
 import type { Product } from '@/lib/products'
+import { findGuenstigsteOption } from '@/lib/price-utils'
 
 interface ProductResultsProps {
   products: Product[]
@@ -12,6 +13,7 @@ interface ProductResultsProps {
 
 export function ProductResults({ products, title, kategorie, backHref }: ProductResultsProps) {
   const shown = products.slice(0, 24)
+  const guenstigste = findGuenstigsteOption(shown)
 
   return (
     <>
@@ -48,8 +50,20 @@ export function ProductResults({ products, title, kategorie, backHref }: Product
       ) : (
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {shown.map((p, i) => (
-            <ProductCard key={p.num} p={p} index={i} kategorie={kategorie} />
+            <ProductCard key={p.num} p={p} index={i} kategorie={kategorie} isBesterPreis={guenstigste?.num === p.num} />
           ))}
+        </div>
+      )}
+
+      {shown.length > 0 && (
+        <div className="max-w-6xl mx-auto mt-6">
+          <Link
+            href={`/vergleich/${kategorie}`}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors"
+          >
+            <BarChart3 size={15} />
+            Alle {title} nach Grundpreis vergleichen
+          </Link>
         </div>
       )}
     </>

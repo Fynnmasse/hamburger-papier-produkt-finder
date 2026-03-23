@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { BarChart3 } from 'lucide-react'
 import { FinderHeader } from '@/components/finder-header'
 import { CategoryGrid } from '@/components/category-grid'
 import { CATEGORIES } from '@/lib/finder-config'
@@ -31,6 +33,17 @@ export default function HomePage() {
 
             {/* Category Grid — identisch zu Unterseiten */}
             <CategoryGrid categories={CATEGORIES.map(({ slug, label, icon }) => ({ slug, label, icon }))} />
+
+            {/* Preisvergleich Link */}
+            <div className="mt-6 text-center">
+              <Link
+                href="/vergleich"
+                className="inline-flex items-center gap-2 text-sm font-medium text-steel hover:text-navy transition-colors"
+              >
+                <BarChart3 size={16} />
+                Preisvergleich — Günstigsten Preis pro Rolle finden
+              </Link>
+            </div>
           </div>
         </div>
 

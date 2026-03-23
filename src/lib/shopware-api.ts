@@ -21,7 +21,19 @@ export interface ShopwareProduct {
   calculatedPrices: Array<{
     unitPrice: number;
     quantity: number;
+    referencePrice?: {
+      price: number;
+      purchaseUnit: number;
+      referenceUnit: number;
+      unitName: string;
+    };
   }>;
+  purchaseUnit: number | null;
+  referenceUnit: number | null;
+  unit: {
+    name: string;
+    shortCode: string;
+  } | null;
   categories: Array<{
     id: string;
     name: string;
@@ -68,11 +80,13 @@ export async function fetchAllProducts(): Promise<ShopwareProduct[]> {
             categories: {},
             properties: { associations: { group: {} } },
             seoUrls: {},
+            unit: {},
           },
           includes: {
             product: [
               'id', 'productNumber', 'name', 'active', 'available',
               'cover', 'calculatedPrice', 'calculatedPrices',
+              'purchaseUnit', 'referenceUnit', 'unit',
               'categories', 'properties', 'seoUrls',
             ],
             product_media: ['media'],

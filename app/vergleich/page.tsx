@@ -1,0 +1,93 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import Image from 'next/image'
+import { FinderHeader } from '@/components/finder-header'
+import { Breadcrumbs, breadcrumbJsonLd, type BreadcrumbItem } from '@/components/breadcrumbs'
+import { CATEGORIES } from '@/lib/finder-config'
+
+export const metadata: Metadata = {
+  title: 'Preisvergleich nach Grundpreis | Hamburg Papier Produktfinder',
+  description: 'Vergleichen Sie alle Hygienepapier-Produkte nach dem günstigsten Grundpreis pro Rolle. B2B Großhandelspreise, versandkostenfrei.',
+}
+
+const VERGLEICH_KATEGORIEN = CATEGORIES.filter(c => c.slug !== 'seife')
+
+export default function VergleichPage() {
+  const breadcrumbs: BreadcrumbItem[] = [
+    { label: 'Startseite', href: '/' },
+    { label: 'Preisvergleich' },
+  ]
+
+  return (
+    <div className="min-h-screen bg-sand/60 font-body flex flex-col relative z-10">
+      <FinderHeader />
+
+      <main className="flex-1">
+        <h1 className="sr-only">Preisvergleich nach Grundpreis — Hamburg Papier Produktfinder</h1>
+
+        <div className="py-10 px-4">
+          <div className="max-w-4xl mx-auto">
+            <Breadcrumbs items={breadcrumbs} />
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-10 animate-fade-up">
+              <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">
+                Preisvergleich
+              </div>
+              <h2 className="font-display font-extrabold text-2xl sm:text-3xl md:text-4xl uppercase text-navy text-balance">
+                Grundpreis vergleichen
+              </h2>
+              <p className="text-muted-foreground mt-2">
+                Vergleichen Sie alle Produkte einer Kategorie nach dem günstigsten Preis pro Rolle.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {VERGLEICH_KATEGORIEN.map(cat => (
+                <Link
+                  key={cat.slug}
+                  href={`/vergleich/${cat.slug}`}
+                  className="group bg-white border border-border rounded-xl p-5 flex items-center gap-4 hover:border-primary hover:shadow-md transition-[border-color,box-shadow]"
+                >
+                  <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center">
+                    <Image src={`/${cat.icon}`} alt={cat.label} width={48} height={48} className="w-10 h-10" />
+                  </div>
+                  <div>
+                    <div className="font-display font-bold text-navy group-hover:text-primary transition-colors">
+                      {cat.label}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      Nach Grundpreis sortiert vergleichen
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <section className="bg-white py-12 px-4 mt-4">
+          <div className="max-w-3xl mx-auto">
+            <p className="text-steel leading-relaxed text-sm">
+              Der Grundpreis pro Rolle oder pro Stück ist der fairste Vergleichswert beim Einkauf von Hygienepapier im B2B-Großhandel. Durch den Kauf größerer Mengen — z.B. im Palettenversand — sinkt der Einzelpreis pro Rolle deutlich. Unsere Vergleichstabellen zeigen Ihnen auf einen Blick die günstigste Option für Ihren Betrieb. Alle Preise verstehen sich netto zzgl. 19% MwSt.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35">
+        © {new Date().getFullYear()} Hamburg Papier ·{' '}
+        <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
+          hamburgpapier-shop.de
+        </a>
+        {' '}· Alle Preise zzgl. 19% MwSt.
+      </footer>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(breadcrumbs)) }}
+      />
+    </div>
+  )
+}

@@ -148,23 +148,35 @@ function resolveEco(product: ShopwareProduct): string[] {
  * der bestehenden Anzeige-Logik (product-card.tsx teilt durch 1.19).
  */
 export function mapShopwareToProducts(shopwareProducts: ShopwareProduct[]): Product[] {
-  return shopwareProducts
-    .filter(sp => sp.active !== false && sp.available !== false)
-    .map(sp => {
-      const category = resolveCategory(sp);
-      if (!category) return null;
-      return {
-        name: sp.name,
-        num: sp.productNumber,
-        price: getCheapestPrice(sp) * 1.19, // Brutto für Kompatibilität
-        img: getCoverImage(sp),
-        url: `https://www.hamburgpapier-shop.de/detail/${sp.id}`,
-        category,
-        quantity: resolveQuantity(sp),
-        material: resolveMaterial(sp),
-        layers: resolveLayers(sp),
-        eco: resolveEco(sp),
-      };
-    })
-    .filter((p): p is Product => p !== null);
+  const results: Product[] = [];
+  for (const sp of shopwareProducts) {
+    if (sp.active === false || sp.available === false) continue;
+    const category = resolveCategory(sp);
+    if (!category) continue;
+    results.push({
+      name: sp.name,
+      num: sp.productNumber,
+      price: getCheapestPrice(sp) * 1.19, // Brutto für Kompatibilität
+      img: getCoverImage(sp),
+      url: `https://www.hamburgpapier-shop.de/detail/${sp.id}`,
+      category,
+      quantity: resolveQuantity(sp),
+      material: resolveMaterial(sp),
+      layers: resolveLayers(sp),
+      eco: resolveEco(sp),
+      staffelpreise: sp.calculatedPrices?.length > 0
+        ? sp.calculatedPrices.map(cp => ({
+            quantity: cp.quantity,
+            unitPrice: cp.unitPrice,
+            referencePrice: cp.referencePrice ? {
+              price: cp.referencePrice.price,
+              purchaseUnit: cp.referencePrice.purchaseUnit,
+              referenceUnit: cp.referencePrice.referenceUnit,
+              unitName: cp.referencePrice.unitName,
+            } : undefined,
+          }))
+        : undefined,
+    });
+  }
+  return results;
 }

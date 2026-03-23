@@ -13,6 +13,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
+  // Vergleichsseiten
+  urls.push({
+    url: `${BASE}/vergleich`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  })
+  for (const cat of CATEGORIES.filter(c => c.slug !== 'seife')) {
+    urls.push({
+      url: `${BASE}/vergleich/${cat.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    })
+  }
+
   for (const cat of CATEGORIES) {
     // Category root page
     urls.push({

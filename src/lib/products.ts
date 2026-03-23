@@ -1,3 +1,14 @@
+export interface Staffelpreis {
+  quantity: number;
+  unitPrice: number;
+  referencePrice?: {
+    price: number;
+    purchaseUnit: number;
+    referenceUnit: number;
+    unitName: string;
+  };
+}
+
 export interface Product {
   name: string;
   num: string;
@@ -9,6 +20,7 @@ export interface Product {
   material: string;
   layers: number;
   eco: string[];
+  staffelpreise?: Staffelpreis[];
 }
 
 export const PRODUCTS: Product[] = [

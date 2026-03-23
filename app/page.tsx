@@ -14,7 +14,7 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto">
             {/* Titel-Block */}
             <div className="text-center mb-10 animate-fade-up">
-              <h1 className="font-display font-extrabold text-4xl uppercase text-navy text-balance">
+              <h1 className="font-display font-extrabold text-2xl sm:text-3xl md:text-4xl uppercase text-navy text-balance">
                 Finden Sie das richtige Hygienepapier
               </h1>
               <p className="text-muted-foreground mt-2">

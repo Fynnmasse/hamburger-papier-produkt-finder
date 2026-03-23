@@ -21,7 +21,7 @@ export default function LoadingLines() {
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-navy transition-opacity duration-500"
       style={{ opacity: fadeOut ? 0 : 1, pointerEvents: fadeOut ? 'none' : 'all' }}
     >
-      <div className="relative flex items-center justify-center h-[120px] w-auto m-8 font-body normal-case text-[1.6em] font-semibold select-none scale-[2]">
+      <div className="relative flex items-center justify-center h-[120px] w-auto m-8 font-body normal-case text-[1.6em] font-semibold select-none scale-[1.5] sm:scale-[2]">
         {letters.map((letter, idx) => (
           <span
             key={idx}

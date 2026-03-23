@@ -33,7 +33,7 @@ export function MusterButton({ referencedId, kategorie }: MusterButtonProps) {
       )}
       <button
         type="submit"
-        className="flex items-center justify-center gap-1.5 border-2 border-primary text-primary text-xs font-semibold px-3 py-2 rounded-lg min-h-[40px] w-full hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="flex items-center justify-center gap-1.5 border-2 border-primary text-primary text-xs font-semibold px-3 py-2 rounded-lg min-h-[44px] w-full hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <ShoppingCart size={14} aria-hidden="true" />
         Gratis Muster bestellen

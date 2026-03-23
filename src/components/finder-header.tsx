@@ -13,14 +13,14 @@ export function FinderHeader() {
         <div className="flex items-center gap-2">
           <Link
             href="/vergleich"
-            className="text-xs font-semibold text-white/70 border border-white/20 px-3 py-1.5 rounded hover:text-white hover:border-white/50 transition-colors"
+            className="text-xs font-semibold text-white/70 border border-white/20 px-3 py-1.5 rounded hover:text-white hover:border-white/50 transition-colors whitespace-nowrap min-h-[44px] flex items-center"
           >
             Preisvergleich
           </Link>
           <a
             href="https://www.hamburgpapier-shop.de"
             target="_blank" rel="noopener"
-            className="text-xs font-semibold text-white/70 border border-white/20 px-3 py-1.5 rounded hover:text-white hover:border-white/50 transition-colors"
+            className="text-xs font-semibold text-white/70 border border-white/20 px-3 py-1.5 rounded hover:text-white hover:border-white/50 transition-colors whitespace-nowrap min-h-[44px] flex items-center"
           >
             Zum Shop ↗
           </a>

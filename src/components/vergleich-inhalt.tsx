@@ -76,7 +76,7 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
             value={lagen}
             onChange={e => setLagen(e.target.value)}
             aria-label="Lagen filtern"
-            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <option value="">Alle Lagen</option>
             {verfuegbareLagen.map(l => (
@@ -89,7 +89,7 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
             value={material}
             onChange={e => setMaterial(e.target.value)}
             aria-label="Material filtern"
-            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <option value="">Alle Materialien</option>
             {verfuegbareMaterialien.map(m => (
@@ -102,7 +102,7 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
             value={versandart}
             onChange={e => setVersandart(e.target.value)}
             aria-label="Versandart filtern"
-            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <option value="">Alle Versandarten</option>
             {verfuegbareVersandarten.map(v => (

@@ -96,7 +96,7 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
             href={shopUrl}
             target="_blank"
             rel="noopener"
-            className="flex items-center justify-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[40px] hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="flex items-center justify-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[44px] hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             Jetzt bestellen
             <ExternalLink size={12} aria-hidden="true" />

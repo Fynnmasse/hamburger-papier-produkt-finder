@@ -91,39 +91,6 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
         </div>
       </a>
 
-      {/* Staffelpreis-Tabelle */}
-      {hasStaffel && p.staffelpreise!.length > 1 && (
-        <div className="px-4 pb-2">
-          <table className="w-full text-xs border-collapse">
-            <thead>
-              <tr className="bg-sand/60 text-steel">
-                <th className="text-left py-1 px-2 font-semibold">Ab</th>
-                <th className="text-right py-1 px-2 font-semibold">Stückpreis</th>
-                <th className="text-right py-1 px-2 font-semibold">Grundpreis</th>
-              </tr>
-            </thead>
-            <tbody>
-              {p.staffelpreise!.map((tier, i) => {
-                return (
-                <tr
-                  key={tier.quantity}
-                  className={i === p.staffelpreise!.length - 1 ? 'font-bold text-navy' : 'text-steel'}
-                >
-                  <td className="py-1 px-2">ab {tier.quantity}</td>
-                  <td className="text-right py-1 px-2">{formatPreis(tier.unitPrice)} €</td>
-                  <td className="text-right py-1 px-2">
-                    {tier.referencePrice
-                      ? `${formatPreis(tier.referencePrice.price)} € / ${tier.referencePrice.unitName}`
-                      : '—'}
-                  </td>
-                </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
       <div className="px-4 pb-4 pt-2">
         <div className={`grid gap-2 ${canSample ? 'grid-cols-2' : 'grid-cols-1'}`}>
           <a

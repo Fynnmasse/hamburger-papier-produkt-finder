@@ -327,17 +327,17 @@ function getPapierhandtuecherSteps(segments: string[]): StepDef[] {
     const lagenStep = makeLagenStep(dimConfig?.layers || [1, 2])
     if (segments.length < 3) return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP, lagenStep]
     const layerSlug = segments[2]
-    return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP, lagenStep, makeAvailableMaterialStep(dimension, layerSlug)]
+    return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP, lagenStep, makeAvailableMaterialStep(dimension, layerSlug), QUANTITY_STEP]
   }
 
-  // ohne-spender: original flow
-  return [SPENDER_FRAGE_STEP, PAPIERHANDTUECHER_FALZUNG_STEP, QUANTITY_STEP, materialStep(true)]
+  // ohne-spender: Falzung → Qualität → Menge (Menge immer als letzte Frage)
+  return [SPENDER_FRAGE_STEP, PAPIERHANDTUECHER_FALZUNG_STEP, materialStep(true), QUANTITY_STEP]
 }
 
 function getPapierhandtuecherAllPaths(): string[][] {
   const paths: string[][] = []
 
-  // Spender path
+  // Spender path: Abmessung → Lagen → Qualität → Menge
   paths.push(['spender'])
   for (const [dimKey, dim] of Object.entries(DIMENSION_CONFIG)) {
     paths.push(['spender', dimKey])
@@ -347,18 +347,21 @@ function getPapierhandtuecherAllPaths(): string[][] {
       const matStep = makeAvailableMaterialStep(dimKey, layerSlug)
       for (const mOpt of matStep.options) {
         paths.push(['spender', dimKey, layerSlug, mOpt.value])
+        for (const qOpt of QUANTITY_STEP.options) {
+          paths.push(['spender', dimKey, layerSlug, mOpt.value, qOpt.value])
+        }
       }
     }
   }
 
-  // Ohne-spender path (original flow)
+  // Ohne-spender path: Falzung → Qualität → Menge
   paths.push(['ohne-spender'])
   for (const falzOpt of PAPIERHANDTUECHER_FALZUNG_STEP.options) {
     paths.push(['ohne-spender', falzOpt.value])
-    for (const qOpt of QUANTITY_STEP.options) {
-      paths.push(['ohne-spender', falzOpt.value, qOpt.value])
-      for (const mOpt of materialStep(true).options) {
-        paths.push(['ohne-spender', falzOpt.value, qOpt.value, mOpt.value])
+    for (const mOpt of materialStep(true).options) {
+      paths.push(['ohne-spender', falzOpt.value, mOpt.value])
+      for (const qOpt of QUANTITY_STEP.options) {
+        paths.push(['ohne-spender', falzOpt.value, mOpt.value, qOpt.value])
       }
     }
   }
@@ -397,7 +400,7 @@ export const CATEGORIES: CategoryDef[] = [
     metaTitle: 'Papierhandtücher B2B kaufen | Hamburg Papier Produktfinder',
     metaDescription: 'Papierhandtücher in Z-Falz, C-Falz oder Interfold für Ihren Spender finden. Recycling oder Zellstoff, als Karton oder Palette. 43 Produkte.',
     seoContent: 'Die richtige Größe ist entscheidend: Papierhandtücher, die nicht in Ihren Spender passen, verursachen Staus, reißen beim Entnehmen oder lassen sich gar nicht erst einlegen. Mit unserem Produktfinder finden Sie in wenigen Klicks die exakt passenden Papierhandtücher für Ihren vorhandenen Spender — egal ob Z-Falz, Interfold oder C-Falz.',
-    steps: [SPENDER_FRAGE_STEP, PAPIERHANDTUECHER_FALZUNG_STEP, QUANTITY_STEP, materialStep(true)],
+    steps: [SPENDER_FRAGE_STEP, PAPIERHANDTUECHER_FALZUNG_STEP, materialStep(true), QUANTITY_STEP],
     getSteps: getPapierhandtuecherSteps,
     getAllPaths: getPapierhandtuecherAllPaths,
   },

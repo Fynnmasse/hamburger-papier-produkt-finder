@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
-import { ExternalLink } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import type { Product } from '@/lib/products'
 import { formatPreis, getGuenstigsterGrundpreis, getGrundpreisEinheit } from '@/lib/price-utils'
 
@@ -194,9 +194,12 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                           href={utmUrl}
                           target="_blank"
                           rel="noopener"
-                          className="inline-flex items-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                          className="group relative overflow-hidden inline-flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
-                          Bestellen <ExternalLink size={11} aria-hidden="true" />
+                          <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Bestellen</span>
+                          <span className="absolute right-1 top-1 bottom-1 rounded z-10 grid w-6 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+                            <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
+                          </span>
                         </a>
                       </td>
                     </tr>
@@ -255,9 +258,12 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                       href={utmUrl}
                       target="_blank"
                       rel="noopener"
-                      className="inline-flex items-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      className="group relative overflow-hidden inline-flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >
-                      Bestellen <ExternalLink size={11} />
+                      <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Bestellen</span>
+                      <span className="absolute right-1 top-1 bottom-1 rounded z-10 grid w-6 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+                        <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
+                      </span>
                     </a>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { ExternalLink } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import type { Product } from '@/lib/products'
 import { getReferencedId, sampleProductIds } from '@/lib/sample-products'
 import { MusterButton } from '@/components/muster-button'
@@ -96,10 +96,12 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
             href={shopUrl}
             target="_blank"
             rel="noopener"
-            className="flex items-center justify-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[44px] hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="group relative overflow-hidden flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[44px] hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
-            Jetzt bestellen
-            <ExternalLink size={12} aria-hidden="true" />
+            <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Jetzt bestellen</span>
+            <span className="absolute right-1 top-1 bottom-1 rounded z-10 grid w-7 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+              <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
+            </span>
           </a>
           {canSample && (
             <MusterButton referencedId={referencedId} kategorie={kategorie} />

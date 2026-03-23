@@ -30,14 +30,14 @@ export function AuroraBackground({
             [background-image:var(--white-gradient),var(--aurora)]
             [background-size:300%,_200%]
             [background-position:50%_50%,50%_50%]
-            filter blur-[8px] invert
+            filter blur-[6px] invert
             after:content-[""] after:absolute after:inset-0
             after:[background-image:var(--white-gradient),var(--aurora)]
             after:[background-size:200%,_100%]
             after:animate-aurora after:[background-attachment:fixed] after:mix-blend-difference
             motion-reduce:after:animate-none
             pointer-events-none
-            absolute -inset-[10px] opacity-75 will-change-transform`,
+            absolute -inset-[10px] opacity-90 will-change-transform`,
             showRadialGradient &&
               `[mask-image:radial-gradient(ellipse_at_100%_0%,black_10%,transparent_85%)]`
           )}

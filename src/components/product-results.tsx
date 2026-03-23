@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Home, Edit } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
 import type { Product } from '@/lib/products'
+import { fetchProductPrices } from '@/lib/shopware-api'
 
 interface ProductResultsProps {
   products: Product[]
@@ -10,8 +11,9 @@ interface ProductResultsProps {
   backHref: string
 }
 
-export function ProductResults({ products, title, kategorie, backHref }: ProductResultsProps) {
+export async function ProductResults({ products, title, kategorie, backHref }: ProductResultsProps) {
   const shown = products.slice(0, 24)
+  const prices = await fetchProductPrices()
 
   return (
     <>
@@ -48,7 +50,7 @@ export function ProductResults({ products, title, kategorie, backHref }: Product
       ) : (
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {shown.map((p, i) => (
-            <ProductCard key={p.num} p={p} index={i} kategorie={kategorie} />
+            <ProductCard key={p.num} p={p} index={i} kategorie={kategorie} prices={prices} />
           ))}
         </div>
       )}

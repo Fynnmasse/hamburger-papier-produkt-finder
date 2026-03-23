@@ -8,17 +8,23 @@ interface ProductCardProps {
   p: Product
   index: number
   kategorie?: string
+  prices?: Record<string, number>
 }
 
-export function ProductCard({ p, index, kategorie }: ProductCardProps) {
+export function ProductCard({ p, index, kategorie, prices }: ProductCardProps) {
   const utmBestellen = `utm_source=produktfinder&utm_medium=bestellen&utm_campaign=${kategorie || 'allgemein'}`
   const shopUrl = p.url
     ? `${p.url}?${utmBestellen}`
     : `https://www.hamburgpapier-shop.de/search?search=${encodeURIComponent(p.num)}&${utmBestellen}`
-  const price = p.price > 0 ? `${(p.price / 1.19).toFixed(2).replace('.', ',')} €` : 'Auf Anfrage'
   const name = p.name.length > 80 ? p.name.substring(0, 77) + '…' : p.name
 
   const referencedId = p.url ? getReferencedId(p.url) : null
+  const shopwarePrice = referencedId && prices ? prices[referencedId] : undefined
+  const price = shopwarePrice != null
+    ? `${shopwarePrice.toFixed(2).replace('.', ',')} €`
+    : p.price > 0
+      ? `${(p.price / 1.19).toFixed(2).replace('.', ',')} €`
+      : 'Auf Anfrage'
   const canSample = referencedId !== null && sampleProductIds.has(referencedId)
 
   return (

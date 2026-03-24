@@ -24,10 +24,24 @@ const QUANTITY_LABELS: Record<string, string> = {
   stueck: 'Stück',
 }
 
+const FALZUNG_LABELS: Record<string, string> = {
+  'z-falz': 'Z-Falz',
+  'c-falz': 'C-Falz',
+  'interfold': 'Interfold',
+}
+
+function getFalzung(name: string): string {
+  if (/z[\s-]?fal[tz]/i.test(name)) return 'z-falz'
+  if (/c[\s-]?fal[tz]/i.test(name)) return 'c-falz'
+  if (/interfold/i.test(name)) return 'interfold'
+  return ''
+}
+
 export function VergleichInhalt({ products, kategorie, kategorieLabel }: VergleichInhaltProps) {
   const [lagen, setLagen] = useState('')
   const [material, setMaterial] = useState('')
   const [versandart, setVersandart] = useState('')
+  const [falzung, setFalzung] = useState('')
 
   // Verfügbare Filter-Optionen aus Produkten ableiten
   const verfuegbareLagen = useMemo(() =>
@@ -42,6 +56,12 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
     [...new Set(products.map(p => p.quantity))],
     [products]
   )
+  const verfuegbareFalzungen = useMemo(() =>
+    kategorie === 'papierhandtuecher'
+      ? [...new Set(products.map(p => getFalzung(p.name)).filter(Boolean))]
+      : [],
+    [products, kategorie]
+  )
 
   // Filtern
   const filtered = useMemo(() => {
@@ -49,9 +69,10 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
       if (lagen && p.layers !== parseInt(lagen)) return false
       if (material && p.material !== material) return false
       if (versandart && p.quantity !== versandart) return false
+      if (falzung && getFalzung(p.name) !== falzung) return false
       return true
     })
-  }, [products, lagen, material, versandart])
+  }, [products, lagen, material, versandart, falzung])
 
   // Nach Grundpreis sortieren (günstigster zuerst, ohne Grundpreis am Ende)
   const sorted = useMemo(() => {
@@ -110,9 +131,22 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
             ))}
           </select>
         )}
-        {(lagen || material || versandart) && (
+        {verfuegbareFalzungen.length > 1 && (
+          <select
+            value={falzung}
+            onChange={e => setFalzung(e.target.value)}
+            aria-label="Falzung filtern"
+            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <option value="">Alle Falzungen</option>
+            {verfuegbareFalzungen.map(f => (
+              <option key={f} value={f}>{FALZUNG_LABELS[f] || f}</option>
+            ))}
+          </select>
+        )}
+        {(lagen || material || versandart || falzung) && (
           <button
-            onClick={() => { setLagen(''); setMaterial(''); setVersandart('') }}
+            onClick={() => { setLagen(''); setMaterial(''); setVersandart(''); setFalzung('') }}
             className="text-sm text-muted-foreground hover:text-navy transition-colors underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             Filter zurücksetzen

@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { ExternalLink } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import type { Product } from '@/lib/products'
 import { getReferencedId, sampleProductIds } from '@/lib/sample-products'
 import { MusterButton } from '@/components/muster-button'
@@ -44,7 +44,7 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
         target="_blank"
         rel="noopener"
         aria-label={`Im Shop kaufen: ${p.name}`}
-        className="flex flex-col flex-1 cursor-pointer focus-visible:outline-none"
+        className="flex flex-col flex-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
       >
         <div className="w-full aspect-[4/3] bg-white overflow-hidden relative flex items-center justify-center p-2">
           {isBesterPreis && (
@@ -62,7 +62,7 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
               loading="lazy"
             />
           ) : (
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#c8c4bf" strokeWidth="1.5">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#c8c4bf" strokeWidth="1.5" aria-hidden="true">
               <rect x="8" y="8" width="32" height="32" rx="4" />
               <path d="M16 28l6-8 5 6 4-4 5 6" /><circle cx="18" cy="20" r="3" />
             </svg>
@@ -80,13 +80,12 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
           </div>
           <p className="text-sm font-semibold text-navy leading-snug flex-1">{name}</p>
           <div className="mt-1">
-            <div className="font-display font-extrabold text-xl text-navy leading-none">{priceLabel}</div>
+            <div className="font-display font-extrabold text-xl text-navy leading-none tabular-nums">{priceLabel}</div>
             {grundpreis !== null && (
-              <div className="text-xs text-primary font-semibold mt-0.5">
+              <div className="text-xs text-primary font-semibold mt-0.5 tabular-nums">
                 = {formatPreis(grundpreis)} € / {einheit}
               </div>
             )}
-            <div className="text-xs text-muted-foreground mt-0.5">zzgl. 19% MwSt.</div>
           </div>
         </div>
       </a>
@@ -97,10 +96,12 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
             href={shopUrl}
             target="_blank"
             rel="noopener"
-            className="flex items-center justify-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[40px] hover:bg-primary/90 transition-colors"
+            className="group relative overflow-hidden flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[44px] hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
-            Jetzt bestellen
-            <ExternalLink size={12} />
+            <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Jetzt bestellen</span>
+            <span className="absolute right-1 top-1 bottom-1 rounded z-10 grid w-7 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+              <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
+            </span>
           </a>
           {canSample && (
             <MusterButton referencedId={referencedId} kategorie={kategorie} />

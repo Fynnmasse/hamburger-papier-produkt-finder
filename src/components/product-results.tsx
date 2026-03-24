@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Home, Edit, BarChart3 } from 'lucide-react'
+import { Home, Edit, BarChart3, ChevronRight } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
 import type { Product } from '@/lib/products'
 import { findGuenstigsteOption } from '@/lib/price-utils'
@@ -28,11 +28,11 @@ export function ProductResults({ products, title, kategorie, backHref }: Product
             </p>
           </div>
           <div className="flex gap-3 items-center">
-            <Link href={backHref} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors rounded">
-              <Edit size={15} /> Suche anpassen
+            <Link href={backHref} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+              <Edit size={15} aria-hidden="true" /> Suche anpassen
             </Link>
-            <Link href="/" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors rounded">
-              <Home size={15} /> Neu starten
+            <Link href="/" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+              <Home size={15} aria-hidden="true" /> Neu starten
             </Link>
           </div>
         </div>
@@ -43,8 +43,11 @@ export function ProductResults({ products, title, kategorie, backHref }: Product
           <div className="text-5xl mb-4">🔍</div>
           <h3 className="font-display font-bold text-2xl uppercase text-navy mb-2">Keine Produkte gefunden</h3>
           <p className="text-muted-foreground text-sm mb-6">Mit diesen Filtereinstellungen haben wir leider keine Treffer. Versuchen Sie andere Kombinationen.</p>
-          <Link href="/" className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
-            Alle Kategorien anzeigen
+          <Link href="/" className="group relative overflow-hidden inline-flex items-center justify-center bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+            <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Alle Kategorien anzeigen</span>
+            <span className="absolute right-1 top-1 bottom-1 rounded z-10 grid w-8 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+              <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
+            </span>
           </Link>
         </div>
       ) : (
@@ -59,9 +62,9 @@ export function ProductResults({ products, title, kategorie, backHref }: Product
         <div className="max-w-6xl mx-auto mt-6">
           <Link
             href={`/vergleich/${kategorie}`}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
-            <BarChart3 size={15} />
+            <BarChart3 size={15} aria-hidden="true" />
             Alle {title} nach Grundpreis vergleichen
           </Link>
         </div>

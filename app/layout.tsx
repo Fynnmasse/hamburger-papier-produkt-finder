@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { AuroraBackground } from '@/components/ui/aurora-background'
+
 import { DM_Sans, Comfortaa } from 'next/font/google'
 import '@/index.css'
 
@@ -51,19 +51,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de" className={`${dmSans.variable} ${comfortaa.variable}`}>
-      <body>
+      <head>
+          <link rel="preconnect" href="https://www.hamburgpapier-shop.de" />
+        </head>
+        <body>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:text-sm focus:font-semibold"
         >
           Zum Inhalt springen
         </a>
-        <div className="fixed inset-0 z-0 opacity-70 pointer-events-none" aria-hidden="true">
-          <AuroraBackground showRadialGradient>
-            <div />
-          </AuroraBackground>
-        </div>
-        <main id="main-content" className="relative z-10">{children}</main>
+        <main id="main-content">{children}</main>
       </body>
     </html>
   )

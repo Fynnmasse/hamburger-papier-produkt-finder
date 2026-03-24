@@ -97,7 +97,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
               {isSpenderPath && products.length > 0 && (
                 <div className="max-w-6xl mx-auto mb-4 animate-fade-up">
                   <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 text-sm font-medium px-4 py-2 rounded-lg">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.3 4.3a1 1 0 0 1 0 1.4l-6 6a1 1 0 0 1-1.4 0l-3-3a1 1 0 1 1 1.4-1.4L6.6 9.6l5.3-5.3a1 1 0 0 1 1.4 0z" fill="currentColor"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.3 4.3a1 1 0 0 1 0 1.4l-6 6a1 1 0 0 1-1.4 0l-3-3a1 1 0 1 1 1.4-1.4L6.6 9.6l5.3-5.3a1 1 0 0 1 1.4 0z" fill="currentColor"/></svg>
                     Passt in Ihren vorhandenen Spender
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
               />
 
               <div className="flex justify-start mt-8">
-                <Link href={backHref} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors rounded">
+                <Link href={backHref} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                   <ArrowLeft size={16} /> Zurück
                 </Link>
               </div>
@@ -162,7 +162,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
         )}
       </main>
 
-      <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35">
+      <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35" suppressHydrationWarning>
         © {new Date().getFullYear()} Hamburg Papier ·{' '}
         <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
           hamburgpapier-shop.de

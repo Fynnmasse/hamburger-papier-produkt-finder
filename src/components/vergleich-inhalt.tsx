@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
-import { ExternalLink } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import type { Product } from '@/lib/products'
 import { formatPreis, getGuenstigsterGrundpreis, getGrundpreisEinheit } from '@/lib/price-utils'
 
@@ -75,7 +75,8 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
           <select
             value={lagen}
             onChange={e => setLagen(e.target.value)}
-            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="Lagen filtern"
+            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <option value="">Alle Lagen</option>
             {verfuegbareLagen.map(l => (
@@ -87,7 +88,8 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
           <select
             value={material}
             onChange={e => setMaterial(e.target.value)}
-            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="Material filtern"
+            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <option value="">Alle Materialien</option>
             {verfuegbareMaterialien.map(m => (
@@ -99,7 +101,8 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
           <select
             value={versandart}
             onChange={e => setVersandart(e.target.value)}
-            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="Versandart filtern"
+            className="bg-white border border-border rounded-lg px-3 py-2 text-sm text-navy min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <option value="">Alle Versandarten</option>
             {verfuegbareVersandarten.map(v => (
@@ -110,7 +113,7 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
         {(lagen || material || versandart) && (
           <button
             onClick={() => { setLagen(''); setMaterial(''); setVersandart('') }}
-            className="text-sm text-muted-foreground hover:text-navy transition-colors underline"
+            className="text-sm text-muted-foreground hover:text-navy transition-colors underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             Filter zurücksetzen
           </button>
@@ -136,8 +139,8 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                   <th className="text-left py-3 px-3 font-semibold">Produkt</th>
                   <th className="text-center py-3 px-2 font-semibold">Lagen</th>
                   <th className="text-center py-3 px-2 font-semibold">Versand</th>
-                  <th className="text-right py-3 px-3 font-semibold">Stückpreis</th>
-                  <th className="text-right py-3 px-3 font-semibold">Grundpreis</th>
+                  <th className="text-right py-3 px-3 font-semibold tabular-nums">Stückpreis</th>
+                  <th className="text-right py-3 px-3 font-semibold tabular-nums">Grundpreis</th>
                   <th className="py-3 px-3"></th>
                 </tr>
               </thead>
@@ -176,10 +179,10 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                           {QUANTITY_LABELS[p.quantity] || p.quantity}
                         </span>
                       </td>
-                      <td className="text-right py-3 px-3 text-navy font-medium">
+                      <td className="text-right py-3 px-3 text-navy font-medium tabular-nums">
                         {displayPrice > 0 ? `ab ${formatPreis(displayPrice)} €` : 'Auf Anfrage'}
                       </td>
-                      <td className="text-right py-3 px-3">
+                      <td className="text-right py-3 px-3 tabular-nums">
                         {grundpreis !== null ? (
                           <span className="font-bold text-navy">{formatPreis(grundpreis)} € / {einheit}</span>
                         ) : (
@@ -191,9 +194,12 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                           href={utmUrl}
                           target="_blank"
                           rel="noopener"
-                          className="inline-flex items-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors whitespace-nowrap"
+                          className="group relative overflow-hidden inline-flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
-                          Bestellen <ExternalLink size={11} />
+                          <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Bestellen</span>
+                          <span className="absolute right-1 top-1 bottom-1 rounded z-10 grid w-6 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+                            <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
+                          </span>
                         </a>
                       </td>
                     </tr>
@@ -247,15 +253,17 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                           {displayPrice > 0 ? `ab ${formatPreis(displayPrice)} €` : 'Auf Anfrage'}
                         </div>
                       )}
-                      <div className="text-xs text-muted-foreground">zzgl. 19% MwSt.</div>
                     </div>
                     <a
                       href={utmUrl}
                       target="_blank"
                       rel="noopener"
-                      className="inline-flex items-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                      className="group relative overflow-hidden inline-flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >
-                      Bestellen <ExternalLink size={11} />
+                      <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Bestellen</span>
+                      <span className="absolute right-1 top-1 bottom-1 rounded z-10 grid w-6 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+                        <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
+                      </span>
                     </a>
                   </div>
                 </div>

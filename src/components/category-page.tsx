@@ -85,7 +85,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
       <FinderHeader />
 
       <main className="flex-1">
-        <h1 className="sr-only">Hamburg Papier Produktberater — {catDef.label}</h1>
+        <h1 className="sr-only">Hamburgpapier Produktberater — {catDef.label}</h1>
 
         <div className="py-10 px-4">
           <div className="max-w-4xl mx-auto">
@@ -163,7 +163,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
       </main>
 
       <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35" suppressHydrationWarning>
-        © {new Date().getFullYear()} Hamburg Papier ·{' '}
+        © {new Date().getFullYear()} Hamburgpapier ·{' '}
         <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
           hamburgpapier-shop.de
         </a>
@@ -193,7 +193,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
                   '@type': 'Product',
                   name: p.name,
                   url: p.url || `https://www.hamburgpapier-shop.de/search?search=${encodeURIComponent(p.num)}`,
-                  brand: { '@type': 'Brand', name: 'Hamburg Papier' },
+                  brand: { '@type': 'Brand', name: 'Hamburgpapier' },
                   ...(p.price > 0 ? {
                     offers: {
                       '@type': 'Offer',

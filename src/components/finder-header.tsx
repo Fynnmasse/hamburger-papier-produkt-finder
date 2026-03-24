@@ -12,7 +12,7 @@ export function FinderHeader() {
     <header className="sticky top-0 z-50 bg-navy border-b-2 border-teal">
       <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
         <Link href="/" className="hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded">
-          <Image src="/Logo.svg" alt="Hamburg Papier" width={160} height={42} className="h-8 w-auto" priority />
+          <Image src="/Logo.svg" alt="Hamburgpapier" width={160} height={42} className="h-8 w-auto" priority />
         </Link>
 
         {/* Desktop Nav */}

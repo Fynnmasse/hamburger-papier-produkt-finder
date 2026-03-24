@@ -34,8 +34,8 @@ export function generateCategoryMetadata(
     return labelMap?.[seg] || seg
   })
 
-  const title = `${catDef.label} ${labels.join(' ')} | Hamburg Papier Produktfinder`
-  const desc = `Finden Sie ${catDef.label} — ${labels.join(', ')}. B2B Großhandel von Hamburg Papier. Kostenloser Versand, kostenlose Muster.`
+  const title = `${catDef.label} ${labels.join(' ')} | Hamburgpapier Produktfinder`
+  const desc = `Finden Sie ${catDef.label} — ${labels.join(', ')}. B2B Großhandel von Hamburgpapier. Kostenloser Versand, kostenlose Muster.`
   const canonical = `/${kategorie}/${segments.join('/')}`
 
   return {

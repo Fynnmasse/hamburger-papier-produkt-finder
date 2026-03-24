@@ -82,7 +82,7 @@ export default function HomePage() {
       </main>
 
       <footer className="relative z-10 bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35" suppressHydrationWarning>
-        © {new Date().getFullYear()} Hamburg Papier ·{' '}
+        © {new Date().getFullYear()} Hamburgpapier ·{' '}
         <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
           hamburgpapier-shop.de
         </a>
@@ -96,7 +96,7 @@ export default function HomePage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'WebApplication',
-            name: 'Hamburg Papier Produktberater',
+            name: 'Hamburgpapier Produktberater',
             description:
               'B2B-Produktberater für Hygienepapier. Finden Sie Toilettenpapier, Papierhandtücher, Putzpapier und Spender für Ihren Betrieb.',
             url: 'https://produktfinder.hamburgpapier-shop.de',
@@ -109,7 +109,7 @@ export default function HomePage() {
             },
             provider: {
               '@type': 'Organization',
-              name: 'Hamburg Papier',
+              name: 'Hamburgpapier',
               url: 'https://www.hamburgpapier-shop.de',
             },
           }),

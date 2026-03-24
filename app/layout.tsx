@@ -19,24 +19,24 @@ const comfortaa = Comfortaa({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Produktberater — Hamburg Papier | Hygienepapier B2B Großhandel',
-    template: '%s | Hamburg Papier Produktfinder',
+    default: 'Produktberater — Hamburgpapier | Hygienepapier B2B Großhandel',
+    template: '%s | Hamburgpapier Produktfinder',
   },
   description:
-    'Finden Sie das passende Hygienepapier für Ihren Betrieb. Toilettenpapier, Papierhandtücher, Putzpapier und Spender — 179 Produkte im B2B Großhandel von Hamburg Papier.',
+    'Finden Sie das passende Hygienepapier für Ihren Betrieb. Toilettenpapier, Papierhandtücher, Putzpapier und Spender — 179 Produkte im B2B Großhandel von Hamburgpapier.',
   metadataBase: new URL(SITE_URL),
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'de_DE',
-    siteName: 'Hamburg Papier',
-    title: 'Produktberater — Hamburg Papier | Hygienepapier B2B Großhandel',
+    siteName: 'Hamburgpapier',
+    title: 'Produktberater — Hamburgpapier | Hygienepapier B2B Großhandel',
     description:
       'Finden Sie das passende Hygienepapier für Ihren Betrieb. 179 Produkte im B2B Großhandel.',
   },
   twitter: {
     card: 'summary',
-    title: 'Produktberater — Hamburg Papier',
+    title: 'Produktberater — Hamburgpapier',
     description:
       'B2B Hygienepapier Großhandel — 179 Produkte. Finden Sie den richtigen Artikel für Ihren Betrieb.',
   },

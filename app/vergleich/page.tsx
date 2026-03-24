@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { FinderHeader } from '@/components/finder-header'
 import { Breadcrumbs, breadcrumbJsonLd, type BreadcrumbItem } from '@/components/breadcrumbs'
 export const metadata: Metadata = {
-  title: 'Preisvergleich nach Grundpreis | Hamburg Papier Produktfinder',
+  title: 'Preisvergleich nach Grundpreis | Hamburgpapier Produktfinder',
   description: 'Vergleichen Sie alle Hygienepapier-Produkte nach dem günstigsten Grundpreis pro Rolle. B2B Großhandelspreise, versandkostenfrei.',
 }
 
@@ -33,7 +33,7 @@ export default function VergleichPage() {
       <FinderHeader />
 
       <main className="flex-1">
-        <h1 className="sr-only">Preisvergleich nach Grundpreis — Hamburg Papier Produktfinder</h1>
+        <h1 className="sr-only">Preisvergleich nach Grundpreis — Hamburgpapier Produktfinder</h1>
 
         <div className="py-10 px-4">
           <div className="max-w-4xl mx-auto">
@@ -87,7 +87,7 @@ export default function VergleichPage() {
       </main>
 
       <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35">
-        © {new Date().getFullYear()} Hamburg Papier ·{' '}
+        © {new Date().getFullYear()} Hamburgpapier ·{' '}
         <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
           hamburgpapier-shop.de
         </a>

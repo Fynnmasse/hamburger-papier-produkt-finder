@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { SITE_URL } from '@/lib/constants'
 import { DM_Sans, Comfortaa } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import '@/index.css'
 
 const dmSans = DM_Sans({
@@ -62,6 +63,7 @@ export default function RootLayout({
           Zum Inhalt springen
         </a>
         <main id="main-content">{children}</main>
+        <Analytics />
       </body>
     </html>
   )

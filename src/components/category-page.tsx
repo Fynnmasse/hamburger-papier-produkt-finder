@@ -120,7 +120,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
               )}
             </>
           ) : (
-            <div className="max-w-3xl mx-auto">
+            <div className={`${currentStep.options.length >= 6 ? 'max-w-5xl' : 'max-w-3xl'} mx-auto`}>
               <div className="text-center mb-10 animate-fade-up">
                 <div className="text-xs font-bold tracking-widest uppercase text-primary mb-2">
                   Schritt {currentStepNum} von {totalSteps}

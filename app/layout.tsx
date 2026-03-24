@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-
+import { SITE_URL } from '@/lib/constants'
 import { DM_Sans, Comfortaa } from 'next/font/google'
 import '@/index.css'
 
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
   description:
     'Finden Sie das passende Hygienepapier für Ihren Betrieb. Toilettenpapier, Papierhandtücher, Putzpapier und Spender — 179 Produkte im B2B Großhandel von Hamburg Papier.',
-  metadataBase: new URL('https://www.hamburgpapier-shop.de'),
-  alternates: { canonical: '/produktberater' },
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'de_DE',

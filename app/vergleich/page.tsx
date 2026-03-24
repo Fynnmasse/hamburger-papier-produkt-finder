@@ -3,14 +3,24 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { FinderHeader } from '@/components/finder-header'
 import { Breadcrumbs, breadcrumbJsonLd, type BreadcrumbItem } from '@/components/breadcrumbs'
-import { CATEGORIES } from '@/lib/finder-config'
-
 export const metadata: Metadata = {
   title: 'Preisvergleich nach Grundpreis | Hamburg Papier Produktfinder',
   description: 'Vergleichen Sie alle Hygienepapier-Produkte nach dem günstigsten Grundpreis pro Rolle. B2B Großhandelspreise, versandkostenfrei.',
 }
 
-const VERGLEICH_KATEGORIEN = CATEGORIES.filter(c => c.slug !== 'seife')
+const VERGLEICH_KATEGORIEN: { slug: string; label: string; icon: string }[] = [
+  { slug: 'toilettenpapier-kleinrollen', label: 'Toilettenpapier Kleinrollen', icon: 'Toilettenpapier.svg' },
+  { slug: 'jumbotoilettenpapier', label: 'Jumbotoilettenpapier', icon: 'Jumbotoilettenpapier.svg' },
+  { slug: 'papierhandtuecher', label: 'Papierhandtücher', icon: 'Papierhandtücher.svg' },
+  { slug: 'handtuchrollen', label: 'Handtuchrollen', icon: 'Handtuchrollen.svg' },
+  { slug: 'putzpapier-rollen', label: 'Putzpapier-Rollen', icon: 'Putzpapier.svg' },
+  { slug: 'putzpapier-aerzte', label: 'Ärzte- & Liegenrollen', icon: 'Ärzte und Liegerollen.svg' },
+  { slug: 'putzpapier-mikrofaser', label: 'Mikrofaser & Wischmop', icon: 'Wischmopp und Mikrofasertücher.svg' },
+  { slug: 'kuechenrollen', label: 'Küchenrollen', icon: 'Küchenrollen.svg' },
+  { slug: 'servietten', label: 'Servietten', icon: 'Servietten.svg' },
+  { slug: 'kosmetiktuecher', label: 'Kosmetiktücher', icon: 'Kosmetiktücher.svg' },
+  { slug: 'spender', label: 'Spender & Zubehör', icon: 'Spender.svg' },
+]
 
 export default function VergleichPage() {
   const breadcrumbs: BreadcrumbItem[] = [

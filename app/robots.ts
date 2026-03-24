@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://www.hamburgpapier-shop.de/produktberater/sitemap.xml',
+    sitemap: 'https://produktfinder.hamburgpapier-shop.de/sitemap.xml',
   }
 }

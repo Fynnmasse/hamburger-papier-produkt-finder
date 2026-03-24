@@ -278,6 +278,15 @@ const SPENDER_FRAGE_STEP: StepDef = {
   ],
 }
 
+const DIMENSION_IMAGES: Record<string, string> = {
+  '21x21cm': 'abmessungen-21x21-cm.avif',
+  '24x21cm': 'abmessung-24x21.avif',
+  '25x21cm': 'abmessungen-25x21.avif',
+  '25x23cm': 'abmessungen-25x23-cm.avif',
+  '20-5x24cm': 'abmessungen-20,5x24cm.avif',
+  '25x31cm': 'abmessungen-25x31-cm.avif',
+}
+
 const ABMESSUNG_STEP: StepDef = {
   id: 'abmessung',
   slug: 'abmessung',
@@ -289,6 +298,7 @@ const ABMESSUNG_STEP: StepDef = {
     desc: `Ausgefaltet: ${dim.label} · Gefaltet: ${dim.labelFolded}`,
     tag: dim.falzung === 'z-falz' ? 'Z-Falz' : dim.falzung === 'c-falz' ? 'C-Falz' : 'Interfold',
     tagStyle: dim.falzung === 'z-falz' ? 'bg-blue-100 text-blue-800' : dim.falzung === 'c-falz' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800',
+    image: DIMENSION_IMAGES[value],
   })),
 }
 

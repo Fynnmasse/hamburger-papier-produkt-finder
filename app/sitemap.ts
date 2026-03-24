@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { CATEGORIES, getAllStaticPaths } from '@/lib/finder-config'
+import { SITE_URL } from '@/lib/constants'
 
-const BASE = 'https://www.hamburgpapier-shop.de/produktberater'
+const BASE = SITE_URL
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const urls: MetadataRoute.Sitemap = [
@@ -20,9 +21,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'weekly',
     priority: 0.8,
   })
-  for (const cat of CATEGORIES.filter(c => c.slug !== 'seife')) {
+  const vergleichSlugs = [
+    'toilettenpapier-kleinrollen', 'jumbotoilettenpapier',
+    'papierhandtuecher', 'handtuchrollen',
+    'putzpapier-rollen', 'putzpapier-aerzte', 'putzpapier-mikrofaser',
+    'kuechenrollen', 'servietten', 'kosmetiktuecher',
+    'spender',
+  ]
+  for (const slug of vergleichSlugs) {
     urls.push({
-      url: `${BASE}/vergleich/${cat.slug}`,
+      url: `${BASE}/vergleich/${slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,

@@ -99,7 +99,7 @@ export default function HomePage() {
             name: 'Hamburg Papier Produktberater',
             description:
               'B2B-Produktberater für Hygienepapier. Finden Sie Toilettenpapier, Papierhandtücher, Putzpapier und Spender für Ihren Betrieb.',
-            url: 'https://www.hamburgpapier-shop.de/produktberater',
+            url: 'https://produktfinder.hamburgpapier-shop.de',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Web',
             offers: {

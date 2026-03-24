@@ -20,7 +20,7 @@ export function generateCategoryMetadata(
       title: catDef.metaTitle,
       description: catDef.metaDescription,
       alternates: {
-        canonical: `/produktberater/${kategorie}`,
+        canonical: `/${kategorie}`,
       },
     }
   }
@@ -36,7 +36,7 @@ export function generateCategoryMetadata(
 
   const title = `${catDef.label} ${labels.join(' ')} | Hamburg Papier Produktfinder`
   const desc = `Finden Sie ${catDef.label} — ${labels.join(', ')}. B2B Großhandel von Hamburg Papier. Kostenloser Versand, kostenlose Muster.`
-  const canonical = `/produktberater/${kategorie}/${segments.join('/')}`
+  const canonical = `/${kategorie}/${segments.join('/')}`
 
   return {
     title,

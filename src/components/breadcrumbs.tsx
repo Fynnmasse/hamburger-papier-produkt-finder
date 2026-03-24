@@ -35,7 +35,7 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]): object {
       '@type': 'ListItem',
       position: i + 1,
       name: item.label,
-      ...(item.href ? { item: `https://www.hamburgpapier-shop.de/produktberater${item.href}` } : {}),
+      ...(item.href ? { item: `https://produktfinder.hamburgpapier-shop.de${item.href}` } : {}),
     })),
   }
 }

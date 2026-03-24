@@ -10,9 +10,13 @@ interface StepSelectionProps {
 }
 
 export function StepSelection({ step, basePath }: StepSelectionProps) {
-  const gridCols = step.options.length <= 3
-    ? 'grid-cols-1 sm:grid-cols-3'
-    : 'grid-cols-1 sm:grid-cols-2'
+  const gridCols = step.options.length <= 2
+    ? 'grid-cols-1 sm:grid-cols-2'
+    : step.options.length <= 3
+      ? 'grid-cols-1 sm:grid-cols-3'
+      : step.options.length >= 6
+        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+        : 'grid-cols-1 sm:grid-cols-2'
 
   return (
     <div className={`grid ${gridCols} gap-4`}>

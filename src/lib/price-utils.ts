@@ -17,11 +17,15 @@ export function getGuenstigsterGrundpreis(product: Product): number | null {
   return letzter.referencePrice?.price ?? null
 }
 
-/** Einheit aus Staffelpreisen (z.B. "Rolle(n)") */
+/** Einheit aus Staffelpreisen (z.B. "Rolle(n)" oder "1000 Stück") */
 export function getGrundpreisEinheit(product: Product): string {
   if (!product.staffelpreise || product.staffelpreise.length === 0) return 'Rolle(n)'
   for (const tier of product.staffelpreise) {
-    if (tier.referencePrice?.unitName) return tier.referencePrice.unitName
+    if (tier.referencePrice?.unitName) {
+      const ref = tier.referencePrice
+      if (ref.referenceUnit > 1) return `${ref.referenceUnit} ${ref.unitName}`
+      return ref.unitName
+    }
   }
   return 'Rolle(n)'
 }

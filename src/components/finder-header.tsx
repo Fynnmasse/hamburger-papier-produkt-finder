@@ -25,7 +25,6 @@ export function FinderHeader() {
           </Link>
           <a
             href="https://www.hamburgpapier-shop.de"
-            target="_blank" rel="noopener"
             className="group relative text-xs font-semibold text-white/70 border border-white/20 rounded-full h-9 p-0.5 ps-3.5 pe-10 flex items-center overflow-hidden hover:text-white hover:border-white/50 hover:ps-10 hover:pe-3.5 transition-all duration-500 whitespace-nowrap"
           >
             <span className="relative z-10 transition-all duration-500">Zum Shop</span>
@@ -58,7 +57,6 @@ export function FinderHeader() {
           </Link>
           <a
             href="https://www.hamburgpapier-shop.de"
-            target="_blank" rel="noopener"
             onClick={() => setOpen(false)}
             className="text-sm font-semibold text-white/80 hover:text-white transition-colors py-2 flex items-center gap-1.5"
           >

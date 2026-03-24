@@ -284,7 +284,7 @@ function ProductCard({ p, index }: { p: Product; index: number }) {
 
   return (
     <a
-      href={shopUrl} target="_blank" rel="noopener"
+      href={shopUrl}
       className="bg-white border border-border rounded-xl overflow-hidden flex flex-col opacity-0 translate-y-2 animate-card-in hover:-translate-y-1 hover:scale-[1.01] hover:border-primary hover:shadow-lg transition-[border-color,box-shadow,transform,opacity] duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       style={{ animationDelay: `${Math.min(index * 40, 400)}ms`, animationFillMode: 'forwards' }}
       aria-label={`Im Shop kaufen: ${p.name}`}

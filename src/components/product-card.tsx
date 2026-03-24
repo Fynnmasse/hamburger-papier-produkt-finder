@@ -41,8 +41,6 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
     >
       <a
         href={shopUrl}
-        target="_blank"
-        rel="noopener"
         aria-label={`Im Shop kaufen: ${p.name}`}
         className="flex flex-col flex-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
       >
@@ -94,8 +92,6 @@ export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardP
         <div className={`grid gap-2 ${canSample ? 'grid-cols-2' : 'grid-cols-1'}`}>
           <a
             href={shopUrl}
-            target="_blank"
-            rel="noopener"
             className="group relative overflow-hidden flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg min-h-[44px] hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Jetzt bestellen</span>

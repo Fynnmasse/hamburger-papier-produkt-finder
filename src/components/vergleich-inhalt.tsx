@@ -192,8 +192,6 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                       <td className="py-3 px-3">
                         <a
                           href={utmUrl}
-                          target="_blank"
-                          rel="noopener"
                           className="group relative overflow-hidden inline-flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                           <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Bestellen</span>
@@ -256,8 +254,6 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                     </div>
                     <a
                       href={utmUrl}
-                      target="_blank"
-                      rel="noopener"
                       className="group relative overflow-hidden inline-flex items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >
                       <span className="mr-6 transition-opacity duration-500 group-hover:opacity-0 whitespace-nowrap">Bestellen</span>

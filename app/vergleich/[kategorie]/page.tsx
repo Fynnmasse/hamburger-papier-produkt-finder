@@ -156,7 +156,7 @@ export default async function VergleichKategoriePage({ params }: { params: Promi
 
       <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35">
         © {new Date().getFullYear()} Hamburgpapier ·{' '}
-        <a href="https://www.hamburgpapier-shop.de" target="_blank" rel="noopener" className="hover:text-white/60 transition-colors">
+        <a href="https://www.hamburgpapier-shop.de" className="hover:text-white/60 transition-colors">
           hamburgpapier-shop.de
         </a>
         {' '}· Alle Preise zzgl. 19% MwSt.

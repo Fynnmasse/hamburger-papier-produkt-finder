@@ -49,10 +49,10 @@ export default function HomePage() {
             <div className="mt-8 text-center">
               <Link
                 href="/vergleich"
-                className="inline-flex items-center gap-2 text-sm font-medium text-steel hover:text-navy bg-white/60 backdrop-blur-sm rounded-full px-4 py-2 transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-bold text-white bg-primary rounded-full px-5 py-2.5 hover:bg-primary/85 transition-colors shadow-[0_0_16px_rgba(0,132,144,0.35)]"
               >
                 <BarChart3 size={16} aria-hidden="true" />
-                Preisvergleich — Günstigsten Preis pro Rolle finden
+                Preisvergleich — Günstigsten Artikel finden
               </Link>
             </div>
           </div>

@@ -515,8 +515,8 @@ const REINIGUNG_SUBTYPE_STEP: StepDef = {
   options: [
     { value: 'servietten', label: 'Servietten', desc: 'Servietten für Gastronomie und Hotellerie in verschiedenen Qualitäten.', image: 'Servietten.svg' },
     { value: 'aerztekrepp', label: 'Ärztekrepp', desc: 'Liegenabdeckungen aus Zellstoff für Praxis, Klinik und Fitness.', image: 'Ärzte und Liegerollen.svg' },
-    { value: 'mikrofasertuecher', label: 'Mikrofasertücher', desc: 'Wiederverwendbare Mikrofasertücher für professionelle Reinigung.', image: 'Wischmopp und Mikrofasertücher.svg' },
-    { value: 'wischmop', label: 'Wischmop', desc: 'Mikrofaser-Wischmops für die professionelle Unterhaltsreinigung.', image: 'Wischmopp und Mikrofasertücher.svg' },
+    { value: 'mikrofasertuecher', label: 'Mikrofasertücher', desc: 'Wiederverwendbare Mikrofasertücher für professionelle Reinigung.', image: 'Mikrofasertücher.svg' },
+    { value: 'wischmop', label: 'Wischmop', desc: 'Mikrofaser-Wischmops für die professionelle Unterhaltsreinigung.', image: 'Wischmop.svg' },
   ],
 }
 

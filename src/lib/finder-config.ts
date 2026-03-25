@@ -7,6 +7,8 @@ export type CategorySlug =
   | 'handtuchrollen'
   | 'putzpapier'
   | 'kuechenrollen'
+  | 'waschraum'
+  | 'reinigung'
   | 'spender'
   | 'seife'
 
@@ -131,16 +133,6 @@ function makeAvailableMaterialStep(dimension: string, layerSlug: string): StepDe
 }
 
 // ── Putzpapier-Rollen: Suche nach Branche / Anwendung ──
-const PUTZPAPIER_SUBTYPE_STEP: StepDef = {
-  id: 'subtype', slug: 'produkt',
-  title: 'Welches Produkt?',
-  subtitle: 'Wählen Sie die passende Produktgruppe.',
-  options: [
-    { value: 'putzpapier', label: 'Putzpapier-Rollen', desc: 'Industrie-Putzrollen und Werkstatt-Papier. Verschiedene Breiten und Lagen.' },
-    { value: 'aerzte', label: 'Ärzte- & Liegenrollen', desc: 'Zellstoff-Rollen für Arztpraxen, Krankenhäuser und Therapieliegen.' },
-    { value: 'mikrofaser', label: 'Mikrofaser & Wischmop', desc: 'Wiederverwendbare Mikrofasertücher und Wischmops für professionelle Reinigung.' },
-  ],
-}
 
 const SEARCH_METHOD_STEP: StepDef = {
   id: 'searchMethod',
@@ -212,53 +204,31 @@ export const PRODUCT_ANWENDUNG_MAP: Record<string, string[]> = {
   'allzweck': PUTZPAPIER_ROLL_NUMS,
 }
 
-/** Dynamische Steps für Putzpapier-Kategorie */
+/** Dynamische Steps für Putzpapier-Kategorie (nur noch Putzpapier-Rollen) */
 function getPutzpapierSteps(segments: string[]): StepDef[] {
-  // Ärzte / Mikrofaser: normaler linearer Flow
-  if (segments.length > 0 && segments[0] !== 'putzpapier') {
-    return [PUTZPAPIER_SUBTYPE_STEP, QUANTITY_STEP, materialStep(false)]
+  if (segments.length >= 1 && segments[0] === 'branche') {
+    return [SEARCH_METHOD_STEP, BRANCHE_STEP, materialStep(false), QUANTITY_STEP]
   }
-  // Putzpapier-Rollen: Branche oder Anwendung → Qualität → Menge
-  if (segments.length >= 2 && segments[1] === 'branche') {
-    return [PUTZPAPIER_SUBTYPE_STEP, SEARCH_METHOD_STEP, BRANCHE_STEP, materialStep(false), QUANTITY_STEP]
+  if (segments.length >= 1 && segments[0] === 'anwendung') {
+    return [SEARCH_METHOD_STEP, ANWENDUNG_STEP, materialStep(false), QUANTITY_STEP]
   }
-  if (segments.length >= 2 && segments[1] === 'anwendung') {
-    return [PUTZPAPIER_SUBTYPE_STEP, SEARCH_METHOD_STEP, ANWENDUNG_STEP, materialStep(false), QUANTITY_STEP]
-  }
-  // Default: zeige Suchmethode-Wahl
-  return [PUTZPAPIER_SUBTYPE_STEP, SEARCH_METHOD_STEP]
+  return [SEARCH_METHOD_STEP]
 }
 
-/** Alle SSG-Pfade für Putzpapier-Kategorie */
+/** Alle SSG-Pfade für Putzpapier-Kategorie (nur noch Putzpapier-Rollen) */
 function getPutzpapierAllPaths(): string[][] {
   const paths: string[][] = []
+  const matOpts = materialStep(false).options
 
-  for (const subOpt of PUTZPAPIER_SUBTYPE_STEP.options) {
-    paths.push([subOpt.value])
-
-    if (subOpt.value === 'putzpapier') {
-      // Suchmethode-Wahl
-      const matOpts = materialStep(false).options
-      for (const method of SEARCH_METHOD_STEP.options) {
-        paths.push([subOpt.value, method.value])
-        const nextStep = method.value === 'branche' ? BRANCHE_STEP : ANWENDUNG_STEP
-        for (const opt of nextStep.options) {
-          paths.push([subOpt.value, method.value, opt.value])
-          // Qualität → Menge
-          for (const mOpt of matOpts) {
-            paths.push([subOpt.value, method.value, opt.value, mOpt.value])
-            for (const qOpt of QUANTITY_STEP.options) {
-              paths.push([subOpt.value, method.value, opt.value, mOpt.value, qOpt.value])
-            }
-          }
-        }
-      }
-    } else {
-      // Ärzte / Mikrofaser: linearer Flow
-      for (const qOpt of QUANTITY_STEP.options) {
-        paths.push([subOpt.value, qOpt.value])
-        for (const mOpt of materialStep(false).options) {
-          paths.push([subOpt.value, qOpt.value, mOpt.value])
+  for (const method of SEARCH_METHOD_STEP.options) {
+    paths.push([method.value])
+    const nextStep = method.value === 'branche' ? BRANCHE_STEP : ANWENDUNG_STEP
+    for (const opt of nextStep.options) {
+      paths.push([method.value, opt.value])
+      for (const mOpt of matOpts) {
+        paths.push([method.value, opt.value, mOpt.value])
+        for (const qOpt of QUANTITY_STEP.options) {
+          paths.push([method.value, opt.value, mOpt.value, qOpt.value])
         }
       }
     }
@@ -453,6 +423,224 @@ function getHandtuchrollenAllPaths(): string[][] {
   return paths
 }
 
+// ── Waschraum-Ausstattung: Steps ──
+const WASCHRAUM_SUBTYPE_STEP: StepDef = {
+  id: 'subtype', slug: 'produkt',
+  title: 'Was suchen Sie für Ihren Waschraum?',
+  subtitle: 'Komplette Waschraum-Ausstattung für Ihren Betrieb.',
+  options: [
+    { value: 'kosmetiktuecher', label: 'Kosmetiktücher', desc: 'Kosmetiktücher in der Box für Hotelzimmer, Empfangsbereiche und Waschräume.', image: 'Kosmetiktücher.svg' },
+    { value: 'spender', label: 'Spender & Zubehör', desc: 'Hygienespender für Papierhandtücher, Handtuchrollen, Seife und Toilettenpapier.', image: 'Spender.svg' },
+    { value: 'cremeseife', label: 'Cremeseife', desc: 'Cremeseife und Schaumseife für professionelle Handhygiene.', image: 'Seife.svg' },
+  ],
+}
+
+const SPENDER_TYP_STEP: StepDef = {
+  id: 'subtype', slug: 'typ',
+  title: 'Spender für welches Produkt?',
+  subtitle: 'Wählen Sie den passenden Spender-Typ.',
+  options: [
+    { value: 'papierhandtuecher', label: 'Papierhandtücher', desc: 'Spender für Falthandtücher (Z-Falz und Interfold).' },
+    { value: 'handtuchrollen', label: 'Handtuchrollen', desc: 'Autocut-Spender und Innenauszug-Spender für Handtuchrollen.' },
+    { value: 'seife', label: 'Seife & Schaumseife', desc: 'Wiederbefüllbare Seifen- und Schaumseifenspender.' },
+    { value: 'jumborollen_spender', label: 'Jumborollen / WC', desc: 'Spender für Jumbo-Toilettenpapierrollen.' },
+    { value: 'servietten_spender', label: 'Servietten', desc: 'Serviettenspender mit antibakterieller Oberfläche.' },
+  ],
+}
+
+const KOSMETIK_LAGEN_STEP: StepDef = {
+  id: 'lagen', slug: 'lagen',
+  title: 'Wie viele Lagen?',
+  subtitle: 'Mehr Lagen bedeuten mehr Weichheit und Komfort.',
+  options: [
+    { value: '2-lagig', label: '2-lagig', desc: 'Zweilagig — gute Balance aus Qualität und Preis.' },
+    { value: '3-lagig', label: '3-lagig', desc: 'Dreilagig — Premium-Qualität, besonders weich.' },
+  ],
+}
+
+const KOSMETIK_FORM_STEP: StepDef = {
+  id: 'form', slug: 'form',
+  title: 'Welche Form?',
+  subtitle: 'Wählen Sie die passende Box-Form.',
+  options: [
+    { value: 'flache-box', label: 'Flache Box', desc: 'Standard-Kosmetikbox, passt in die meisten Halterungen.' },
+    { value: 'wuerfelbox', label: 'Würfelbox', desc: 'Kompakte Würfel-Box (Cube), ideal für Schreibtisch und Nachttisch.' },
+  ],
+}
+
+function getWaschraumSteps(segments: string[]): StepDef[] {
+  if (segments.length === 0) return [WASCHRAUM_SUBTYPE_STEP]
+  if (segments[0] === 'spender') {
+    return [WASCHRAUM_SUBTYPE_STEP, SPENDER_TYP_STEP]
+  }
+  if (segments[0] === 'kosmetiktuecher') {
+    return [WASCHRAUM_SUBTYPE_STEP, KOSMETIK_LAGEN_STEP, KOSMETIK_FORM_STEP, QUANTITY_STEP]
+  }
+  // cremeseife → direkt Ergebnis nach Subtype
+  return [WASCHRAUM_SUBTYPE_STEP]
+}
+
+function getWaschraumAllPaths(): string[][] {
+  const paths: string[][] = []
+
+  // Kosmetiktücher: lagen → form → menge
+  paths.push(['kosmetiktuecher'])
+  for (const lOpt of KOSMETIK_LAGEN_STEP.options) {
+    paths.push(['kosmetiktuecher', lOpt.value])
+    for (const fOpt of KOSMETIK_FORM_STEP.options) {
+      paths.push(['kosmetiktuecher', lOpt.value, fOpt.value])
+      for (const qOpt of QUANTITY_STEP.options) {
+        paths.push(['kosmetiktuecher', lOpt.value, fOpt.value, qOpt.value])
+      }
+    }
+  }
+
+  // Spender: typ
+  paths.push(['spender'])
+  for (const tOpt of SPENDER_TYP_STEP.options) {
+    paths.push(['spender', tOpt.value])
+  }
+
+  // Cremeseife: direkt Ergebnis
+  paths.push(['cremeseife'])
+
+  return paths
+}
+
+// ── Reinigung & Gastronomie: Steps ──
+const REINIGUNG_SUBTYPE_STEP: StepDef = {
+  id: 'subtype', slug: 'produkt',
+  title: 'Was suchen Sie?',
+  subtitle: 'Reinigungsbedarf und Gastronomie-Zubehör für Ihren Betrieb.',
+  options: [
+    { value: 'servietten', label: 'Servietten', desc: 'Servietten für Gastronomie und Hotellerie in verschiedenen Qualitäten.', image: 'Servietten.svg' },
+    { value: 'aerztekrepp', label: 'Ärztekrepp', desc: 'Liegenabdeckungen aus Zellstoff für Praxis, Klinik und Fitness.', image: 'Ärzte und Liegerollen.svg' },
+    { value: 'mikrofasertuecher', label: 'Mikrofasertücher', desc: 'Wiederverwendbare Mikrofasertücher für professionelle Reinigung.', image: 'Wischmopp und Mikrofasertücher.svg' },
+    { value: 'wischmop', label: 'Wischmop', desc: 'Mikrofaser-Wischmops für die professionelle Unterhaltsreinigung.', image: 'Wischmopp und Mikrofasertücher.svg' },
+  ],
+}
+
+const SERVIETTEN_LAGEN_STEP: StepDef = {
+  id: 'lagen', slug: 'lagen',
+  title: 'Wie viele Lagen?',
+  subtitle: 'Wählen Sie die gewünschte Lagenzahl.',
+  options: [
+    { value: '1-lagig', label: '1-lagig', desc: 'Einlagig — wirtschaftlich und funktional.' },
+    { value: '2-lagig', label: '2-lagig', desc: 'Zweilagig — saugstärker und hochwertiger.' },
+  ],
+}
+
+const SERVIETTEN_MATERIAL_STEP: StepDef = {
+  id: 'material', slug: 'qualitaet',
+  title: 'Welches Material?',
+  subtitle: 'Wählen Sie entsprechend Ihrer Anforderungen.',
+  options: [
+    { value: 'zellstoff', label: 'Zellstoff', desc: 'Aus Frischfasern. Weiß und reißfest.', tag: 'Beliebteste Wahl', tagStyle: 'bg-blue-100 text-blue-800' },
+    { value: 'recycling', label: 'Recycling', desc: 'Aus 100 % Altpapier. Nachhaltig & kosteneffizient.', tag: 'Nachhaltig', tagStyle: 'bg-teal-100 text-teal-800' },
+  ],
+}
+
+const AERZTEKREPP_BREITE_STEP: StepDef = {
+  id: 'breite', slug: 'breite',
+  title: 'Welche Breite?',
+  subtitle: 'Wählen Sie die Rollenbreite passend zu Ihrer Liege.',
+  options: [
+    { value: '39cm', label: '39 cm', desc: 'Schmale Rollen für Kopfstützen und schmale Liegen.' },
+    { value: '50cm', label: '50 cm', desc: 'Standard-Breite für Behandlungsliegen in Arztpraxen.' },
+    { value: '55cm', label: '55 cm', desc: 'Breitere Rollen für größere Liegen und Therapiebänke.' },
+    { value: '60cm', label: '60 cm', desc: 'Ärzterolle — extra breite Rollen für Massageliegen und Klinikbetten.', tag: 'Ärzterolle', tagStyle: 'bg-blue-100 text-blue-800' },
+  ],
+}
+
+const MIKROFASER_QUALITAET_STEP: StepDef = {
+  id: 'qualitaet', slug: 'qualitaet',
+  title: 'Welche Qualität?',
+  subtitle: 'Wählen Sie die passende Qualitätsstufe.',
+  options: [
+    { value: 'standard', label: 'Standard (220g/m²)', desc: 'Robuste Mikrofasertücher für den täglichen Einsatz.' },
+    { value: 'premium', label: 'Premium', desc: 'Hochwertige Mikrofasertücher mit besonders feiner Struktur.' },
+  ],
+}
+
+const MIKROFASER_FARBE_STEP: StepDef = {
+  id: 'farbe', slug: 'farbe',
+  title: 'Welche Farbe?',
+  subtitle: 'Farben helfen, Tücher nach Einsatzbereich zu trennen (z.\u00A0B. Rot für Sanitär, Blau für Küche).',
+  options: [
+    { value: 'rot', label: 'Rot', desc: 'Ideal für Sanitärbereiche.' },
+    { value: 'blau', label: 'Blau', desc: 'Ideal für Küche und Lebensmittelbereiche.' },
+    { value: 'alle', label: 'Egal / Alle', desc: 'Zeige alle verfügbaren Farben.' },
+  ],
+}
+
+const MIKROFASER_MENGE_STEP: StepDef = {
+  id: 'quantity', slug: 'menge',
+  title: 'Welche Menge?',
+  subtitle: 'Wählen Sie die passende Bestellmenge.',
+  options: [
+    { value: 'stueck', label: 'Einzelne Tücher', desc: 'Einzelne Mikrofasertücher zum Testen oder für kleinen Bedarf.' },
+    { value: 'karton', label: 'Karton (200–250 Stück)', desc: 'Standardverpackung für regelmäßigen Bedarf.' },
+    { value: 'palette', label: 'Palette', desc: 'Großmenge für maximale Ersparnis.' },
+  ],
+}
+
+function getReinigungSteps(segments: string[]): StepDef[] {
+  if (segments.length === 0) return [REINIGUNG_SUBTYPE_STEP]
+  if (segments[0] === 'servietten') {
+    return [REINIGUNG_SUBTYPE_STEP, SERVIETTEN_LAGEN_STEP, SERVIETTEN_MATERIAL_STEP, QUANTITY_STEP]
+  }
+  if (segments[0] === 'aerztekrepp') {
+    return [REINIGUNG_SUBTYPE_STEP, AERZTEKREPP_BREITE_STEP, QUANTITY_STEP]
+  }
+  if (segments[0] === 'mikrofasertuecher') {
+    return [REINIGUNG_SUBTYPE_STEP, MIKROFASER_QUALITAET_STEP, MIKROFASER_FARBE_STEP, MIKROFASER_MENGE_STEP]
+  }
+  // wischmop → direkt Ergebnis
+  return [REINIGUNG_SUBTYPE_STEP]
+}
+
+function getReinigungAllPaths(): string[][] {
+  const paths: string[][] = []
+
+  // Servietten: lagen → material → menge
+  paths.push(['servietten'])
+  for (const lOpt of SERVIETTEN_LAGEN_STEP.options) {
+    paths.push(['servietten', lOpt.value])
+    for (const mOpt of SERVIETTEN_MATERIAL_STEP.options) {
+      paths.push(['servietten', lOpt.value, mOpt.value])
+      for (const qOpt of QUANTITY_STEP.options) {
+        paths.push(['servietten', lOpt.value, mOpt.value, qOpt.value])
+      }
+    }
+  }
+
+  // Ärztekrepp: breite → menge
+  paths.push(['aerztekrepp'])
+  for (const bOpt of AERZTEKREPP_BREITE_STEP.options) {
+    paths.push(['aerztekrepp', bOpt.value])
+    for (const qOpt of QUANTITY_STEP.options) {
+      paths.push(['aerztekrepp', bOpt.value, qOpt.value])
+    }
+  }
+
+  // Mikrofasertücher: qualitaet → farbe → menge
+  paths.push(['mikrofasertuecher'])
+  for (const qOpt of MIKROFASER_QUALITAET_STEP.options) {
+    paths.push(['mikrofasertuecher', qOpt.value])
+    for (const fOpt of MIKROFASER_FARBE_STEP.options) {
+      paths.push(['mikrofasertuecher', qOpt.value, fOpt.value])
+      for (const mOpt of MIKROFASER_MENGE_STEP.options) {
+        paths.push(['mikrofasertuecher', qOpt.value, fOpt.value, mOpt.value])
+      }
+    }
+  }
+
+  // Wischmop: direkt Ergebnis
+  paths.push(['wischmop'])
+
+  return paths
+}
+
 export const CATEGORIES: CategoryDef[] = [
   {
     slug: 'toilettenpapier',
@@ -468,8 +656,8 @@ export const CATEGORIES: CategoryDef[] = [
         subtitle: 'Standardrollen für jeden Halter oder Jumborollen für Spender-Systeme?',
         options: [
           { value: 'kleinrollen', label: 'Kleinrollen', desc: 'Standard WC-Rollen (150–400 Blatt). Passend für jeden Rollenhalter.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800' },
-          { value: 'jumborollen', label: 'Jumborollen', desc: 'Großrollen (130m–570m) für Jumborollenspender. Ideal für stark frequentierte WCs.', tag: 'Für Spender-Systeme', tagStyle: 'bg-teal-100 text-teal-800' },
-          { value: 'spender', label: 'Spender & Zubehör', desc: 'Jumborollenspender und Toilettenpapierspender.' },
+          { value: 'jumborollen', label: 'Jumbotoilettenpapier', desc: 'Großrollen (130m–570m) für Jumborollenspender. Ideal für stark frequentierte WCs.', tag: 'Für Spender-Systeme', tagStyle: 'bg-teal-100 text-teal-800' },
+          { value: 'einzelblatt', label: 'Einzelblatt', desc: 'Einzelblatt-Toilettenpapier für Einzelblatt-Spender. Hygienische Einzelblattentnahme.' },
         ],
       },
       QUANTITY_STEP,
@@ -500,66 +688,45 @@ export const CATEGORIES: CategoryDef[] = [
   },
   {
     slug: 'putzpapier',
-    label: 'Putzpapier & Reinigung',
+    label: 'Putzpapier',
     icon: 'Putzpapier.svg',
-    metaTitle: 'Putzpapier & Reinigungstücher B2B | Hamburgpapier Produktfinder',
-    metaDescription: 'Putzpapier, Ärzte- und Liegenrollen oder Mikrofasertücher für Ihren Betrieb finden. Verschiedene Qualitäten, als Karton oder Palette. 27 Produkte.',
-    seoContent: 'Putzpapier ist aus dem professionellen Reinigungsalltag nicht wegzudenken. Industrie-Putzrollen eignen sich für Werkstätten, Produktionshallen und Reinräume. Ärzte- und Liegenrollen aus Zellstoff sind in Arztpraxen, Krankenhäusern und Physiotherapiepraxen Standard — sie bieten eine hygienische Auflage und sind in verschiedenen Breiten erhältlich. Mikrofasertücher und Wischmops sind die wiederverwendbare Alternative: Sie nehmen Schmutz und Feuchtigkeit besonders effektiv auf und eignen sich für die tägliche Unterhaltsreinigung in Büros, Hotels und Gastronomiebetrieben.',
-    steps: [PUTZPAPIER_SUBTYPE_STEP, QUANTITY_STEP, materialStep(false)],
+    metaTitle: 'Putzpapier B2B Großhandel | Hamburgpapier Produktfinder',
+    metaDescription: 'Industrie-Putzpapier für Werkstatt, Gastronomie und Produktion. Verschiedene Qualitäten, als Karton oder Palette.',
+    seoContent: 'Putzpapier ist aus dem professionellen Reinigungsalltag nicht wegzudenken. Industrie-Putzrollen eignen sich für Werkstätten, Produktionshallen und Reinräume. Finden Sie das passende Putzpapier für Ihre Branche oder Anwendung — ob für die Aufnahme von Flüssigkeiten und Ölen, das Reinigen von Oberflächen oder das Händetrocknen in Werkstatt und Produktion.',
+    steps: [SEARCH_METHOD_STEP, materialStep(false), QUANTITY_STEP],
     getSteps: getPutzpapierSteps,
     getAllPaths: getPutzpapierAllPaths,
   },
   {
     slug: 'kuechenrollen',
-    label: 'Küchenrollen & Servietten',
+    label: 'Küchenrollen',
     icon: 'Küchenrollen.svg',
-    metaTitle: 'Küchenrollen & Servietten B2B | Hamburgpapier Produktfinder',
-    metaDescription: 'Küchenrollen, Servietten und Kosmetiktücher für Gastronomie und Hotellerie. Als Karton oder Palette verfügbar. 24 Produkte.',
-    seoContent: 'Küchenrollen, Servietten und Kosmetiktücher gehören zur Grundausstattung in Gastronomie, Hotellerie und Büros. Küchenrollen in verschiedenen Größen eignen sich sowohl für die Profiküche als auch für Teeküchen und Aufenthaltsräume. Servietten sind in der Gastronomie unverzichtbar — wir bieten verschiedene Formate und Qualitäten. Kosmetiktücher in der Box sind ideal für Hotelzimmer, Empfangsbereiche und Konferenzräume. Alle Produkte sind als Karton für kleinere Bestellungen oder als Palette für maximale Kosteneffizienz erhältlich.',
-    steps: [
-      {
-        id: 'subtype', slug: 'produkt',
-        title: 'Welches Produkt?',
-        subtitle: 'Wählen Sie die gewünschte Unterkategorie.',
-        options: [
-          { value: 'kuechenrollen', label: 'Küchenrollen', desc: 'Klassische Küchenrollen in verschiedenen Größen und Qualitäten.' },
-          { value: 'servietten', label: 'Servietten', desc: 'Servietten für Gastronomie und Hotellerie.' },
-          { value: 'kosmetiktuecher', label: 'Kosmetiktücher', desc: 'Kosmetiktücher in der Box. Standard und Würfel-Boxen.' },
-        ],
-      },
-      QUANTITY_STEP,
-    ],
+    metaTitle: 'Küchenrollen B2B Großhandel | Hamburgpapier Produktfinder',
+    metaDescription: 'Küchenrollen für Gastronomie, Hotellerie und Büros. Als Karton oder Palette verfügbar.',
+    seoContent: 'Küchenrollen gehören zur Grundausstattung in Gastronomie, Hotellerie und Büros. Ob Profiküche, Teeküche oder Aufenthaltsraum — mit unseren Küchenrollen sind Sie für jede Situation gerüstet. Alle Produkte sind als Karton für kleinere Bestellungen oder als Palette für maximale Kosteneffizienz erhältlich.',
+    steps: [QUANTITY_STEP],
   },
   {
-    slug: 'spender',
-    label: 'Spender & Zubehör',
-    icon: 'Spender.svg',
-    metaTitle: 'Spender & Zubehör B2B | Hamburgpapier Produktfinder',
-    metaDescription: 'Spender für Papierhandtücher, Seife, Jumborollen und Servietten. Professionelle Hygienelösungen für Ihren Betrieb. 10 Produkte.',
-    seoContent: 'Hygienespender sind die Grundlage für einen professionellen Waschraum. Papierhandtuchspender ermöglichen die hygienische Einzelblattentnahme und reduzieren den Papierverbrauch. Seifenspender und Schaumseifenspender sind wiederbefüllbar und besonders wirtschaftlich. Jumborollenspender eignen sich für stark frequentierte WC-Anlagen und reduzieren den Wartungsaufwand erheblich. Serviettenspender mit antibakterieller Oberfläche sind in der Gastronomie Standard. Alle unsere Spender sind robust, langlebig und einfach zu montieren.',
-    steps: [
-      {
-        id: 'subtype', slug: 'typ',
-        title: 'Spender für welches Produkt?',
-        subtitle: 'Wählen Sie den passenden Spender-Typ.',
-        options: [
-          { value: 'papierhandtuecher', label: 'Papierhandtücher', desc: 'Spender für Falthandtücher (Z-Falz und Interfold).' },
-          { value: 'handtuchrollen', label: 'Handtuchrollen', desc: 'Autocut-Spender und Innenauszug-Spender für Handtuchrollen.' },
-          { value: 'seife', label: 'Seife & Schaumseife', desc: 'Wiederbefüllbare Seifen- und Schaumseifenspender.' },
-          { value: 'jumborollen_spender', label: 'Jumborollen / WC', desc: 'Spender für Jumbo-Toilettenpapierrollen.' },
-          { value: 'servietten_spender', label: 'Servietten', desc: 'Serviettenspender mit antibakterieller Oberfläche.' },
-        ],
-      },
-    ],
+    slug: 'waschraum',
+    label: 'Waschraum-Ausstattung',
+    icon: 'waschraum-icon.svg',
+    metaTitle: 'Waschraum-Ausstattung B2B | Hamburgpapier Produktfinder',
+    metaDescription: 'Kosmetiktücher, Hygienespender und Cremeseife für professionelle Waschräume. Alle Produkte mit EU Ecolabel, versandkostenfrei.',
+    seoContent: 'Komplette Waschraum-Ausstattung für Ihren Betrieb: Kosmetiktücher für den Waschtisch, Hygienespender für Papierhandtücher und Toilettenpapier sowie Cremeseife. Alle Produkte mit EU Ecolabel, versandkostenfrei.',
+    steps: [WASCHRAUM_SUBTYPE_STEP],
+    getSteps: getWaschraumSteps,
+    getAllPaths: getWaschraumAllPaths,
   },
   {
-    slug: 'seife',
-    label: 'Seife & Desinfektion',
-    icon: 'Seife.svg',
-    metaTitle: 'Seife & Desinfektion B2B | Hamburgpapier Produktfinder',
-    metaDescription: 'Cremeseife, Schaumseife und Desinfektionsmittel für professionelle Hygiene. Hamburgpapier B2B Großhandel.',
-    seoContent: 'Seife und Desinfektion sind unverzichtbare Bestandteile professioneller Handhygiene. Unsere Cremeseifen eignen sich hervorragend für den täglichen Gebrauch in Büros, Praxen und Gastronomie — sie sind hautschonend und ergiebig. Für den gewerblichen Einsatz bieten wir Großgebinde an, die sich in handelsübliche Seifenspender nachfüllen lassen. Alle Produkte erfüllen die Anforderungen an professionelle Handhygiene nach HACCP-Standards.',
-    steps: [],
+    slug: 'reinigung',
+    label: 'Reinigung & Gastronomie',
+    icon: 'reinigung-icon.svg',
+    metaTitle: 'Reinigung & Gastronomie B2B | Hamburgpapier Produktfinder',
+    metaDescription: 'Servietten, Ärztekrepp, Mikrofasertücher und Wischmops für Gastronomie und professionelle Reinigung. Versandkostenfrei ab Palette.',
+    seoContent: 'Reinigungsbedarf und Gastronomie-Zubehör für Ihren Betrieb: Servietten für Restaurant und Hotel, Ärztekrepp für Praxis und Fitness, Mikrofasertücher und Wischmops für die professionelle Unterhaltsreinigung. Versandkostenfrei ab Palette.',
+    steps: [REINIGUNG_SUBTYPE_STEP],
+    getSteps: getReinigungSteps,
+    getAllPaths: getReinigungAllPaths,
   },
 ]
 
@@ -568,7 +735,7 @@ export const CATEGORY_MAP = new Map(CATEGORIES.map(c => [c.slug, c]))
 // ── Label Maps ──
 export const STEP_VALUE_LABELS: Record<string, Record<string, string>> = {
   typ: {
-    kleinrollen: 'Kleinrollen', jumborollen: 'Jumborollen', spender: 'Spender',
+    kleinrollen: 'Kleinrollen', jumborollen: 'Jumbotoilettenpapier', einzelblatt: 'Einzelblatt',
     papierhandtuecher: 'Papierhandtücher', handtuchrollen: 'Handtuchrollen',
     seife: 'Seife & Schaumseife',
     jumborollen_spender: 'Jumborollen / WC', servietten_spender: 'Servietten',
@@ -579,9 +746,11 @@ export const STEP_VALUE_LABELS: Record<string, Record<string, string>> = {
   produkt: {
     putzpapier: 'Putzpapier-Rollen', aerzte: 'Ärzte- & Liegenrollen', mikrofaser: 'Mikrofaser',
     kuechenrollen: 'Küchenrollen', servietten: 'Servietten', kosmetiktuecher: 'Kosmetiktücher',
+    spender: 'Spender & Zubehör', cremeseife: 'Cremeseife',
+    aerztekrepp: 'Ärztekrepp', mikrofasertuecher: 'Mikrofasertücher', wischmop: 'Wischmop',
   },
-  menge: { karton: 'Karton', palette: 'Palette', alle: 'Alle' },
-  qualitaet: { recycling: 'ECO / Recycling', zellstoff: 'Zellstoff', premium: 'Premium', alle: 'Alle' },
+  menge: { karton: 'Karton', palette: 'Palette', alle: 'Alle', stueck: 'Stück' },
+  qualitaet: { recycling: 'ECO / Recycling', zellstoff: 'Zellstoff', premium: 'Premium', alle: 'Alle', standard: 'Standard' },
   suchmethode: { branche: 'Nach Branche', anwendung: 'Nach Anwendung' },
   branche: {
     'automobil-industrie': 'Automobil / Werkstatt / Industrie',
@@ -598,6 +767,9 @@ export const STEP_VALUE_LABELS: Record<string, Record<string, string>> = {
   'spender-wahl': { spender: 'Spender vorhanden', 'ohne-spender': 'Ohne Spender' },
   abmessung: Object.fromEntries(Object.entries(DIMENSION_CONFIG).map(([k, v]) => [k, v.label])),
   lagen: { '1-lagig': '1-lagig', '2-lagig': '2-lagig', '3-lagig': '3-lagig' },
+  breite: { '39cm': '39 cm', '50cm': '50 cm', '55cm': '55 cm', '60cm': '60 cm' },
+  farbe: { rot: 'Rot', blau: 'Blau', alle: 'Alle' },
+  form: { 'flache-box': 'Flache Box', wuerfelbox: 'Würfelbox' },
 }
 
 // ── Lebensmittelzulassung ──
@@ -619,8 +791,8 @@ function matchesSubtype(p: Product, category: string, subtype: string): boolean 
   switch (category) {
     case 'toilettenpapier':
       if (subtype === 'jumborollen') return name.includes('jumbo') && p.layers > 0
-      if (subtype === 'kleinrollen') return !name.includes('jumbo') && !name.includes('spender') && p.layers > 0
-      if (subtype === 'spender') return (name.includes('spender') || p.layers === 0) && p.quantity === 'stueck'
+      if (subtype === 'kleinrollen') return !name.includes('jumbo') && !name.includes('einzelblatt') && !name.includes('spender') && p.layers > 0
+      if (subtype === 'einzelblatt') return name.includes('einzelblatt')
       break
     case 'papierhandtuecher':
       if (subtype === 'z-falz') return /z[\s-]?fal[tz]/i.test(p.name)
@@ -633,21 +805,24 @@ function matchesSubtype(p: Product, category: string, subtype: string): boolean 
       if (subtype === 'innenauszug') return name.includes('innenauszug') && !name.includes('außenabwicklung')
       break
     case 'putzpapier':
-      if (subtype === 'putzpapier') return /putz|werkstatt/i.test(p.name)
-      if (subtype === 'aerzte') return /ärzt|liegen/i.test(p.name)
-      if (subtype === 'mikrofaser') return /mikrofaser|wischmop/i.test(p.name)
+      // Putzpapier hat keinen Subtype mehr — nur Putzpapier-Rollen
       break
-    case 'kuechenrollen':
-      if (subtype === 'kuechenrollen') return p.category === 'kuechenrollen'
-      if (subtype === 'servietten') return p.category === 'servietten'
+    case 'waschraum':
       if (subtype === 'kosmetiktuecher') return p.category === 'kosmetiktuecher'
-      break
-    case 'spender':
+      if (subtype === 'spender') return p.category === 'spender'
+      if (subtype === 'cremeseife') return p.category === 'seife'
+      // Spender sub-subtypes
       if (subtype === 'papierhandtuecher') return /papierhandtuchspender/i.test(p.name)
       if (subtype === 'handtuchrollen') return /autocutspender|innenauszug[\s-]?spender|starterset.*handtuchroll/i.test(p.name)
       if (subtype === 'seife') return /seifenspender|schaumseifenspender/i.test(p.name)
       if (subtype === 'jumborollen_spender') return /jumborollen\s*spender/i.test(p.name)
       if (subtype === 'servietten_spender') return /serviettenspender/i.test(p.name)
+      break
+    case 'reinigung':
+      if (subtype === 'servietten') return p.category === 'servietten'
+      if (subtype === 'aerztekrepp') return /ärzt|liegen/i.test(p.name)
+      if (subtype === 'mikrofasertuecher') return /mikrofaser/i.test(p.name) && !/wischmop/i.test(p.name)
+      if (subtype === 'wischmop') return /wischmop/i.test(p.name)
       break
   }
   return true
@@ -663,13 +838,25 @@ export interface FilterParams {
   abmessung?: string
   layers?: number
   lebensmittel?: string
+  breite?: string
+  farbe?: string
+  form?: string
+  qualitaet?: string
 }
 
 export function filterProducts(params: FilterParams, externalProducts?: Product[]): Product[] {
   return (externalProducts ?? PRODUCTS).filter(p => {
     // Category
-    if (params.category === 'kuechenrollen') {
-      if (!['kuechenrollen', 'servietten', 'kosmetiktuecher'].includes(p.category)) return false
+    if (params.category === 'waschraum') {
+      if (!['kosmetiktuecher', 'spender', 'seife'].includes(p.category)) return false
+    } else if (params.category === 'reinigung') {
+      if (!['servietten', 'putzpapier'].includes(p.category)) return false
+      // Ohne Subtype: nichts filtern (zeige alle Reinigung-Produkte)
+      // Mit Subtype: matchesSubtype filtert nach Servietten/Ärzte/Mikrofaser/Wischmop
+    } else if (params.category === 'putzpapier') {
+      if (p.category !== 'putzpapier') return false
+      // Nur Putzpapier-Rollen (ohne Ärzte, Mikrofaser, Wischmop)
+      if (!/putz|werkstatt/i.test(p.name)) return false
     } else {
       if (p.category !== params.category) return false
     }
@@ -710,6 +897,28 @@ export function filterProducts(params: FilterParams, externalProducts?: Product[
       const nums = PRODUCT_ANWENDUNG_MAP[params.anwendung]
       if (nums && nums.length > 0 && !nums.includes(p.num)) return false
     }
+    // Breite (für Ärztekrepp)
+    if (params.breite) {
+      const breiteNum = params.breite.replace('cm', '')
+      if (!new RegExp(`breite\\s*${breiteNum}\\s*cm`, 'i').test(p.name)) return false
+    }
+    // Farbe (für Mikrofasertücher)
+    if (params.farbe && params.farbe !== 'alle') {
+      if (!new RegExp(params.farbe, 'i').test(p.name)) return false
+    }
+    // Form (für Kosmetiktücher)
+    if (params.form) {
+      if (params.form === 'wuerfelbox') {
+        if (!/würfel|cube/i.test(p.name)) return false
+      } else if (params.form === 'flache-box') {
+        if (/würfel|cube/i.test(p.name)) return false
+      }
+    }
+    // Qualität für Mikrofasertücher
+    if (params.qualitaet && params.qualitaet !== 'alle') {
+      if (params.qualitaet === 'standard' && /premium/i.test(p.name)) return false
+      if (params.qualitaet === 'premium' && !/premium/i.test(p.name)) return false
+    }
     return true
   }).sort((a, b) => {
     const ai = a.img ? 1 : 0, bi = b.img ? 1 : 0
@@ -745,6 +954,10 @@ export function parseStepParams(
       else if (step.id === 'abmessung') params.abmessung = val
       else if (step.id === 'lagen') params.layers = parseInt(val)
       else if (step.id === 'lebensmittel') params.lebensmittel = val
+      else if (step.id === 'breite') params.breite = val
+      else if (step.id === 'farbe') params.farbe = val
+      else if (step.id === 'form') params.form = val
+      else if (step.id === 'qualitaet') params.qualitaet = val
       // searchMethod / spenderFrage sind nur Routing — kein Filter
     }
   })

@@ -111,7 +111,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
               {isOhneSpenderPath && isResults && products.length > 0 && (
                 <div className="max-w-6xl mx-auto mt-8 animate-fade-up">
                   <Link
-                    href="/spender/papierhandtuecher"
+                    href="/waschraum/spender/papierhandtuecher"
                     className="inline-flex items-center gap-2 bg-white border border-border rounded-lg px-5 py-3 text-sm font-medium text-navy hover:border-primary hover:shadow-md transition-[border-color,box-shadow]"
                   >
                     Dazu passender Spender finden →

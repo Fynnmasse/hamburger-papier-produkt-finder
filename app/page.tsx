@@ -1,5 +1,4 @@
-import Link from 'next/link'
-import { BarChart3, Package, Truck, BadgePercent } from 'lucide-react'
+import { Package, Truck, BadgePercent } from 'lucide-react'
 import { FinderHeader } from '@/components/finder-header'
 import { CategoryGrid } from '@/components/category-grid'
 
@@ -42,19 +41,18 @@ export default function HomePage() {
               </li>
             </ul>
 
-            {/* Category Grid */}
-            <CategoryGrid categories={CATEGORIES.map(({ slug, label, icon }) => ({ slug, label, icon }))} />
-
-            {/* Preisvergleich Link */}
-            <div className="mt-8 text-center">
-              <Link
-                href="/vergleich"
-                className="inline-flex items-center gap-2 text-sm font-bold text-white bg-primary rounded-full px-5 py-2.5 hover:bg-primary/85 transition-colors shadow-[0_0_16px_rgba(0,132,144,0.35)]"
-              >
-                <BarChart3 size={16} aria-hidden="true" />
-                Preisvergleich — Günstigsten Artikel finden
-              </Link>
-            </div>
+            {/* Category Grid — 8 Kacheln in 2 Reihen */}
+            <CategoryGrid categories={[
+              // Reihe 1
+              ...(['papierhandtuecher', 'toilettenpapier', 'handtuchrollen', 'putzpapier'] as const).map(
+                slug => { const c = CATEGORIES.find(c => c.slug === slug)!; return { slug: c.slug, label: c.label, icon: c.icon } }
+              ),
+              // Reihe 2
+              ...(['kuechenrollen', 'waschraum', 'reinigung'] as const).map(
+                slug => { const c = CATEGORIES.find(c => c.slug === slug)!; return { slug: c.slug, label: c.label, icon: c.icon } }
+              ),
+              { slug: 'vergleich', label: 'Preisvergleich', icon: 'preisvergleich-icon.svg', href: '/vergleich', variant: 'highlight' as const },
+            ]} />
           </div>
         </div>
 

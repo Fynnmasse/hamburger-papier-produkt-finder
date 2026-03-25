@@ -56,15 +56,15 @@ Jede Kategorie und jeder Wizard-Schritt hat eine eigene, crawlbare URL.
 │   ├── page.tsx                # Startseite: Hero + Kategorie-Grid + SEO-Content
 │   ├── sitemap.ts              # Dynamische XML-Sitemap (alle Finder-URLs)
 │   ├── robots.ts               # robots.txt
-│   ├── toilettenpapier/        # Kategorie-Route
+│   ├── toilettenpapier/        # Kategorie-Route (Kleinrollen/Jumborollen/Einzelblatt)
 │   │   ├── page.tsx            # Erster Schritt (Typ-Auswahl)
 │   │   └── [...schritte]/page.tsx  # Weitere Schritte + Ergebnisse (SSG)
 │   ├── papierhandtuecher/      # Analog
 │   ├── handtuchrollen/
-│   ├── putzpapier/
-│   ├── kuechenrollen/
-│   ├── spender/
-│   └── seife/                  # Direkt Ergebnisse (keine Steps)
+│   ├── putzpapier/             # Nur Putzpapier-Rollen (Branche/Anwendung)
+│   ├── kuechenrollen/          # Nur Küchenrollen (Menge)
+│   ├── waschraum/              # NEU: Kosmetiktücher, Spender, Cremeseife
+│   └── reinigung/              # NEU: Servietten, Ärztekrepp, Mikrofasertücher, Wischmop
 ├── public/                     # Statische Assets (SVG-Icons, Logo, Favicon)
 ├── src/
 │   ├── index.css               # Tailwind-Setup, CSS-Variablen, Keyframe-Animationen
@@ -96,14 +96,24 @@ Jede Kategorie und jeder Wizard-Schritt hat eine eigene, crawlbare URL.
 ## URL-Struktur (SEO-optimiert)
 
 ```
-/                                    → Hero + Kategorie-Auswahl
-/toilettenpapier                     → Typ-Auswahl (Kleinrollen/Jumborollen/Spender)
+/                                    → Hero + 8 Kategorie-Kacheln
+/toilettenpapier                     → Typ-Auswahl (Kleinrollen/Jumborollen/Einzelblatt)
 /toilettenpapier/kleinrollen         → Menge-Auswahl
-/toilettenpapier/kleinrollen/karton  → Qualitäts-Auswahl
 /toilettenpapier/kleinrollen/karton/recycling → Ergebnis-Seite
-/papierhandtuecher                   → Falzung-Auswahl
+/papierhandtuecher                   → Spender-Frage
 /papierhandtuecher/z-falz/palette/zellstoff → Ergebnis-Seite
-... (analog für alle Kategorien)
+/putzpapier                          → Suchmethode (Branche/Anwendung)
+/kuechenrollen                       → Menge-Auswahl (nur Küchenrollen)
+/waschraum                           → Kosmetiktücher / Spender / Cremeseife
+/waschraum/kosmetiktuecher/2-lagig/flache-box/karton → Ergebnis
+/waschraum/spender/papierhandtuecher → Spender-Ergebnis
+/waschraum/cremeseife                → Direkt Ergebnis
+/reinigung                           → Servietten / Ärztekrepp / Mikrofasertücher / Wischmop
+/reinigung/servietten/2-lagig/zellstoff/karton → Ergebnis
+/reinigung/aerztekrepp/50cm/palette  → Ergebnis
+/reinigung/mikrofasertuecher/standard/blau/karton → Ergebnis
+/reinigung/wischmop                  → Direkt Ergebnis
+/vergleich                           → Preisvergleich
 /sitemap.xml                         → Dynamische Sitemap
 /robots.txt                          → robots.txt
 ```
@@ -201,7 +211,8 @@ interface Product {
 }
 ```
 
-**Kategorien:** toilettenpapier, papierhandtuecher, handtuchrollen, putzpapier, spender, kuechenrollen, seife
+**Kategorien (Finder):** toilettenpapier, papierhandtuecher, handtuchrollen, putzpapier, kuechenrollen, waschraum, reinigung
+**Kategorien (Produkt-Daten):** toilettenpapier, papierhandtuecher, handtuchrollen, putzpapier, kuechenrollen, kosmetiktuecher, servietten, spender, seife
 
 ---
 

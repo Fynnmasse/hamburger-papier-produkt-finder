@@ -58,7 +58,7 @@ export function ProductResults({ products, title, kategorie, backHref }: Product
         </div>
       )}
 
-      {shown.length > 0 && (
+      {shown.length > 0 && kategorie !== 'waschraum' && kategorie !== 'reinigung' && (
         <div className="max-w-6xl mx-auto mt-6">
           <Link
             href={`/vergleich/${kategorie}`}

@@ -10,10 +10,11 @@ interface ProductCardProps {
   index: number
   kategorie?: string
   isBesterPreis?: boolean
+  utmMedium?: string
 }
 
-export function ProductCard({ p, index, kategorie, isBesterPreis }: ProductCardProps) {
-  const utmBestellen = `utm_source=produktfinder&utm_medium=bestellen&utm_campaign=${kategorie || 'allgemein'}`
+export function ProductCard({ p, index, kategorie, isBesterPreis, utmMedium }: ProductCardProps) {
+  const utmBestellen = `utm_source=produktfinder&utm_medium=${utmMedium || 'bestellen'}&utm_campaign=${kategorie || 'allgemein'}`
   const shopUrl = p.url
     ? `${p.url}?${utmBestellen}`
     : `https://www.hamburgpapier-shop.de/search?search=${encodeURIComponent(p.num)}&${utmBestellen}`

@@ -32,7 +32,7 @@ export function StepSelection({ step, basePath }: StepSelectionProps) {
               <Image src={`/${image}`} alt={label} width={400} height={267} className="w-full h-full object-contain" />
             </div>
           )}
-          <div className="font-display font-bold text-xl uppercase text-navy break-words hyphens-auto" lang="de">{label}</div>
+          <h3 className="font-display font-bold text-xl uppercase text-navy break-words hyphens-auto" lang="de">{label}</h3>
           <div className="text-sm text-muted-foreground leading-relaxed">{desc}</div>
           {tag && <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded w-fit mt-1 ${tagStyle}`}>{tag}</span>}
         </Link>

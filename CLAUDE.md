@@ -73,8 +73,9 @@ Jede Kategorie und jeder Wizard-Schritt hat eine eigene, crawlbare URL.
 │   │   ├── category-grid.tsx   # Client: Kategorie-Kacheln (Link-basiert)
 │   │   ├── category-page.tsx   # Server: Shared Layout für alle Kategorie-Seiten
 │   │   ├── step-selection.tsx  # Client: Step-Optionen als Links
-│   │   ├── product-card.tsx    # Server: Produktkarte mit UTM-Links
+│   │   ├── product-card.tsx    # Server: Produktkarte mit UTM-Links (utmMedium Prop)
 │   │   ├── product-results.tsx # Server: Ergebnis-Grid mit Produktkarten
+│   │   ├── cross-selling.tsx   # Server: Cross-Selling-Sektion unter Ergebnissen
 │   │   ├── finder-header.tsx   # Client: Sticky Header im Finder
 │   │   ├── breadcrumbs.tsx     # Server: Breadcrumb-Nav + JSON-LD Schema
 │   │   └── ui/
@@ -158,6 +159,41 @@ npm run lint      # Next.js Lint
 - **Sitemap:** Dynamisch generiert mit allen Finder-URLs.
 - **SEO-Content-Blöcke:** Informativer Text pro Kategorie (200–400 Wörter).
 - **UTM-Parameter:** Alle Shop-Links enthalten `utm_source=produktfinder`.
+- **Cross-Selling:** Spender ↔ Papierprodukte Empfehlungen auf Ergebnis-Seiten.
+
+---
+
+## Cross-Selling (Spender ↔ Papierprodukte)
+
+Auf Ergebnis-Seiten zeigt `cross-selling.tsx` passende Gegenstücke (Spender→Papier oder Papier→Spender).
+Konfiguration in `finder-config.ts` → `getCrossSelling()`.
+
+### Spender-Kompatibilität (WICHTIG)
+
+**Papierhandtuchspender → Papierhandtücher (falzungsspezifisch):**
+| Spender | Artikelnr. | Passende Falzung |
+|---|---|---|
+| Papierhandtuchspender weiß | Q489571 | Z-Falz (ZZ/V-Falz) |
+| Papierhandtuchspender schwarz | 892316 | Z-Falz (ZZ/V-Falz) |
+| Papierhandtuchspender Interfold weiß | AC17012 | Interfold |
+| _(Kein C-Falz-Spender im Sortiment)_ | — | C-Falz → kein Cross-Selling |
+
+**Handtuchrollenspender → Handtuchrollen (abwicklungsspezifisch):**
+| Spender | Artikelnr. | Passende Abwicklung |
+|---|---|---|
+| Autocutspender Weiß | AC15025 | Außenabwicklung |
+| Autocutspender Schwarz | AC15215 | Außenabwicklung |
+| Starterset Autocutspender Weiß | Starter-AUTO-5000-WE | Außenabwicklung |
+| Starterset Autocutspender Schwarz | Starter-AUTO-5000-SW | Außenabwicklung |
+| Innenauszug Spender schwarz | AC20222 | Innenauszug, Innenauszug+Außenabwicklung |
+| Innenauszug Spender weiß | AC20012 | Innenauszug, Innenauszug+Außenabwicklung |
+
+### Cross-Selling Regeln
+- **Nur auf Ergebnis-Seiten** (nie auf Step/Frage-Seiten)
+- **`productNums`** filtert exakte Artikelnummern wenn Spender-Kompatibilität bekannt
+- **`links`** Array: Mehrere Buttons statt einem (z.B. "Z-Falz finden" + "Interfold finden")
+- **UTM:** `utm_medium=cross-selling`, `utm_campaign=spender-zu-papier` oder `papier-zu-spender`
+- Bei neuen Spendern/Produkten: `getCrossSelling()` in `finder-config.ts` aktualisieren
 
 ---
 

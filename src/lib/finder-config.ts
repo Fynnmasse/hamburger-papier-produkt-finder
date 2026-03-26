@@ -1027,3 +1027,154 @@ export function getAllStaticPaths(categorySlug: CategorySlug): string[][] {
   generate(0, [])
   return paths
 }
+
+/* ─── Cross-Selling ─── */
+
+interface CrossSellingLink {
+  href: string
+  label: string
+}
+
+interface CrossSellingRule {
+  title: string
+  description: string
+  linkHref: string
+  linkLabel: string
+  links?: CrossSellingLink[]       // Multiple Links statt einem (z.B. pro Falzung)
+  productCategory: CategorySlug
+  productSubtype?: string
+  productNums?: string[]           // Nur diese Artikelnummern anzeigen
+  utmCampaign: string
+}
+
+export function getCrossSelling(
+  kategorie: CategorySlug,
+  segments: string[],
+): CrossSellingRule | null {
+  // Spender → Papierprodukte
+  if (kategorie === 'waschraum' && segments[0] === 'spender') {
+    const typ = segments[1]
+    if (typ === 'papierhandtuecher') return {
+      title: 'Passende Papierhandtücher für Ihren Spender',
+      description: 'Die weißen und schwarzen Spender sind für Z-Falz (ZZ/V-Falz) Papierhandtücher geeignet. Der Interfold-Spender benötigt Interfold-Papierhandtücher.',
+      linkHref: '/papierhandtuecher/ohne-spender/z-falz',
+      linkLabel: 'Z-Falz Papierhandtücher finden',
+      links: [
+        { href: '/papierhandtuecher/ohne-spender/z-falz', label: 'Z-Falz Papierhandtücher finden' },
+        { href: '/papierhandtuecher/ohne-spender/interfold', label: 'Interfold Papierhandtücher finden' },
+      ],
+      productCategory: 'papierhandtuecher',
+      utmCampaign: 'spender-zu-papier',
+    }
+    if (typ === 'handtuchrollen') return {
+      title: 'Passende Handtuchrollen für Ihren Spender',
+      description: 'Autocutspender benötigen Rollen mit Außenabwicklung. Innenauszug-Spender benötigen Rollen mit Innenauszug.',
+      linkHref: '/handtuchrollen/aussenabwicklung',
+      linkLabel: 'Handtuchrollen Außenabwicklung finden',
+      links: [
+        { href: '/handtuchrollen/aussenabwicklung', label: 'Außenabwicklung (für Autocutspender)' },
+        { href: '/handtuchrollen/innenauszug', label: 'Innenauszug (für Innenauszug-Spender)' },
+      ],
+      productCategory: 'handtuchrollen',
+      utmCampaign: 'spender-zu-papier',
+    }
+    if (typ === 'jumborollen_spender') return {
+      title: 'Passende Jumborollen für diesen Spender',
+      description: 'Finden Sie die Jumborollen, die exakt in diesen Spender passen.',
+      linkHref: '/toilettenpapier/jumborollen',
+      linkLabel: 'Passende Jumborollen finden',
+      productCategory: 'toilettenpapier',
+      productSubtype: 'jumborollen',
+      utmCampaign: 'spender-zu-papier',
+    }
+    if (typ === 'seife') return {
+      title: 'Passende Cremeseife für diesen Spender',
+      description: 'Finden Sie die Cremeseife, die in diesen Spender passt.',
+      linkHref: '/waschraum/cremeseife',
+      linkLabel: 'Passende Cremeseife finden',
+      productCategory: 'waschraum',
+      productSubtype: 'cremeseife',
+      utmCampaign: 'spender-zu-papier',
+    }
+    if (typ === 'servietten_spender') return {
+      title: 'Passende Servietten für diesen Spender',
+      description: 'Finden Sie die Servietten, die exakt in diesen Spender passen.',
+      linkHref: '/reinigung/servietten',
+      linkLabel: 'Passende Servietten finden',
+      productCategory: 'reinigung',
+      productSubtype: 'servietten',
+      utmCampaign: 'spender-zu-papier',
+    }
+  }
+
+  // Papierprodukte → Spender (falzungsspezifisch)
+  if (kategorie === 'papierhandtuecher' && segments[0] !== 'spender') {
+    const falzung = segments[1] // ohne-spender/z-falz/... oder ohne-spender/interfold/...
+    if (falzung === 'z-falz') return {
+      title: 'Dazu passender Spender',
+      description: 'Diese Z-Falz Spender sind für Ihre ausgewählten Papierhandtücher geeignet.',
+      linkHref: '/waschraum/spender/papierhandtuecher',
+      linkLabel: 'Alle Papierhandtuchspender anzeigen',
+      productCategory: 'waschraum',
+      productSubtype: 'papierhandtuecher',
+      productNums: ['Q489571', '892316'],
+      utmCampaign: 'papier-zu-spender',
+    }
+    if (falzung === 'interfold') return {
+      title: 'Dazu passender Spender',
+      description: 'Dieser Interfold-Spender ist für Ihre ausgewählten Papierhandtücher geeignet.',
+      linkHref: '/waschraum/spender/papierhandtuecher',
+      linkLabel: 'Alle Papierhandtuchspender anzeigen',
+      productCategory: 'waschraum',
+      productSubtype: 'papierhandtuecher',
+      productNums: ['AC17012'],
+      utmCampaign: 'papier-zu-spender',
+    }
+    // C-Falz: kein passender Spender im Sortiment → kein Cross-Selling
+    return null
+  }
+  if (kategorie === 'handtuchrollen') {
+    const abwicklung = segments[0]
+    if (abwicklung === 'aussenabwicklung') return {
+      title: 'Dazu passender Spender',
+      description: 'Diese Autocutspender sind für Handtuchrollen mit Außenabwicklung geeignet.',
+      linkHref: '/waschraum/spender/handtuchrollen',
+      linkLabel: 'Alle Handtuchrollenspender anzeigen',
+      productCategory: 'waschraum',
+      productSubtype: 'handtuchrollen',
+      productNums: ['AC15025', 'AC15215', 'Starter-AUTO-5000-WE', 'Starter-AUTO-5000-SW'],
+      utmCampaign: 'papier-zu-spender',
+    }
+    if (abwicklung === 'innenauszug-aussenabwicklung' || abwicklung === 'innenauszug') return {
+      title: 'Dazu passender Spender',
+      description: 'Diese Innenauszug-Spender sind für Ihre ausgewählten Handtuchrollen geeignet.',
+      linkHref: '/waschraum/spender/handtuchrollen',
+      linkLabel: 'Alle Handtuchrollenspender anzeigen',
+      productCategory: 'waschraum',
+      productSubtype: 'handtuchrollen',
+      productNums: ['AC20222', 'AC20012'],
+      utmCampaign: 'papier-zu-spender',
+    }
+    return null
+  }
+  if (kategorie === 'toilettenpapier' && segments[0] === 'jumborollen') return {
+    title: 'Dazu passender Spender',
+    description: 'Sie brauchen noch einen Spender für diese Jumborollen?',
+    linkHref: '/waschraum/spender/jumborollen_spender',
+    linkLabel: 'Passenden Spender finden',
+    productCategory: 'waschraum',
+    productSubtype: 'jumborollen_spender',
+    utmCampaign: 'papier-zu-spender',
+  }
+  if (kategorie === 'reinigung' && segments[0] === 'servietten') return {
+    title: 'Dazu passender Spender',
+    description: 'Sie brauchen noch einen Spender für diese Servietten?',
+    linkHref: '/waschraum/spender/servietten_spender',
+    linkLabel: 'Passenden Spender finden',
+    productCategory: 'waschraum',
+    productSubtype: 'servietten_spender',
+    utmCampaign: 'papier-zu-spender',
+  }
+
+  return null
+}

@@ -17,7 +17,7 @@ export function generateCategoryMetadata(
 
   if (segments.length === 0) {
     return {
-      title: catDef.metaTitle,
+      title: { absolute: catDef.metaTitle },
       description: catDef.metaDescription,
       alternates: {
         canonical: `/${kategorie}`,

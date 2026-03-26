@@ -4,6 +4,7 @@ import { FinderHeader } from '@/components/finder-header'
 import { Breadcrumbs, breadcrumbJsonLd, type BreadcrumbItem } from '@/components/breadcrumbs'
 import { StepSelection } from '@/components/step-selection'
 import { ProductResults } from '@/components/product-results'
+import { CrossSelling } from '@/components/cross-selling'
 import {
   CATEGORY_MAP,
   STEP_VALUE_LABELS,
@@ -12,6 +13,7 @@ import {
   parseStepParams,
   getCurrentStep,
   resolveSteps,
+  getCrossSelling,
   type CategorySlug,
 } from '@/lib/finder-config'
 import { fetchAllProducts } from '@/lib/shopware-api'
@@ -36,6 +38,20 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
   const products = filterProducts(params, externalProducts)
   const currentStep = getCurrentStep(kategorie, segments, externalProducts)
   const isResults = !currentStep
+
+  // Cross-Selling
+  const crossSelling = isResults ? getCrossSelling(kategorie, segments) : null
+  let crossSellingProducts: typeof products = []
+  if (crossSelling && !crossSelling.links) {
+    if (crossSelling.productNums) {
+      // Exakte Artikelnummern filtern
+      const nums = new Set(crossSelling.productNums)
+      const allProducts = filterProducts({ category: crossSelling.productCategory, subtype: crossSelling.productSubtype }, externalProducts)
+      crossSellingProducts = allProducts.filter(p => nums.has(p.num))
+    } else {
+      crossSellingProducts = filterProducts({ category: crossSelling.productCategory, subtype: crossSelling.productSubtype }, externalProducts).slice(0, 3)
+    }
+  }
 
   // Build breadcrumbs
   const breadcrumbs: BreadcrumbItem[] = [
@@ -71,7 +87,6 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
 
   // Spender path detection
   const isSpenderPath = kategorie === 'papierhandtuecher' && segments[0] === 'spender'
-  const isOhneSpenderPath = kategorie === 'papierhandtuecher' && segments[0] === 'ohne-spender'
   const dimensionSlug = isSpenderPath && segments.length >= 2 ? segments[1] : null
   const dimensionSeoText = dimensionSlug ? DIMENSION_SEO[dimensionSlug] : null
 
@@ -108,15 +123,16 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
                 kategorie={kategorie}
                 backHref={backHref}
               />
-              {isOhneSpenderPath && isResults && products.length > 0 && (
-                <div className="max-w-6xl mx-auto mt-8 animate-fade-up">
-                  <Link
-                    href="/waschraum/spender/papierhandtuecher"
-                    className="inline-flex items-center gap-2 bg-white border border-border rounded-lg px-5 py-3 text-sm font-medium text-navy hover:border-primary hover:shadow-md transition-[border-color,box-shadow]"
-                  >
-                    Dazu passender Spender finden →
-                  </Link>
-                </div>
+              {crossSelling && products.length > 0 && (
+                <CrossSelling
+                  title={crossSelling.title}
+                  description={crossSelling.description}
+                  linkHref={crossSelling.linkHref}
+                  linkLabel={crossSelling.linkLabel}
+                  links={crossSelling.links}
+                  products={crossSellingProducts}
+                  utmCampaign={crossSelling.utmCampaign}
+                />
               )}
             </>
           ) : (

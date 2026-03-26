@@ -3,12 +3,14 @@ import { CATEGORIES, getAllStaticPaths } from '@/lib/finder-config'
 import { SITE_URL } from '@/lib/constants'
 
 const BASE = SITE_URL
+// Festes Build-Datum damit lastmod sich nur bei echtem Deploy ändert
+const BUILD_DATE = new Date()
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const urls: MetadataRoute.Sitemap = [
     {
       url: BASE,
-      lastModified: new Date(),
+      lastModified: BUILD_DATE,
       changeFrequency: 'weekly',
       priority: 1.0,
     },
@@ -17,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Vergleichsseiten
   urls.push({
     url: `${BASE}/vergleich`,
-    lastModified: new Date(),
+    lastModified: BUILD_DATE,
     changeFrequency: 'weekly',
     priority: 0.8,
   })
@@ -31,7 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const slug of vergleichSlugs) {
     urls.push({
       url: `${BASE}/vergleich/${slug}`,
-      lastModified: new Date(),
+      lastModified: BUILD_DATE,
       changeFrequency: 'weekly',
       priority: 0.7,
     })
@@ -41,7 +43,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Category root page
     urls.push({
       url: `${BASE}/${cat.slug}`,
-      lastModified: new Date(),
+      lastModified: BUILD_DATE,
       changeFrequency: 'weekly',
       priority: 0.9,
     })
@@ -51,7 +53,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const segments of paths) {
       urls.push({
         url: `${BASE}/${cat.slug}/${segments.join('/')}`,
-        lastModified: new Date(),
+        lastModified: BUILD_DATE,
         changeFrequency: 'monthly',
         priority: 0.7,
       })

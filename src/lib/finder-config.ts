@@ -709,7 +709,7 @@ export const CATEGORIES: CategoryDef[] = [
   {
     slug: 'waschraum',
     label: 'Waschraum-Ausstattung',
-    icon: 'waschraum-icon.svg',
+    icon: 'Waschraum und Austattung.svg',
     metaTitle: 'Waschraum-Ausstattung B2B | Hamburgpapier Produktfinder',
     metaDescription: 'Kosmetiktücher, Hygienespender und Cremeseife für professionelle Waschräume. Alle Produkte mit EU Ecolabel, versandkostenfrei.',
     seoContent: 'Komplette Waschraum-Ausstattung für Ihren Betrieb: Kosmetiktücher für den Waschtisch, Hygienespender für Papierhandtücher und Toilettenpapier sowie Cremeseife. Alle Produkte mit EU Ecolabel, versandkostenfrei.',
@@ -720,7 +720,7 @@ export const CATEGORIES: CategoryDef[] = [
   {
     slug: 'reinigung',
     label: 'Reinigung & Gastronomie',
-    icon: 'reinigung-icon.svg',
+    icon: 'Reinigung und Gastronomie.svg',
     metaTitle: 'Reinigung & Gastronomie B2B | Hamburgpapier Produktfinder',
     metaDescription: 'Servietten, Ärztekrepp, Mikrofasertücher und Wischmops für Gastronomie und professionelle Reinigung. Versandkostenfrei ab Palette.',
     seoContent: 'Reinigungsbedarf und Gastronomie-Zubehör für Ihren Betrieb: Servietten für Restaurant und Hotel, Ärztekrepp für Praxis und Fitness, Mikrofasertücher und Wischmops für die professionelle Unterhaltsreinigung. Versandkostenfrei ab Palette.',

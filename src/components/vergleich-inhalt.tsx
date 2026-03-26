@@ -241,6 +241,13 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
             </table>
           </div>
 
+          {/* Desktop Trust-Zeile */}
+          <div className="hidden md:flex flex-wrap justify-center gap-4 mt-6 text-xs text-emerald-600">
+            <span>&#10003; Kostenloser Versand</span>
+            <span>&#10003; Kauf auf Rechnung</span>
+            <span>&#10003; EU Ecolabel</span>
+          </div>
+
           {/* Mobile-Karten */}
           <div className="md:hidden flex flex-col gap-3">
             {sorted.map((p, i) => {
@@ -299,6 +306,13 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
                 </div>
               )
             })}
+          </div>
+
+          {/* Mobile Trust-Zeile */}
+          <div className="md:hidden flex flex-wrap justify-center gap-4 mt-6 text-xs text-emerald-600">
+            <span>&#10003; Kostenloser Versand</span>
+            <span>&#10003; Kauf auf Rechnung</span>
+            <span>&#10003; EU Ecolabel</span>
           </div>
         </>
       )}

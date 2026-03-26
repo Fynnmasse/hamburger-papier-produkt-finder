@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FinderHeader } from '@/components/finder-header'
+import { FinderFooter } from '@/components/finder-footer'
 import { Breadcrumbs, breadcrumbJsonLd, type BreadcrumbItem } from '@/components/breadcrumbs'
 export const metadata: Metadata = {
   title: 'Preisvergleich nach Grundpreis | Hamburgpapier Produktfinder',
@@ -86,13 +87,7 @@ export default function VergleichPage() {
         </section>
       </main>
 
-      <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35">
-        © {new Date().getFullYear()} Hamburgpapier ·{' '}
-        <a href="https://www.hamburgpapier-shop.de" className="hover:text-white/60 transition-colors">
-          hamburgpapier-shop.de
-        </a>
-        {' '}· Alle Preise zzgl. 19% MwSt.
-      </footer>
+      <FinderFooter />
 
       <script
         type="application/ld+json"

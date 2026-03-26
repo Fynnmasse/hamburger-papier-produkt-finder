@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowUpRight, Menu, X } from 'lucide-react'
+import { ArrowUpRight, Menu, X, Phone } from 'lucide-react'
 
 export function FinderHeader() {
   const [open, setOpen] = useState(false)
@@ -16,7 +16,12 @@ export function FinderHeader() {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden sm:flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-3">
+          <a href="tel:+494056194820" className="text-xs text-white/60 hover:text-white transition-colors flex items-center gap-1.5 whitespace-nowrap">
+            <Phone size={13} aria-hidden="true" />
+            040 56 194 82 20
+          </a>
+          <span className="w-px h-4 bg-white/15" aria-hidden="true" />
           <Link
             href="/vergleich"
             className="text-xs font-semibold text-white/70 border border-white/20 rounded-full h-9 px-3.5 flex items-center hover:text-white hover:border-white/50 transition-colors whitespace-nowrap"
@@ -48,6 +53,13 @@ export function FinderHeader() {
       {/* Mobile Menu */}
       {open && (
         <nav className="sm:hidden bg-navy border-t border-white/10 px-5 py-4 flex flex-col gap-3 animate-fade-up">
+          <a
+            href="tel:+494056194820"
+            className="text-sm text-white/60 hover:text-white transition-colors py-2 flex items-center gap-2"
+          >
+            <Phone size={15} aria-hidden="true" />
+            040 56 194 82 20
+          </a>
           <Link
             href="/vergleich"
             onClick={() => setOpen(false)}

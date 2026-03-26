@@ -1,7 +1,9 @@
-import { Package, Truck, BadgePercent } from 'lucide-react'
+import { Truck, PackageOpen, Headset } from 'lucide-react'
 import { FinderHeader } from '@/components/finder-header'
+import { FinderFooter } from '@/components/finder-footer'
 import { CategoryGrid } from '@/components/category-grid'
 
+import { AnimatedCounter } from '@/components/ui/animated-counter'
 import { CATEGORIES } from '@/lib/finder-config'
 
 export default function HomePage() {
@@ -25,21 +27,21 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Trust Badges */}
-            <ul className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10 list-none p-0 m-0">
-              <li className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm text-navy text-xs sm:text-sm font-medium rounded-full px-3 py-1.5">
-                <Package size={14} className="text-primary" aria-hidden="true" />
-                179 Produkte
-              </li>
-              <li className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm text-navy text-xs sm:text-sm font-medium rounded-full px-3 py-1.5">
-                <Truck size={14} className="text-primary" aria-hidden="true" />
+            {/* Trust-Leiste */}
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-10">
+              <div className="flex items-center gap-2 text-steel text-[13px]">
+                <Truck size={18} className="text-primary flex-shrink-0" aria-hidden="true" />
                 Kostenloser Versand
-              </li>
-              <li className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm text-navy text-xs sm:text-sm font-medium rounded-full px-3 py-1.5">
-                <BadgePercent size={14} className="text-primary" aria-hidden="true" />
-                B2B Großhandelspreise
-              </li>
-            </ul>
+              </div>
+<div className="flex items-center gap-2 text-steel text-[13px]">
+                <PackageOpen size={18} className="text-primary flex-shrink-0" aria-hidden="true" />
+                Kostenlose Muster
+              </div>
+              <div className="flex items-center gap-2 text-steel text-[13px]">
+                <Headset size={18} className="text-primary flex-shrink-0" aria-hidden="true" />
+                Persönlicher Service
+              </div>
+            </div>
 
             {/* Category Grid — 8 Kacheln in 2 Reihen */}
             <CategoryGrid categories={[
@@ -53,6 +55,24 @@ export default function HomePage() {
               ),
               { slug: 'vergleich', label: 'Preisvergleich', icon: 'preisvergleich-icon-white.svg', href: '/vergleich', variant: 'highlight' as const, subtitle: 'Günstigster Preis pro Rolle' },
             ]} />
+
+            {/* Zahlen-Leiste */}
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 mt-10">
+              <div className="text-center">
+                <span className="block font-bold text-[22px] sm:text-[28px] text-navy tabular-nums"><AnimatedCounter target={179} /></span>
+                <span className="block text-steel text-[13px]">Produkte</span>
+              </div>
+              <span className="hidden sm:block w-px h-10 bg-black/10" aria-hidden="true" />
+              <div className="text-center">
+                <span className="block font-bold text-[22px] sm:text-[28px] text-navy tabular-nums"><AnimatedCounter target={6800} suffix="+" separator="." /></span>
+                <span className="block text-steel text-[13px]">Zufriedene Kunden</span>
+              </div>
+              <span className="hidden sm:block w-px h-10 bg-black/10" aria-hidden="true" />
+              <div className="text-center">
+                <span className="block font-bold text-[22px] sm:text-[28px] text-navy tabular-nums"><AnimatedCounter target={100} suffix="%" /></span>
+                <span className="block text-steel text-[13px]">Versandkostenfrei</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -79,13 +99,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="relative z-10 bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35" suppressHydrationWarning>
-        © {new Date().getFullYear()} Hamburgpapier ·{' '}
-        <a href="https://www.hamburgpapier-shop.de" className="hover:text-white/60 transition-colors">
-          hamburgpapier-shop.de
-        </a>
-        {' '}· Alle Preise inkl. 19% MwSt.
-      </footer>
+      <FinderFooter />
 
       {/* JSON-LD Structured Data */}
       <script

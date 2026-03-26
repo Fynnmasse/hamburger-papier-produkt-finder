@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { FinderHeader } from '@/components/finder-header'
+import { FinderFooter } from '@/components/finder-footer'
 import { Breadcrumbs, breadcrumbJsonLd, type BreadcrumbItem } from '@/components/breadcrumbs'
 import { StepSelection } from '@/components/step-selection'
 import { ProductResults } from '@/components/product-results'
@@ -178,13 +179,7 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
         )}
       </main>
 
-      <footer className="bg-navy border-t border-white/5 py-4 text-center text-xs text-white/35" suppressHydrationWarning>
-        © {new Date().getFullYear()} Hamburgpapier ·{' '}
-        <a href="https://www.hamburgpapier-shop.de" className="hover:text-white/60 transition-colors">
-          hamburgpapier-shop.de
-        </a>
-        {' '}· Alle Preise zzgl. 19% MwSt.
-      </footer>
+      <FinderFooter />
 
       {/* Breadcrumb JSON-LD */}
       <script

@@ -51,11 +51,18 @@ export function ProductResults({ products, title, kategorie, backHref }: Product
           </Link>
         </div>
       ) : (
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {shown.map((p, i) => (
-            <ProductCard key={p.num} p={p} index={i} kategorie={kategorie} isBesterPreis={guenstigste?.num === p.num} />
-          ))}
-        </div>
+        <>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {shown.map((p, i) => (
+              <ProductCard key={p.num} p={p} index={i} kategorie={kategorie} isBesterPreis={guenstigste?.num === p.num} />
+            ))}
+          </div>
+          <div className="flex flex-wrap justify-center gap-4 mt-6 text-xs text-emerald-600">
+            <span>&#10003; Kostenloser Versand</span>
+            <span>&#10003; Kauf auf Rechnung</span>
+            <span>&#10003; EU Ecolabel</span>
+          </div>
+        </>
       )}
 
       {shown.length > 0 && kategorie !== 'waschraum' && kategorie !== 'reinigung' && (

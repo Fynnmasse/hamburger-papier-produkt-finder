@@ -51,7 +51,7 @@ export default function HomePage() {
               ...(['kuechenrollen', 'waschraum', 'reinigung'] as const).map(
                 slug => { const c = CATEGORIES.find(c => c.slug === slug)!; return { slug: c.slug, label: c.label, icon: c.icon } }
               ),
-              { slug: 'vergleich', label: 'Preisvergleich', icon: 'preisvergleich-icon.svg', href: '/vergleich', variant: 'highlight' as const },
+              { slug: 'vergleich', label: 'Preisvergleich', icon: 'preisvergleich-icon-white.svg', href: '/vergleich', variant: 'highlight' as const, subtitle: 'Günstigster Preis pro Rolle' },
             ]} />
           </div>
         </div>

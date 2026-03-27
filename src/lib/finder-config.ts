@@ -306,8 +306,8 @@ function getPapierhandtuecherSteps(segments: string[]): StepDef[] {
     const dimConfig = DIMENSION_CONFIG[dimension]
     const lagenStep = makeLagenStep(dimConfig?.layers || [1, 2])
     if (segments.length < 3) return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP, lagenStep]
-    const layerSlug = segments[2]
-    return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP, lagenStep, makeAvailableMaterialStep(dimension, layerSlug), QUANTITY_STEP]
+    // Spender-Pfad: nach Lagen direkt Menge, keine Qualitätsfrage
+    return [SPENDER_FRAGE_STEP, ABMESSUNG_STEP, lagenStep, QUANTITY_STEP]
   }
 
   // ohne-spender: Falzung → Qualität → Menge (Menge immer als letzte Frage)
@@ -317,19 +317,15 @@ function getPapierhandtuecherSteps(segments: string[]): StepDef[] {
 function getPapierhandtuecherAllPaths(): string[][] {
   const paths: string[][] = []
 
-  // Spender path: Abmessung → Lagen → Qualität → Menge
+  // Spender path: Abmessung → Lagen → Menge (keine Qualitätsfrage)
   paths.push(['spender'])
   for (const [dimKey, dim] of Object.entries(DIMENSION_CONFIG)) {
     paths.push(['spender', dimKey])
     for (const layer of dim.layers) {
       const layerSlug = `${layer}-lagig`
       paths.push(['spender', dimKey, layerSlug])
-      const matStep = makeAvailableMaterialStep(dimKey, layerSlug)
-      for (const mOpt of matStep.options) {
-        paths.push(['spender', dimKey, layerSlug, mOpt.value])
-        for (const qOpt of QUANTITY_STEP.options) {
-          paths.push(['spender', dimKey, layerSlug, mOpt.value, qOpt.value])
-        }
+      for (const qOpt of QUANTITY_STEP.options) {
+        paths.push(['spender', dimKey, layerSlug, qOpt.value])
       }
     }
   }

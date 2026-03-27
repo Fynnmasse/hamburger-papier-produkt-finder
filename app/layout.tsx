@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { SITE_URL } from '@/lib/constants'
 import { DM_Sans, Comfortaa } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import '@/index.css'
+
+const GA_ID = 'G-8WYQHX3TB5'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -53,6 +56,15 @@ export default function RootLayout({
   return (
     <html lang="de" className={`${dmSans.variable} ${comfortaa.variable}`}>
       <head>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+          <Script id="gtag-init" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_ID}');
+            `}
+          </Script>
           <link rel="preconnect" href="https://www.hamburgpapier-shop.de" />
           <script
             type="text/javascript"

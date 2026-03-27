@@ -93,21 +93,23 @@ function resolveMaterial(product: ShopwareProduct): string {
   if (name.includes('ultra soft') || name.includes('super soft') || name.includes('gold')) {
     return 'premium';
   }
-  // 4) Zellstoff (explizit)
+  // 4) Zellstoff (explizit oder starke Indikatoren)
   if (name.includes('zellstoff') || name.includes('hochweiß') || name.includes('hochweiss')) {
     return 'zellstoff';
   }
-  // 5) Shopware Properties als Fallback
-  for (const prop of product.properties ?? []) {
-    const pn = prop.name.toLowerCase();
-    const gn = prop.group?.name?.toLowerCase() ?? '';
-    if (gn.includes('material') || gn.includes('qualit')) {
-      if (pn.includes('recycling')) return 'recycling';
-      if (pn.includes('zellstoff')) return 'zellstoff';
-      if (pn.includes('premium') || pn.includes('ultra soft') || pn.includes('super soft')) return 'premium';
-    }
+  // 5) Weiß oder Premium-Label ohne ECO-Kontext → zellstoff
+  //    "weiß" Produkte sind immer Zellstoff, "PREMIUM" ist eine Zellstoff-Produktlinie
+  if (name.includes('weiß') || name.includes('weiss') || name.includes('premium')) {
+    return 'zellstoff';
   }
-  // 6) Default: zellstoff (kein Produkt nutzt "mischung")
+  // 6) Grau/Grün OHNE ECO-Kontext → zellstoff (z.B. "Falthandtücher GRÜN")
+  //    Grau/Grün MIT ECO-Kontext wurde bereits in Schritt 2 als recycling erkannt
+  if (name.includes('grau') || name.includes('grün') || name.includes('gruen')) {
+    return 'zellstoff';
+  }
+  // 7) Default: zellstoff
+  //    Shopware-Properties werden NICHT als Fallback genutzt, da sie oft
+  //    inkorrekte Material-Zuordnungen haben (z.B. alle Produkte als "Recycling")
   return 'zellstoff';
 }
 

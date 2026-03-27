@@ -78,17 +78,22 @@ function resolveQuantity(product: ShopwareProduct): string {
 
 function resolveMaterial(product: ShopwareProduct): string {
   const name = product.name.toLowerCase();
-  // 1) Premium (spezifischste Keywords zuerst)
-  if (name.includes('ultra soft') || name.includes('super soft') || name.includes('gold') || name.includes('premium')) {
-    return 'premium';
-  }
-  // 2) Explizit Recycling
+  // 1) Explizit Recycling (Keyword oder ECO LINE)
   if (name.includes('recycling')) return 'recycling';
-  // 3) Farb-Indikatoren: GRAU/GRÜN ohne "zellstoff" = Recycling
-  if ((name.includes('grau') || name.includes('grün') || name.includes('gruen')) && !name.includes('zellstoff')) {
+  // 2) Farb-Indikatoren: GRAU/GRÜN nur mit ECO-Kontext = Recycling
+  //    "ECO LINE" oder "eco" im Namen + grau/grün → recycling
+  //    Ohne ECO-Kontext → zellstoff (z.B. "Falthandtücher GRÜN" ist Zellstoff)
+  if ((name.includes('grau') || name.includes('grün') || name.includes('gruen')) &&
+      (name.includes('eco') || name.includes('öko'))) {
     return 'recycling';
   }
-  // 4) Zellstoff
+  // 3) Premium: "ultra soft", "super soft", "gold" — VOR Zellstoff prüfen,
+  //    da Produkte wie "Zellstoff GOLD" oder "Zellstoff ultra soft" premium sind.
+  //    NICHT "premium" allein — das ist ein Produktlinien-Name, kein Material.
+  if (name.includes('ultra soft') || name.includes('super soft') || name.includes('gold')) {
+    return 'premium';
+  }
+  // 4) Zellstoff (explizit)
   if (name.includes('zellstoff') || name.includes('hochweiß') || name.includes('hochweiss')) {
     return 'zellstoff';
   }
@@ -99,7 +104,7 @@ function resolveMaterial(product: ShopwareProduct): string {
     if (gn.includes('material') || gn.includes('qualit')) {
       if (pn.includes('recycling')) return 'recycling';
       if (pn.includes('zellstoff')) return 'zellstoff';
-      if (pn.includes('premium')) return 'premium';
+      if (pn.includes('premium') || pn.includes('ultra soft') || pn.includes('super soft')) return 'premium';
     }
   }
   // 6) Default: zellstoff (kein Produkt nutzt "mischung")

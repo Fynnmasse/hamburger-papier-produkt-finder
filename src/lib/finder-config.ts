@@ -1,4 +1,5 @@
 import { PRODUCTS, type Product } from './products'
+import { getGuenstigsterGrundpreis } from './price-utils'
 
 // ── Types ──
 export type CategorySlug =
@@ -917,11 +918,14 @@ export function filterProducts(params: FilterParams, externalProducts?: Product[
     }
     return true
   }).sort((a, b) => {
-    // Günstigster Preis immer zuerst
-    if (a.price !== b.price) return a.price - b.price
-    // Bei gleichem Preis: Produkte mit Bild bevorzugen
-    const ai = a.img ? 1 : 0, bi = b.img ? 1 : 0
-    return bi - ai
+    // Günstigster Grundpreis zuerst, Produkte ohne Grundpreis am Ende
+    const ga = getGuenstigsterGrundpreis(a)
+    const gb = getGuenstigsterGrundpreis(b)
+    if (ga !== null && gb !== null) return ga - gb
+    if (ga !== null) return -1
+    if (gb !== null) return 1
+    // Fallback: nach Verkaufspreis
+    return a.price - b.price
   })
 }
 

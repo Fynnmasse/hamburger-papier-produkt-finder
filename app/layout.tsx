@@ -56,6 +56,7 @@ export default function RootLayout({
   return (
     <html lang="de" className={`${dmSans.variable} ${comfortaa.variable}`}>
       <head>
+          <Script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="ba573d32-3648-4edd-a327-1719d85bf242" data-blockingmode="auto" strategy="beforeInteractive" />
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
           <Script id="gtag-init" strategy="afterInteractive">
             {`

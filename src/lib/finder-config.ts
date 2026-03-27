@@ -917,9 +917,11 @@ export function filterProducts(params: FilterParams, externalProducts?: Product[
     }
     return true
   }).sort((a, b) => {
+    // Günstigster Preis immer zuerst
+    if (a.price !== b.price) return a.price - b.price
+    // Bei gleichem Preis: Produkte mit Bild bevorzugen
     const ai = a.img ? 1 : 0, bi = b.img ? 1 : 0
-    if (bi !== ai) return bi - ai
-    return a.price - b.price
+    return bi - ai
   })
 }
 

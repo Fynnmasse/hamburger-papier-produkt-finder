@@ -204,8 +204,8 @@ const PUTZPAPIER_ROLL_NUMS = PRODUCTS
 // Produkt-Zuordnung nach Branche (alle Putzpapier-Rollen pro Branche — feinere Zuordnung bei Bedarf)
 export const PRODUCT_BRANCHE_MAP: Record<string, string[]> = {
   'automobil-industrie': PUTZPAPIER_ROLL_NUMS,
-  'gastronomie': PUTZPAPIER_ROLL_NUMS,
-  'fitness-solarien': PUTZPAPIER_ROLL_NUMS,
+  'gastronomie': [...PUTZPAPIER_ROLL_NUMS, '8080Karton', 'ZU50498080', '8700Karton', 'ZU50498700', '8500Karton', 'ZU50498500'],
+  'fitness-solarien': [...PUTZPAPIER_ROLL_NUMS.filter(n => n !== 'ZU50497500'), '8080Karton', 'ZU50498080', '8500Karton', 'ZU50498500', '8700Karton', 'ZU50498700'],
   'lebensmittelindustrie': PUTZPAPIER_ROLL_NUMS,
 }
 
@@ -217,9 +217,9 @@ export const PRODUCT_ANWENDUNG_MAP: Record<string, string[]> = {
   'allzweck': PUTZPAPIER_ROLL_NUMS,
   // Automobil-Industrie Anwendungen
   'fusselarm': ['420Karton', 'ZU50490420', '480Karton', 'ZU50490480'],
-  'fluessigkeiten-oele': ['290Karton', 'ZU50490290L'],
+  'fluessigkeiten-oele': ['290Karton', 'ZU50490290L', '280Karton', 'ZU50490280L'],
   'wasser-alkohole': ['420Karton', 'ZU50490420', '480Karton', 'ZU50490480'],
-  'grobe-verschmutzung': ['290Karton', 'ZU50490290L'],
+  'grobe-verschmutzung': ['290Karton', 'ZU50490290L', '280Karton', 'ZU50490280L'],
 }
 
 /** Dynamische Steps für Putzpapier-Kategorie (nur noch Putzpapier-Rollen) */
@@ -899,9 +899,15 @@ export function filterProducts(params: FilterParams, externalProducts?: Product[
       // Ohne Subtype: nichts filtern (zeige alle Reinigung-Produkte)
       // Mit Subtype: matchesSubtype filtert nach Servietten/Ärzte/Mikrofaser/Wischmop
     } else if (params.category === 'putzpapier') {
-      if (p.category !== 'putzpapier') return false
-      // Nur Putzpapier-Rollen (ohne Ärzte, Mikrofaser, Wischmop)
-      if (!/putz|werkstatt/i.test(p.name)) return false
+      // Branche kann Produkte aus anderen Kategorien enthalten (z.B. Handtuchrollen für Gastronomie)
+      const brancheNums = params.branche ? PRODUCT_BRANCHE_MAP[params.branche] : null
+      if (brancheNums && brancheNums.includes(p.num)) {
+        // Produkt ist explizit für diese Branche gelistet — durchlassen
+      } else {
+        if (p.category !== 'putzpapier') return false
+        // Nur Putzpapier-Rollen (ohne Ärzte, Mikrofaser, Wischmop)
+        if (!/putz|werkstatt/i.test(p.name)) return false
+      }
     } else {
       if (p.category !== params.category) return false
     }
@@ -913,9 +919,14 @@ export function filterProducts(params: FilterParams, externalProducts?: Product[
     if (params.quantity && params.quantity !== 'alle') {
       if (p.quantity !== params.quantity) return false
     }
-    // Material
+    // Material — 8080Karton/ZU50498080 werden in Putzpapier-Branchen nur unter Recycling angezeigt
     if (params.material && params.material !== 'alle') {
-      if (p.material !== params.material) return false
+      const forceRecycling = params.category === 'putzpapier' && params.branche && (p.num === '8080Karton' || p.num === 'ZU50498080')
+      if (forceRecycling) {
+        if (params.material !== 'recycling') return false
+      } else {
+        if (p.material !== params.material) return false
+      }
     }
     // Lebensmittelzulassung
     if (params.lebensmittel && params.lebensmittel !== 'alle') {

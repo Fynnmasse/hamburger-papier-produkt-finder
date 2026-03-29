@@ -84,7 +84,9 @@ export default function RootLayout({
               var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
               c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
             })(document);
-            window.smartlook('init', '5ca38c734765fc0cad5a810f546763571a8ef325', { region: 'eu' });
+            if (typeof window.smartlook === 'function') {
+              window.smartlook('init', '5ca38c734765fc0cad5a810f546763571a8ef325', { region: 'eu' });
+            }
           `}
         </Script>
       </body>

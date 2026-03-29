@@ -104,6 +104,7 @@ export function ProductCard({ p, index, kategorie, isBesterPreis, utmMedium }: P
             <MusterButton referencedId={referencedId} kategorie={kategorie} />
           )}
         </div>
+        <p className="text-[0.65rem] text-steel/60 mt-1.5 text-center select-all">Art.-Nr. {p.num}</p>
       </div>
     </div>
   )

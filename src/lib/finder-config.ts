@@ -164,10 +164,10 @@ const BRANCHE_STEP: StepDef = {
   title: 'Für welche Branche?',
   subtitle: 'Wählen Sie Ihre Branche für passende Putzpapier-Empfehlungen.',
   options: [
-    { value: 'automobil-industrie', label: 'Automobil · Werkstatt · Tankstelle · Industrie', desc: 'Robustes Putzpapier für ölige und stark verschmutzte Umgebungen in Werkstätten, Tankstellen und Industriebetrieben.' },
-    { value: 'gastronomie', label: 'Gastronomie', desc: 'Putzpapier für Küche, Service und Reinigung in der Gastronomie.' },
-    { value: 'fitness-solarien', label: 'Fitness · Solarien', desc: 'Hygienisches Putzpapier für Geräte, Liegen und Kabinen.' },
-    { value: 'lebensmittelindustrie', label: 'Lebensmittelindustrie', desc: 'Lebensmittelechtes Putzpapier für Produktions- und Verarbeitungsumgebungen.' },
+    { value: 'automobil-industrie', label: 'Automobil · Werkstatt · Tankstelle · Industrie', desc: 'Robustes Putzpapier für ölige und stark verschmutzte Umgebungen in Werkstätten, Tankstellen und Industriebetrieben.', image: 'Werkstatt - Kfz-Service.svg' },
+    { value: 'gastronomie', label: 'Gastronomie', desc: 'Putzpapier für Küche, Service und Reinigung in der Gastronomie.', image: 'Gastronomie-Großküche.svg' },
+    { value: 'fitness-solarien', label: 'Fitness · Solarien', desc: 'Hygienisches Putzpapier für Geräte, Liegen und Kabinen.', image: 'Fitnessstudio-Gym.svg' },
+    { value: 'lebensmittelindustrie', label: 'Lebensmittelindustrie', desc: 'Lebensmittelechtes Putzpapier für Produktions- und Verarbeitungsumgebungen.', image: 'Lebensmittelindusrie.svg' },
   ],
 }
 
@@ -181,6 +181,18 @@ const ANWENDUNG_STEP: StepDef = {
     { value: 'oberflaechen', label: 'Oberflächen reinigen & trocknen', desc: 'Putzpapier zum Reinigen und Trockenwischen von Oberflächen, Geräten und Maschinen.' },
     { value: 'haende', label: 'Hände abwischen & trocknen', desc: 'Weiches Putzpapier zum Händetrocknen in Werkstatt, Küche und Produktion.' },
     { value: 'allzweck', label: 'Allzweck / Universell', desc: 'Vielseitig einsetzbares Putzpapier für verschiedenste Reinigungsaufgaben.' },
+  ],
+}
+
+const AUTOMOBIL_ANWENDUNG_STEP: StepDef = {
+  id: 'anwendung', slug: 'anwendung',
+  title: 'Für welche Anwendung wird das Papier hauptsächlich benötigt?',
+  subtitle: 'Wählen Sie den Einsatzzweck für passende Putzpapier-Empfehlungen.',
+  options: [
+    { value: 'fusselarm', label: 'Fusselarme Reinigung von Oberflächen', desc: 'Fusselarmes Putzpapier für empfindliche Oberflächen.', image: 'Fusselarme Reinigung von Oberflächen.svg' },
+    { value: 'fluessigkeiten-oele', label: 'Aufnahme von Flüssigkeiten & Ölen & Fetten', desc: 'Saugstarkes Putzpapier für Flüssigkeiten, Öle und Fette.', image: 'Aufnahme von Flüssigkeiten, Ölen und Fetten.svg' },
+    { value: 'wasser-alkohole', label: 'Reinigung mit Wasser & Alkoholen & Verdünnungsmitteln', desc: 'Putzpapier für die Reinigung mit Lösungsmitteln.', image: 'Reinigung mit Wasser, Alkoholen und Verdünnungsmitteln - Entfernung von groben Verschmutzungen.svg' },
+    { value: 'grobe-verschmutzung', label: 'Entfernung von groben Verschmutzungen', desc: 'Robustes Putzpapier für grobe Verschmutzungen.', image: 'Entfernung von groben Verschmutzungen.svg' },
   ],
 }
 
@@ -203,11 +215,19 @@ export const PRODUCT_ANWENDUNG_MAP: Record<string, string[]> = {
   'oberflaechen': PUTZPAPIER_ROLL_NUMS,
   'haende': PUTZPAPIER_ROLL_NUMS,
   'allzweck': PUTZPAPIER_ROLL_NUMS,
+  // Automobil-Industrie Anwendungen
+  'fusselarm': ['420Karton', 'ZU50490420', '480Karton', 'ZU50490480'],
+  'fluessigkeiten-oele': ['290Karton', 'ZU50490290L'],
+  'wasser-alkohole': ['420Karton', 'ZU50490420', '480Karton', 'ZU50490480'],
+  'grobe-verschmutzung': ['290Karton', 'ZU50490290L'],
 }
 
 /** Dynamische Steps für Putzpapier-Kategorie (nur noch Putzpapier-Rollen) */
 function getPutzpapierSteps(segments: string[]): StepDef[] {
   if (segments.length >= 1 && segments[0] === 'branche') {
+    if (segments.length >= 2 && segments[1] === 'automobil-industrie') {
+      return [SEARCH_METHOD_STEP, BRANCHE_STEP, AUTOMOBIL_ANWENDUNG_STEP, materialStep(false), QUANTITY_STEP]
+    }
     return [SEARCH_METHOD_STEP, BRANCHE_STEP, materialStep(false), QUANTITY_STEP]
   }
   if (segments.length >= 1 && segments[0] === 'anwendung') {
@@ -226,10 +246,23 @@ function getPutzpapierAllPaths(): string[][] {
     const nextStep = method.value === 'branche' ? BRANCHE_STEP : ANWENDUNG_STEP
     for (const opt of nextStep.options) {
       paths.push([method.value, opt.value])
-      for (const mOpt of matOpts) {
-        paths.push([method.value, opt.value, mOpt.value])
-        for (const qOpt of QUANTITY_STEP.options) {
-          paths.push([method.value, opt.value, mOpt.value, qOpt.value])
+
+      if (method.value === 'branche' && opt.value === 'automobil-industrie') {
+        for (const anw of AUTOMOBIL_ANWENDUNG_STEP.options) {
+          paths.push([method.value, opt.value, anw.value])
+          for (const mOpt of matOpts) {
+            paths.push([method.value, opt.value, anw.value, mOpt.value])
+            for (const qOpt of QUANTITY_STEP.options) {
+              paths.push([method.value, opt.value, anw.value, mOpt.value, qOpt.value])
+            }
+          }
+        }
+      } else {
+        for (const mOpt of matOpts) {
+          paths.push([method.value, opt.value, mOpt.value])
+          for (const qOpt of QUANTITY_STEP.options) {
+            paths.push([method.value, opt.value, mOpt.value, qOpt.value])
+          }
         }
       }
     }
@@ -391,10 +424,21 @@ const HANDTUCHROLLEN_MENGE_STEP: StepDef = {
   ],
 }
 
+const HANDTUCHROLLEN_BREITE_STEP: StepDef = {
+  id: 'breite', slug: 'breite',
+  title: 'Welche Breite?',
+  subtitle: 'Wählen Sie die Rollenbreite passend zu Ihrem Spender.',
+  options: [
+    { value: '20cm', label: '20 cm', desc: 'Standard-Breite für die meisten Autocut-Spender.', tag: 'Am häufigsten', tagStyle: 'bg-blue-100 text-blue-800', image: 'handtuchrollen-2-lagig-aussenabwicklung.png' },
+    { value: '20-5cm', label: '20,5 cm', desc: 'Etwas breitere Rollen mit 4,4 cm Hülse.', image: 'handtuchrollen-2-lagig-20-5-cm-breite.png' },
+    { value: '21-3cm', label: '21,3 cm', desc: 'Breiteste Variante mit 3,8 cm Hülse.', image: 'handtuchrollen-2-lagig-aussenabwicklung-21-3-breite.png' },
+  ],
+}
+
 /** Dynamische Steps für Handtuchrollen — Außenabwicklung überspringt Lebensmittelzulassung */
 function getHandtuchrollenSteps(segments: string[]): StepDef[] {
   if (segments.length > 0 && segments[0] === 'aussenabwicklung') {
-    return [HANDTUCHROLLEN_ABWICKLUNG_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
+    return [HANDTUCHROLLEN_ABWICKLUNG_STEP, HANDTUCHROLLEN_BREITE_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
   }
   return [HANDTUCHROLLEN_ABWICKLUNG_STEP, HANDTUCHROLLEN_LEBENSMITTEL_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
 }
@@ -405,7 +449,7 @@ function getHandtuchrollenAllPaths(): string[][] {
   for (const abw of HANDTUCHROLLEN_ABWICKLUNG_STEP.options) {
     paths.push([abw.value])
     const steps = abw.value === 'aussenabwicklung'
-      ? [HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
+      ? [HANDTUCHROLLEN_BREITE_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
       : [HANDTUCHROLLEN_LEBENSMITTEL_STEP, HANDTUCHROLLEN_LAGEN_STEP, HANDTUCHROLLEN_MENGE_STEP]
     function generate(stepIdx: number, current: string[]) {
       if (stepIdx >= steps.length) return
@@ -760,11 +804,15 @@ export const STEP_VALUE_LABELS: Record<string, Record<string, string>> = {
     oberflaechen: 'Oberflächen reinigen',
     haende: 'Hände abwischen',
     allzweck: 'Allzweck',
+    fusselarm: 'Fusselarme Reinigung',
+    'fluessigkeiten-oele': 'Flüssigkeiten & Öle & Fette',
+    'wasser-alkohole': 'Wasser & Alkohole & Verdünnungsmittel',
+    'grobe-verschmutzung': 'Grobe Verschmutzungen',
   },
   'spender-wahl': { spender: 'Spender vorhanden', 'ohne-spender': 'Ohne Spender' },
   abmessung: Object.fromEntries(Object.entries(DIMENSION_CONFIG).map(([k, v]) => [k, v.label])),
   lagen: { '1-lagig': '1-lagig', '2-lagig': '2-lagig', '3-lagig': '3-lagig' },
-  breite: { '39cm': '39 cm', '50cm': '50 cm', '55cm': '55 cm', '60cm': '60 cm' },
+  breite: { '39cm': '39 cm', '50cm': '50 cm', '55cm': '55 cm', '60cm': '60 cm', '20cm': '20 cm', '20-5cm': '20,5 cm', '21-3cm': '21,3 cm' },
   farbe: { rot: 'Rot', blau: 'Blau', alle: 'Alle' },
   form: { 'flache-box': 'Flache Box', wuerfelbox: 'Würfelbox' },
 }
@@ -894,10 +942,10 @@ export function filterProducts(params: FilterParams, externalProducts?: Product[
       const nums = PRODUCT_ANWENDUNG_MAP[params.anwendung]
       if (nums && nums.length > 0 && !nums.includes(p.num)) return false
     }
-    // Breite (für Ärztekrepp)
+    // Breite (für Ärztekrepp & Handtuchrollen)
     if (params.breite) {
-      const breiteNum = params.breite.replace('cm', '')
-      if (!new RegExp(`breite\\s*${breiteNum}\\s*cm`, 'i').test(p.name)) return false
+      const breiteNum = params.breite.replace('cm', '').replace(/-/g, '[,.]')
+      if (!new RegExp(`(breite\\s*${breiteNum}\\s*cm|${breiteNum}\\s*cm\\s*breite)`, 'i').test(p.name)) return false
     }
     // Farbe (für Mikrofasertücher)
     if (params.farbe && params.farbe !== 'alle') {

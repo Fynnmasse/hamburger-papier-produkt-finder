@@ -29,7 +29,7 @@ export function StepSelection({ step, basePath }: StepSelectionProps) {
         >
           {image && (
             <div className="w-full aspect-[3/2] mb-2 overflow-hidden rounded-lg bg-navy/5">
-              <Image src={`/${image}`} alt={label} width={400} height={267} className="w-full h-full object-contain" />
+              <Image src={`/${image}`} alt={label} width={400} height={267} sizes="(max-width: 640px) 100vw, 400px" className="w-full h-full object-contain" />
             </div>
           )}
           <h3 className="font-display font-bold text-xl uppercase text-navy break-words hyphens-auto" lang="de">{label}</h3>

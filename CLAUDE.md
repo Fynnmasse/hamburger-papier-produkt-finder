@@ -26,7 +26,7 @@ Jede Kategorie und jeder Wizard-Schritt hat eine eigene, crawlbare URL.
 | Framework     | Next.js 16 (App Router) + React 19 + TypeScript 5.9|
 | Rendering     | SSG (Static Site Generation) für alle Seiten       |
 | Styling       | Tailwind CSS 3.4 + Custom CSS Keyframes            |
-| Animationen   | Framer Motion 12                                   |
+| Animationen   | CSS Keyframes (Tailwind + index.css)               |
 | Icons         | Lucide React                                       |
 | Utilities     | clsx + tailwind-merge (`cn()` Helper)              |
 | Analytics     | @vercel/analytics (via `<Analytics />` in layout)  |

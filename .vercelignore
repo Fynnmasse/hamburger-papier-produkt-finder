@@ -1,0 +1,13 @@
+# Dokumentation
+*.md
+!README.md
+
+# Lokale Configs & Dev-Dateien
+.env.local
+.env*.local
+
+# Editor & OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db

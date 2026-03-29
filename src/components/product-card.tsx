@@ -57,6 +57,7 @@ export function ProductCard({ p, index, kategorie, isBesterPreis, utmMedium }: P
               alt={p.name}
               width={400}
               height={300}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
               className="w-full h-full object-contain"
               loading="lazy"
             />

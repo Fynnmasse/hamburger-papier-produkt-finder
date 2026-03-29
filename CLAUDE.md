@@ -134,6 +134,12 @@ npm run lint      # Next.js Lint
 
 **Vor jedem Commit:** `npm run build` muss fehlerfrei durchlaufen.
 
+### Lokaler Dev-Server: Troubleshooting
+
+- **`.next`-Cache löschen** wenn der Dev-Server hängt oder nicht kompiliert: `rm -rf .next` und dann `npm run dev` neu starten.
+- **Shopware API im Dev-Modus deaktiviert:** `fetchAllProducts()` in `shopware-api.ts` gibt im Dev-Modus (`NODE_ENV=development`) sofort `[]` zurück. Die Seiten nutzen dann die statischen Produktdaten aus `products.ts`. Auf Vercel (Production) wird die Shopware API normal aufgerufen.
+- **Hängende Node-Prozesse beenden:** Falls der PC nicht mehr reagiert, alle Node-Prozesse beenden (`taskkill /F /IM node.exe` auf Windows) und `.next`-Cache löschen bevor der Server neu gestartet wird.
+
 ---
 
 ## Routing & Data Flow

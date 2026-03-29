@@ -54,6 +54,11 @@ export interface ShopwareProduct {
 
 /** Alle aktiven Produkte aus der Shopware Store API laden (paginiert, alle 30s gecacht) */
 export async function fetchAllProducts(): Promise<ShopwareProduct[]> {
+  // Im Dev-Modus keine API-Calls — statische Daten aus products.ts werden als Fallback genutzt
+  if (process.env.NODE_ENV === 'development') {
+    return [];
+  }
+
   if (!SHOPWARE_API_URL || !SHOPWARE_ACCESS_KEY) {
     return loadFallbackProducts();
   }

@@ -56,30 +56,7 @@ export default function RootLayout({
   return (
     <html lang="de" className={`${dmSans.variable} ${comfortaa.variable}`}>
       <head>
-          <Script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="ba573d32-3648-4edd-a327-1719d85bf242" data-blockingmode="auto" strategy="beforeInteractive" />
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
-          <Script id="gtag-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}');
-            `}
-          </Script>
           <link rel="preconnect" href="https://www.hamburgpapier-shop.de" />
-          <script
-            type="text/javascript"
-            dangerouslySetInnerHTML={{
-              __html: `
-                window.smartlook||(function(d) {
-                  var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
-                  var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
-                  c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
-                })(document);
-                smartlook('init', '5ca38c734765fc0cad5a810f546763571a8ef325', { region: 'eu' });
-              `,
-            }}
-          />
         </head>
         <body>
         <a
@@ -90,6 +67,26 @@ export default function RootLayout({
         </a>
         <main id="main-content">{children}</main>
         <Analytics />
+        <Script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="ba573d32-3648-4edd-a327-1719d85bf242" data-blockingmode="auto" strategy="beforeInteractive" />
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
+        <Script id="smartlook" strategy="afterInteractive">
+          {`
+            window.smartlook||(function(d) {
+              var o=window.smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+              var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+              c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+            })(document);
+            window.smartlook('init', '5ca38c734765fc0cad5a810f546763571a8ef325', { region: 'eu' });
+          `}
+        </Script>
       </body>
     </html>
   )

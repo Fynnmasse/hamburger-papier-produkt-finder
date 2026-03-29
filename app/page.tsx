@@ -15,7 +15,7 @@ export default function HomePage() {
         <div className="bg-sand py-14 md:py-20 px-4">
           <div className="max-w-4xl mx-auto relative z-10">
             {/* Titel-Block */}
-            <div className="text-center mb-12 animate-fade-up">
+            <div className="text-center mb-12">
               <span className="inline-block text-[.7rem] font-bold tracking-[.2em] uppercase text-primary mb-3 bg-primary/10 rounded-full px-3 py-1">
                 Produktberater
               </span>

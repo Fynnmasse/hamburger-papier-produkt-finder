@@ -77,6 +77,30 @@ export default function RootLayout({
             gtag('config', '${GA_ID}');
           `}
         </Script>
+        <Script id="shop-click-tracking" strategy="afterInteractive">
+          {`
+            document.addEventListener('click', function(e) {
+              var link = e.target.closest ? e.target.closest('a[href*="hamburgpapier-shop.de"]') : null;
+              if (!link) return;
+              if (typeof gtag === 'function') {
+                gtag('event', 'produktfinder_to_shop', {
+                  event_category: 'produktfinder',
+                  event_label: link.href
+                });
+              }
+            });
+            document.addEventListener('submit', function(e) {
+              var form = e.target.closest ? e.target.closest('form[action*="hamburgpapier-shop.de"]') : null;
+              if (!form) return;
+              if (typeof gtag === 'function') {
+                gtag('event', 'produktfinder_to_shop', {
+                  event_category: 'produktfinder',
+                  event_label: form.action
+                });
+              }
+            });
+          `}
+        </Script>
         <Script id="smartlook" strategy="afterInteractive">
           {`
             function loadSmartlook() {

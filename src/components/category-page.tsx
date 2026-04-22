@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { FinderHeader } from '@/components/finder-header'
 import { FinderFooter } from '@/components/finder-footer'
@@ -39,6 +40,12 @@ export async function CategoryPage({ kategorie, segments }: CategoryPageProps) {
   const products = filterProducts(params, externalProducts)
   const currentStep = getCurrentStep(kategorie, segments, externalProducts)
   const isResults = !currentStep
+
+  // Soft-404-Prävention: Ergebnis-Seite ohne Produkte ist für Google eine leere Seite.
+  // Hartes 404 statt leerem Ergebnis-Grid.
+  if (isResults && segments.length > 0 && products.length === 0) {
+    notFound()
+  }
 
   // Cross-Selling
   const crossSelling = isResults ? getCrossSelling(kategorie, segments) : null

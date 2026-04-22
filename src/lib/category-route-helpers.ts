@@ -3,6 +3,7 @@ import {
   CATEGORY_MAP,
   STEP_VALUE_LABELS,
   getAllStaticPaths,
+  isResultPath,
   resolveSteps,
   type CategorySlug,
 } from './finder-config'
@@ -38,10 +39,15 @@ export function generateCategoryMetadata(
   const desc = `Finden Sie ${catDef.label} — ${labels.join(', ')}. B2B Großhandel von Hamburgpapier. Kostenloser Versand, kostenlose Muster.`
   const canonical = `/${kategorie}/${segments.join('/')}`
 
+  // Wizard-Zwischenschritte (noch offene Frage) aus dem Index halten —
+  // nur Kategorie-Root + finale Ergebnis-Seiten sollen indexiert werden.
+  const isResult = isResultPath(kategorie, segments)
+
   return {
     title,
     description: desc,
     alternates: { canonical },
+    robots: isResult ? undefined : { index: false, follow: true },
   }
 }
 

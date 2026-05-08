@@ -1066,6 +1066,17 @@ export function getCurrentStep(
   return { ...step, options: availableOptions }
 }
 
+/** True wenn segments zu einer Ergebnis-Seite führen (keine weitere Frage offen). */
+export function isResultPath(categorySlug: CategorySlug, segments: string[]): boolean {
+  if (segments.length === 0) return false
+  return getCurrentStep(categorySlug, segments) === null
+}
+
+/** Nur Blatt-Pfade (Ergebnis-Seiten), ohne Wizard-Zwischenschritte. */
+export function getLeafStaticPaths(categorySlug: CategorySlug): string[][] {
+  return getAllStaticPaths(categorySlug).filter(segs => isResultPath(categorySlug, segs))
+}
+
 /** Generate all possible step combinations for static generation */
 export function getAllStaticPaths(categorySlug: CategorySlug): string[][] {
   const catDef = CATEGORY_MAP.get(categorySlug)

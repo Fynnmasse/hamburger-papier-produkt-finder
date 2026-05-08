@@ -3,6 +3,7 @@ import Script from 'next/script'
 import { SITE_URL } from '@/lib/constants'
 import { DM_Sans, Comfortaa } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import '@/index.css'
 
 const GA_ID = 'G-8WYQHX3TB5'
@@ -67,6 +68,7 @@ export default function RootLayout({
         </a>
         <main id="main-content">{children}</main>
         <Analytics />
+        <SpeedInsights />
         <Script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="ba573d32-3648-4edd-a327-1719d85bf242" data-blockingmode="auto" strategy="afterInteractive" />
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="gtag-init" strategy="afterInteractive">

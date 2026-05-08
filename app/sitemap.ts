@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { CATEGORIES, getAllStaticPaths } from '@/lib/finder-config'
+import { CATEGORIES, getLeafStaticPaths } from '@/lib/finder-config'
 import { SITE_URL } from '@/lib/constants'
 
 const BASE = SITE_URL
@@ -48,8 +48,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     })
 
-    // All step combinations
-    const paths = getAllStaticPaths(cat.slug)
+    // Nur Blatt-Knoten (Ergebnis-Seiten) in die Sitemap — Wizard-Zwischenschritte
+    // haben kaum einzigartigen Content und werden von Google ohnehin als Duplikate/Thin Content verworfen.
+    const paths = getLeafStaticPaths(cat.slug)
     for (const segments of paths) {
       urls.push({
         url: `${BASE}/${cat.slug}/${segments.join('/')}`,

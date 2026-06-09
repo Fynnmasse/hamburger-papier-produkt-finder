@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Link2, Check } from 'lucide-react'
 import type { Product } from '@/lib/products'
 import { formatPreis, getGuenstigsterGrundpreis, getGrundpreisEinheit } from '@/lib/price-utils'
 
@@ -37,11 +38,135 @@ function getFalzung(name: string): string {
   return ''
 }
 
+/** Query-Parameter-Schlüssel für teilbare Filter-Links (z.B. ?falzung=z-falz&lagen=2) */
+const QUERY_KEYS = {
+  lagen: 'lagen',
+  material: 'material',
+  versandart: 'versandart',
+  falzung: 'falzung',
+  vglnach: 'vglnach',
+} as const
+
+/** Dimensionen, nach denen man Produkte gegenüberstellen kann (z.B. 1-lagig vs. 2-lagig) */
+type VglDimension = 'lagen' | 'material' | 'versandart' | 'falzung'
+const VGL_DIMENSIONEN: { key: VglDimension; label: string }[] = [
+  { key: 'lagen', label: 'Lagen (z.B. 1- vs. 2-lagig)' },
+  { key: 'material', label: 'Material (z.B. Zellstoff vs. Recycling)' },
+  { key: 'versandart', label: 'Versand (z.B. Karton vs. Palette)' },
+  { key: 'falzung', label: 'Falzung (z.B. Z-Falz vs. Interfold)' },
+]
+
+/** Rohwert eines Produkts für eine Vergleichs-Dimension (leerer String = nicht zuordenbar) */
+function getDimWert(p: Product, dim: VglDimension): string {
+  switch (dim) {
+    case 'lagen': return p.layers > 0 ? String(p.layers) : ''
+    case 'material': return p.material || ''
+    case 'versandart': return p.quantity || ''
+    case 'falzung': return getFalzung(p.name)
+  }
+}
+
+/** Lesbares Label für einen Dimensionswert (z.B. lagen "2" → "2-lagig") */
+function getDimLabel(dim: VglDimension, wert: string): string {
+  switch (dim) {
+    case 'lagen': return `${wert}-lagig`
+    case 'material': return MATERIAL_LABELS[wert] || wert
+    case 'versandart': return QUANTITY_LABELS[wert] || wert
+    case 'falzung': return FALZUNG_LABELS[wert] || wert
+  }
+}
+
+/** Shop-Link mit UTM-Parametern für ein Produkt (Fallback: Suche nach Artikelnummer) */
+function getUtmUrl(p: Product, kategorie: string): string {
+  const utm = `utm_source=produktfinder&utm_medium=vergleich&utm_campaign=${kategorie}`
+  return p.url
+    ? `${p.url}?${utm}`
+    : `https://www.hamburgpapier-shop.de/search?search=${encodeURIComponent(p.num)}&${utm}`
+}
+
+/** Kompakte Produktkarte für die Vergleichs-Spalten (eine Dimension gegenübergestellt) */
+function ProduktMini({ p, kategorie, istGuenstigste }: { p: Product; kategorie: string; istGuenstigste: boolean }) {
+  const grundpreis = getGuenstigsterGrundpreis(p)
+  const einheit = getGrundpreisEinheit(p)
+  const displayPrice = p.staffelpreise?.length
+    ? p.staffelpreise[p.staffelpreise.length - 1].unitPrice
+    : p.price > 0 ? p.price / 1.19 : 0
+
+  return (
+    <div className={`bg-white border rounded-lg p-3 ${istGuenstigste ? 'border-green-300 ring-1 ring-green-200' : 'border-border'}`}>
+      <div className="flex items-start gap-2">
+        {p.img && (
+          <Image src={p.img} alt={p.name} width={40} height={40} className="w-10 h-10 object-contain flex-shrink-0 rounded" />
+        )}
+        <p className="font-medium text-navy text-xs leading-snug line-clamp-3">{p.name}</p>
+      </div>
+      <div className="mt-2 pt-2 border-t border-border/50">
+        {grundpreis !== null ? (
+          <div className="font-display font-extrabold text-base text-navy tabular-nums">{formatPreis(grundpreis)} € <span className="text-[.7rem] font-body font-medium text-steel">/ {einheit}</span></div>
+        ) : (
+          <div className="font-display font-bold text-sm text-navy">
+            {displayPrice > 0 ? `ab ${formatPreis(displayPrice)} €` : 'Auf Anfrage'}
+          </div>
+        )}
+        <a
+          href={getUtmUrl(p, kategorie)}
+          className="mt-2 group relative overflow-hidden inline-flex w-full items-center justify-center bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        >
+          <span className="transition-opacity duration-500 group-hover:opacity-0">Bestellen</span>
+          <span className="absolute right-1 top-1 bottom-1 rounded z-10 grid w-6 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+            <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
+          </span>
+        </a>
+      </div>
+    </div>
+  )
+}
+
 export function VergleichInhalt({ products, kategorie, kategorieLabel }: VergleichInhaltProps) {
-  const [lagen, setLagen] = useState('')
-  const [material, setMaterial] = useState('')
-  const [versandart, setVersandart] = useState('')
-  const [falzung, setFalzung] = useState('')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Filter aus der URL initialisieren, damit Filter-Links direkt vorausgewählt sind
+  const [lagen, setLagen] = useState(() => searchParams.get(QUERY_KEYS.lagen) ?? '')
+  const [material, setMaterial] = useState(() => searchParams.get(QUERY_KEYS.material) ?? '')
+  const [versandart, setVersandart] = useState(() => searchParams.get(QUERY_KEYS.versandart) ?? '')
+  const [falzung, setFalzung] = useState(() => searchParams.get(QUERY_KEYS.falzung) ?? '')
+  const [vglNach, setVglNach] = useState<string>(() => searchParams.get(QUERY_KEYS.vglnach) ?? '')
+  const [linkKopiert, setLinkKopiert] = useState(false)
+
+  // Aktuelle Filter/Vergleichs-Auswahl als Query-String (zentral, damit Sync & Link identisch sind)
+  const buildQuery = useCallback(() => {
+    const params = new URLSearchParams()
+    if (lagen) params.set(QUERY_KEYS.lagen, lagen)
+    if (material) params.set(QUERY_KEYS.material, material)
+    if (versandart) params.set(QUERY_KEYS.versandart, versandart)
+    if (falzung) params.set(QUERY_KEYS.falzung, falzung)
+    if (vglNach) params.set(QUERY_KEYS.vglnach, vglNach)
+    return params.toString()
+  }, [lagen, material, versandart, falzung, vglNach])
+
+  // State → URL synchronisieren, sodass jede Filter-/Vergleichskombination eine eigene, teilbare URL hat
+  useEffect(() => {
+    const query = buildQuery()
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+  }, [buildQuery, pathname, router])
+
+  const aktuellerFilterLink = useCallback(() => {
+    const query = buildQuery()
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    return query ? `${origin}${pathname}?${query}` : `${origin}${pathname}`
+  }, [buildQuery, pathname])
+
+  const handleLinkKopieren = useCallback(() => {
+    const link = aktuellerFilterLink()
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(link).then(() => {
+        setLinkKopiert(true)
+        setTimeout(() => setLinkKopiert(false), 2000)
+      })
+    }
+  }, [aktuellerFilterLink])
 
   // Verfügbare Filter-Optionen aus Produkten ableiten
   const verfuegbareLagen = useMemo(() =>
@@ -63,16 +188,28 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
     [products, kategorie]
   )
 
-  // Filtern
+  // Welche Dimensionen lohnen einen Vergleich? (mind. 2 unterschiedliche Werte vorhanden)
+  const verfuegbareDimensionen = useMemo(() => {
+    return VGL_DIMENSIONEN.filter(({ key }) => {
+      if (key === 'falzung' && kategorie !== 'papierhandtuecher') return false
+      const werte = new Set(products.map(p => getDimWert(p, key)).filter(Boolean))
+      return werte.size >= 2
+    })
+  }, [products, kategorie])
+
+  const aktiveDimension = (verfuegbareDimensionen.some(d => d.key === vglNach) ? vglNach : '') as VglDimension | ''
+
+  // Filtern — die aktive Vergleichs-Dimension NICHT zusätzlich einschränken,
+  // sonst bliebe nur eine Gruppe übrig und der Vergleich wäre sinnlos.
   const filtered = useMemo(() => {
     return products.filter(p => {
-      if (lagen && p.layers !== parseInt(lagen)) return false
-      if (material && p.material !== material) return false
-      if (versandart && p.quantity !== versandart) return false
-      if (falzung && getFalzung(p.name) !== falzung) return false
+      if (aktiveDimension !== 'lagen' && lagen && p.layers !== parseInt(lagen)) return false
+      if (aktiveDimension !== 'material' && material && p.material !== material) return false
+      if (aktiveDimension !== 'versandart' && versandart && p.quantity !== versandart) return false
+      if (aktiveDimension !== 'falzung' && falzung && getFalzung(p.name) !== falzung) return false
       return true
     })
-  }, [products, lagen, material, versandart, falzung])
+  }, [products, lagen, material, versandart, falzung, aktiveDimension])
 
   // Nach Grundpreis sortieren (günstigster zuerst, ohne Grundpreis am Ende)
   const sorted = useMemo(() => {
@@ -87,6 +224,51 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
   }, [filtered])
 
   const hatMehrereGrundpreise = sorted.filter(p => getGuenstigsterGrundpreis(p) !== null).length >= 2
+
+  // Vergleichs-Gruppen: gefilterte Produkte nach der aktiven Dimension gegenüberstellen
+  const gruppen = useMemo(() => {
+    if (!aktiveDimension) return []
+    const map = new Map<string, Product[]>()
+    for (const p of sorted) {
+      const wert = getDimWert(p, aktiveDimension)
+      if (!wert) continue
+      if (!map.has(wert)) map.set(wert, [])
+      map.get(wert)!.push(p)
+    }
+    const eintraege = [...map.entries()].map(([wert, produkte]) => ({
+      wert,
+      label: getDimLabel(aktiveDimension, wert),
+      produkte,
+      bestGrundpreis: produkte.reduce<number | null>((min, p) => {
+        const g = getGuenstigsterGrundpreis(p)
+        if (g === null) return min
+        return min === null ? g : Math.min(min, g)
+      }, null),
+    }))
+    // Lagen numerisch sortieren, sonst nach günstigstem Grundpreis (billigste Gruppe zuerst)
+    eintraege.sort((a, b) => {
+      if (aktiveDimension === 'lagen') return parseInt(a.wert) - parseInt(b.wert)
+      if (a.bestGrundpreis === null && b.bestGrundpreis === null) return 0
+      if (a.bestGrundpreis === null) return 1
+      if (b.bestGrundpreis === null) return -1
+      return a.bestGrundpreis - b.bestGrundpreis
+    })
+    return eintraege
+  }, [sorted, aktiveDimension])
+
+  // Günstigste Gruppe (niedrigster Grundpreis) für die Hervorhebung bestimmen
+  const guenstigsteGruppe = useMemo(() => {
+    let best: string | null = null
+    let bestVal: number | null = null
+    for (const g of gruppen) {
+      if (g.bestGrundpreis === null) continue
+      if (bestVal === null || g.bestGrundpreis < bestVal) {
+        bestVal = g.bestGrundpreis
+        best = g.wert
+      }
+    }
+    return best
+  }, [gruppen])
 
   return (
     <div>
@@ -144,25 +326,103 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
             ))}
           </select>
         )}
-        {(lagen || material || versandart || falzung) && (
-          <button
-            onClick={() => { setLagen(''); setMaterial(''); setVersandart(''); setFalzung('') }}
-            className="text-sm text-muted-foreground hover:text-navy transition-colors underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+
+        {/* Vergleichen nach: stellt die Produkte nach einer Dimension gegenüber (z.B. 1- vs. 2-lagig) */}
+        {verfuegbareDimensionen.length > 0 && (
+          <select
+            value={aktiveDimension}
+            onChange={e => setVglNach(e.target.value)}
+            aria-label="Produkte vergleichen nach"
+            className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-2 text-sm font-semibold text-primary min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            Filter zurücksetzen
-          </button>
+            <option value="">Vergleichen nach …</option>
+            {verfuegbareDimensionen.map(d => (
+              <option key={d.key} value={d.key}>{d.label}</option>
+            ))}
+          </select>
+        )}
+
+        {(lagen || material || versandart || falzung || vglNach) && (
+          <>
+            <button
+              onClick={handleLinkKopieren}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              title="Direkten Link zu dieser Auswahl kopieren"
+            >
+              {linkKopiert ? (
+                <>
+                  <Check size={15} aria-hidden="true" /> Link kopiert
+                </>
+              ) : (
+                <>
+                  <Link2 size={15} aria-hidden="true" /> {vglNach ? 'Vergleichs-Link kopieren' : 'Filter-Link kopieren'}
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => { setLagen(''); setMaterial(''); setVersandart(''); setFalzung(''); setVglNach('') }}
+              className="text-sm text-muted-foreground hover:text-navy transition-colors underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              Zurücksetzen
+            </button>
+          </>
         )}
       </div>
 
       <p className="text-sm text-muted-foreground mb-4">
         {sorted.length} {sorted.length === 1 ? 'Produkt' : 'Produkte'} gefunden
-        {sorted.length > 0 && ' — sortiert nach günstigstem Grundpreis'}
+        {sorted.length > 0 && (aktiveDimension
+          ? ` — gegenübergestellt nach ${VGL_DIMENSIONEN.find(d => d.key === aktiveDimension)?.label.split(' (')[0]}`
+          : ' — sortiert nach günstigstem Grundpreis')}
       </p>
 
       {sorted.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">Keine Produkte mit diesen Filtern gefunden.</p>
         </div>
+      ) : aktiveDimension ? (
+        /* Vergleichs-Ansicht: Gruppen als Spalten nebeneinander */
+        <>
+          <div className="flex gap-4 overflow-x-auto pb-2 snap-x">
+            {gruppen.map(g => {
+              const istGuenstigste = g.wert === guenstigsteGruppe
+              const einheit = g.produkte.length ? getGrundpreisEinheit(g.produkte[0]) : ''
+              return (
+                <div
+                  key={g.wert}
+                  className={`snap-start flex-shrink-0 w-[260px] sm:w-[280px] rounded-xl border p-3 ${istGuenstigste ? 'border-green-300 bg-green-50/40' : 'border-border bg-sand/40'}`}
+                >
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-display font-extrabold text-navy uppercase text-sm">{g.label}</h3>
+                      {istGuenstigste && (
+                        <span className="bg-green-100 text-green-800 text-[.6rem] font-bold tracking-wide uppercase px-2 py-0.5 rounded whitespace-nowrap">
+                          Günstigste Gruppe
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-steel mt-0.5">
+                      {g.produkte.length} {g.produkte.length === 1 ? 'Produkt' : 'Produkte'}
+                      {g.bestGrundpreis !== null && (
+                        <> — ab <span className="font-bold text-navy">{formatPreis(g.bestGrundpreis)} €{einheit ? ` / ${einheit}` : ''}</span></>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {g.produkte.map((p, i) => (
+                      <ProduktMini key={p.num} p={p} kategorie={kategorie} istGuenstigste={i === 0 && g.produkte.length > 1} />
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="flex flex-wrap justify-center gap-4 mt-6 text-xs text-emerald-600">
+            <span>&#10003; Kostenloser Versand</span>
+            <span>&#10003; Kauf auf Rechnung</span>
+            <span>&#10003; EU Ecolabel</span>
+          </div>
+        </>
       ) : (
         <>
           {/* Desktop-Tabelle */}

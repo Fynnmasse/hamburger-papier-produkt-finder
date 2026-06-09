@@ -115,11 +115,30 @@ Jede Kategorie und jeder Wizard-Schritt hat eine eigene, crawlbare URL.
 /reinigung/mikrofasertuecher/standard/blau/karton → Ergebnis
 /reinigung/wischmop                  → Direkt Ergebnis
 /vergleich                           → Preisvergleich
+/vergleich/papierhandtuecher?falzung=z-falz&lagen=2 → Vorgefilterter Vergleich (teilbarer Filter-Link)
+/vergleich/papierhandtuecher?vglnach=lagen → Gegenüberstellung 1- vs. 2-lagig (Vergleichsmodus)
 /sitemap.xml                         → Dynamische Sitemap
 /robots.txt                          → robots.txt
 ```
 
 Alle Seiten werden bei `npm run build` statisch vorgerendert (SSG).
+
+### Vergleichsseiten: Filter & Vergleichs-Query (`vergleich-inhalt.tsx`)
+
+Die Filter und der Vergleichsmodus werden in Query-Parametern gespiegelt → jede Auswahl hat eine eigene, teilbare URL (zum Einbetten im Shop).
+
+| Query-Key  | Werte                                  | Wirkung |
+|------------|----------------------------------------|---------|
+| `lagen`    | `1`, `2`, `3` …                        | Filtert auf Lagenzahl |
+| `material` | `recycling`, `zellstoff`, `premium`    | Filtert auf Material |
+| `versandart` | `karton`, `palette`, `stueck`        | Filtert auf Verpackungseinheit |
+| `falzung`  | `z-falz`, `c-falz`, `interfold`        | Nur Papierhandtücher |
+| `vglnach`  | `lagen`, `material`, `versandart`, `falzung` | **Vergleichsmodus**: stellt Produkte nach dieser Dimension als Spalten gegenüber (z.B. 1- vs. 2-lagig), günstigste Gruppe wird hervorgehoben |
+
+- Filter + `vglnach` sind kombinierbar (z.B. `?falzung=z-falz&vglnach=lagen` = nur Z-Falz, 1- vs. 2-lagig gegenübergestellt).
+- Die aktive `vglnach`-Dimension wird **nicht** zusätzlich gefiltert (sonst nur 1 Gruppe). Das zugehörige Filter-Dropdown bleibt sichtbar, wird für die Gruppierung aber ignoriert.
+- Ungültige Werte degradieren still: `vglnach=falzung` auf Toilettenpapier fällt auf die normale Listenansicht zurück.
+- Implementierung erfordert `<Suspense>` um `<VergleichInhalt>` (wegen `useSearchParams`).
 
 ---
 

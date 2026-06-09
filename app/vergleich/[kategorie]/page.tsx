@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { FinderHeader } from '@/components/finder-header'
 import { FinderFooter } from '@/components/finder-footer'
 import { Breadcrumbs, breadcrumbJsonLd, type BreadcrumbItem } from '@/components/breadcrumbs'
@@ -138,11 +139,13 @@ export default async function VergleichKategoriePage({ params }: { params: Promi
               </p>
             </div>
 
-            <VergleichInhalt
-              products={products}
-              kategorie={kategorie}
-              kategorieLabel={config.label}
-            />
+            <Suspense fallback={null}>
+              <VergleichInhalt
+                products={products}
+                kategorie={kategorie}
+                kategorieLabel={config.label}
+              />
+            </Suspense>
           </div>
         </div>
 

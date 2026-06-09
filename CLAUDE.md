@@ -134,9 +134,11 @@ Die Filter und der Vergleichsmodus werden in Query-Parametern gespiegelt → jed
 | `versandart` | `karton`, `palette`, `stueck`        | Filtert auf Verpackungseinheit |
 | `falzung`  | `z-falz`, `c-falz`, `interfold`        | Nur Papierhandtücher |
 | `vglnach`  | `lagen`, `material`, `versandart`, `falzung` | **Vergleichsmodus**: stellt Produkte nach dieser Dimension als Spalten gegenüber (z.B. 1- vs. 2-lagig), günstigste Gruppe wird hervorgehoben |
+| `vglwerte` | kommasepariert, z.B. `2,3` oder `recycling` | **Werte-Auswahl**: nur diese Werte der `vglnach`-Dimension als Spalten (leer/fehlt = alle). Über Chips unter den Filtern steuerbar |
 
-- Filter + `vglnach` sind kombinierbar (z.B. `?falzung=z-falz&vglnach=lagen` = nur Z-Falz, 1- vs. 2-lagig gegenübergestellt).
+- Filter + `vglnach` (+ `vglwerte`) sind kombinierbar (z.B. `?vglnach=lagen&vglwerte=2,3` = nur 2- vs. 3-lagig gegenübergestellt; `?falzung=z-falz&vglnach=lagen` = nur Z-Falz, alle Lagen).
 - Die aktive `vglnach`-Dimension wird **nicht** zusätzlich gefiltert (sonst nur 1 Gruppe). Das zugehörige Filter-Dropdown bleibt sichtbar, wird für die Gruppierung aber ignoriert.
+- `vglwerte` greift nur zusammen mit `vglnach`; mindestens eine Spalte bleibt immer aktiv. Ungültige/unbekannte Werte werden ignoriert.
 - Ungültige Werte degradieren still: `vglnach=falzung` auf Toilettenpapier fällt auf die normale Listenansicht zurück.
 - Implementierung erfordert `<Suspense>` um `<VergleichInhalt>` (wegen `useSearchParams`).
 

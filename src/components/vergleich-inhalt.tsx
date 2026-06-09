@@ -45,6 +45,7 @@ const QUERY_KEYS = {
   versandart: 'versandart',
   falzung: 'falzung',
   vglnach: 'vglnach',
+  vglwerte: 'vglwerte',
 } as const
 
 /** Dimensionen, nach denen man Produkte gegenüberstellen kann (z.B. 1-lagig vs. 2-lagig) */
@@ -133,6 +134,11 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
   const [versandart, setVersandart] = useState(() => searchParams.get(QUERY_KEYS.versandart) ?? '')
   const [falzung, setFalzung] = useState(() => searchParams.get(QUERY_KEYS.falzung) ?? '')
   const [vglNach, setVglNach] = useState<string>(() => searchParams.get(QUERY_KEYS.vglnach) ?? '')
+  // Welche Werte der Vergleichs-Dimension als Spalten gezeigt werden ([] = alle)
+  const [vglWerte, setVglWerte] = useState<string[]>(() => {
+    const raw = searchParams.get(QUERY_KEYS.vglwerte)
+    return raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : []
+  })
   const [linkKopiert, setLinkKopiert] = useState(false)
 
   // Aktuelle Filter/Vergleichs-Auswahl als Query-String (zentral, damit Sync & Link identisch sind)
@@ -143,8 +149,15 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
     if (versandart) params.set(QUERY_KEYS.versandart, versandart)
     if (falzung) params.set(QUERY_KEYS.falzung, falzung)
     if (vglNach) params.set(QUERY_KEYS.vglnach, vglNach)
+    if (vglNach && vglWerte.length) params.set(QUERY_KEYS.vglwerte, vglWerte.join(','))
     return params.toString()
-  }, [lagen, material, versandart, falzung, vglNach])
+  }, [lagen, material, versandart, falzung, vglNach, vglWerte])
+
+  // Vergleichs-Dimension wechseln → Werte-Auswahl zurücksetzen (= alle Spalten)
+  const handleVglNachChange = useCallback((wert: string) => {
+    setVglNach(wert)
+    setVglWerte([])
+  }, [])
 
   // State → URL synchronisieren, sodass jede Filter-/Vergleichskombination eine eigene, teilbare URL hat
   useEffect(() => {
@@ -235,16 +248,20 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
       if (!map.has(wert)) map.set(wert, [])
       map.get(wert)!.push(p)
     }
-    const eintraege = [...map.entries()].map(([wert, produkte]) => ({
-      wert,
-      label: getDimLabel(aktiveDimension, wert),
-      produkte,
-      bestGrundpreis: produkte.reduce<number | null>((min, p) => {
-        const g = getGuenstigsterGrundpreis(p)
-        if (g === null) return min
-        return min === null ? g : Math.min(min, g)
-      }, null),
-    }))
+    // Nur die vom Nutzer ausgewählten Werte als Spalten zeigen ([] = alle)
+    const auswahl = vglWerte.length ? new Set(vglWerte) : null
+    const eintraege = [...map.entries()]
+      .filter(([wert]) => !auswahl || auswahl.has(wert))
+      .map(([wert, produkte]) => ({
+        wert,
+        label: getDimLabel(aktiveDimension, wert),
+        produkte,
+        bestGrundpreis: produkte.reduce<number | null>((min, p) => {
+          const g = getGuenstigsterGrundpreis(p)
+          if (g === null) return min
+          return min === null ? g : Math.min(min, g)
+        }, null),
+      }))
     // Lagen numerisch sortieren, sonst nach günstigstem Grundpreis (billigste Gruppe zuerst)
     eintraege.sort((a, b) => {
       if (aktiveDimension === 'lagen') return parseInt(a.wert) - parseInt(b.wert)
@@ -254,7 +271,7 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
       return a.bestGrundpreis - b.bestGrundpreis
     })
     return eintraege
-  }, [sorted, aktiveDimension])
+  }, [sorted, aktiveDimension, vglWerte])
 
   // Günstigste Gruppe (niedrigster Grundpreis) für die Hervorhebung bestimmen
   const guenstigsteGruppe = useMemo(() => {
@@ -269,6 +286,35 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
     }
     return best
   }, [gruppen])
+
+  // Alle wählbaren Werte der aktiven Dimension (für die Werte-Auswahl-Chips)
+  const aktiveDimensionWerte = useMemo(() => {
+    if (!aktiveDimension) return []
+    const werte = [...new Set(sorted.map(p => getDimWert(p, aktiveDimension)).filter(Boolean))]
+    werte.sort((a, b) => aktiveDimension === 'lagen' ? parseInt(a) - parseInt(b) : a.localeCompare(b))
+    return werte
+  }, [sorted, aktiveDimension])
+
+  // Effektiv ausgewählte Werte ([] in State = alle Werte aktiv)
+  const effektiveWerte = vglWerte.length ? vglWerte : aktiveDimensionWerte
+
+  // Wert in der Vergleichs-Auswahl an-/abwählen (mind. eine Spalte muss aktiv bleiben)
+  const toggleVglWert = useCallback((wert: string) => {
+    setVglWerte(prev => {
+      const alle = aktiveDimensionWerte
+      const aktuell = prev.length ? prev : alle
+      let next: string[]
+      if (aktuell.includes(wert)) {
+        if (aktuell.length <= 1) return prev // letzte aktive Spalte nicht entfernen
+        next = aktuell.filter(w => w !== wert)
+      } else {
+        next = [...aktuell, wert]
+      }
+      // Entspricht die Auswahl wieder allen Werten? → [] speichern (= alle, kürzere URL)
+      if (next.length === alle.length && alle.every(w => next.includes(w))) return []
+      return next
+    })
+  }, [aktiveDimensionWerte])
 
   return (
     <div>
@@ -331,7 +377,7 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
         {verfuegbareDimensionen.length > 0 && (
           <select
             value={aktiveDimension}
-            onChange={e => setVglNach(e.target.value)}
+            onChange={e => handleVglNachChange(e.target.value)}
             aria-label="Produkte vergleichen nach"
             className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-2 text-sm font-semibold text-primary min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
@@ -360,7 +406,7 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
               )}
             </button>
             <button
-              onClick={() => { setLagen(''); setMaterial(''); setVersandart(''); setFalzung(''); setVglNach('') }}
+              onClick={() => { setLagen(''); setMaterial(''); setVersandart(''); setFalzung(''); setVglNach(''); setVglWerte([]) }}
               className="text-sm text-muted-foreground hover:text-navy transition-colors underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               Zurücksetzen
@@ -368,6 +414,38 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
           </>
         )}
       </div>
+
+      {/* Werte-Auswahl: frei entscheiden, welche Werte verglichen werden (z.B. nur 2- & 3-lagig) */}
+      {aktiveDimension && aktiveDimensionWerte.length > 1 && (
+        <div className="flex flex-wrap items-center gap-2 mb-6 -mt-2">
+          <span className="text-sm text-steel mr-1">Spalten:</span>
+          {aktiveDimensionWerte.map(w => {
+            const aktiv = effektiveWerte.includes(w)
+            return (
+              <button
+                key={w}
+                onClick={() => toggleVglWert(w)}
+                aria-pressed={aktiv}
+                className={`text-sm font-medium px-3 py-1.5 rounded-full border transition-colors min-h-[36px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+                  aktiv
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-steel border-border hover:border-primary/40'
+                }`}
+              >
+                {getDimLabel(aktiveDimension, w)}
+              </button>
+            )
+          })}
+          {vglWerte.length > 0 && (
+            <button
+              onClick={() => setVglWerte([])}
+              className="text-sm text-muted-foreground hover:text-navy transition-colors underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              Alle anzeigen
+            </button>
+          )}
+        </div>
+      )}
 
       <p className="text-sm text-muted-foreground mb-4">
         {sorted.length} {sorted.length === 1 ? 'Produkt' : 'Produkte'} gefunden

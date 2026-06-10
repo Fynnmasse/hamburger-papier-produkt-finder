@@ -116,30 +116,28 @@ Jede Kategorie und jeder Wizard-Schritt hat eine eigene, crawlbare URL.
 /reinigung/wischmop                  → Direkt Ergebnis
 /vergleich                           → Preisvergleich
 /vergleich/papierhandtuecher?falzung=z-falz&lagen=2 → Vorgefilterter Vergleich (teilbarer Filter-Link)
-/vergleich/papierhandtuecher?vglnach=lagen → Gegenüberstellung 1- vs. 2-lagig (Vergleichsmodus)
+/vergleich/papierhandtuecher?vglnach=custom&vglsets=lagen:1,material:zellstoff|lagen:2,material:recycling → Eigener Vergleich
 /sitemap.xml                         → Dynamische Sitemap
 /robots.txt                          → robots.txt
 ```
 
 Alle Seiten werden bei `npm run build` statisch vorgerendert (SSG).
 
-### Vergleichsseiten: Filter & Vergleichs-Query (`vergleich-inhalt.tsx`)
+### Vergleichsseiten: Filter & Eigener Vergleich (`vergleich-inhalt.tsx`)
 
-Die Filter und der Vergleichsmodus werden in Query-Parametern gespiegelt → jede Auswahl hat eine eigene, teilbare URL (zum Einbetten im Shop).
+Filter und „Eigener Vergleich" werden in Query-Parametern gespiegelt → jede Auswahl hat eine eigene, teilbare URL (zum Einbetten im Shop).
 
 | Query-Key  | Werte                                  | Wirkung |
 |------------|----------------------------------------|---------|
-| `lagen`    | `1`, `2`, `3` …                        | Filtert auf Lagenzahl |
+| `lagen`    | `1`, `2`, `3` …                        | Filtert die Liste auf Lagenzahl |
 | `material` | `recycling`, `zellstoff`, `premium`    | Filtert auf Material |
 | `versandart` | `karton`, `palette`, `stueck`        | Filtert auf Verpackungseinheit |
 | `falzung`  | `z-falz`, `c-falz`, `interfold`        | Nur Papierhandtücher |
-| `vglnach`  | `lagen`, `material`, `versandart`, `falzung` | **Vergleichsmodus**: stellt Produkte nach dieser Dimension als Spalten gegenüber (z.B. 1- vs. 2-lagig), günstigste Gruppe wird hervorgehoben |
-| `vglwerte` | kommasepariert, z.B. `2,3` oder `recycling` | **Werte-Auswahl**: nur diese Werte der `vglnach`-Dimension als Spalten (leer/fehlt = alle). Über Chips unter den Filtern steuerbar |
+| `vglnach=custom` + `vglsets` | `vglsets=lagen:1,material:zellstoff,versandart:karton,falzung:z-falz\|lagen:2,material:recycling` | **Eigener Vergleich**: bis zu 4 frei kombinierte Spalten gegenüberstellen. Spalten mit `\|` getrennt, Eigenschaften je Spalte mit `,` als `key:value` (nicht gesetzt = egal) |
 
-- Filter + `vglnach` (+ `vglwerte`) sind kombinierbar (z.B. `?vglnach=lagen&vglwerte=2,3` = nur 2- vs. 3-lagig gegenübergestellt; `?falzung=z-falz&vglnach=lagen` = nur Z-Falz, alle Lagen).
-- Die aktive `vglnach`-Dimension wird **nicht** zusätzlich gefiltert (sonst nur 1 Gruppe). Das zugehörige Filter-Dropdown bleibt sichtbar, wird für die Gruppierung aber ignoriert.
-- `vglwerte` greift nur zusammen mit `vglnach`; mindestens eine Spalte bleibt immer aktiv. Ungültige/unbekannte Werte werden ignoriert.
-- Ungültige Werte degradieren still: `vglnach=falzung` auf Toilettenpapier fällt auf die normale Listenansicht zurück.
+- **Zwei Modi:** (1) einfache Filter `lagen`/`material`/`versandart`/`falzung` → gefilterte, nach Grundpreis sortierte Liste. (2) Button **„Eigener Vergleich"** (`vglnach=custom`) → Spalten frei kombinieren.
+- Im Custom-Modus ersetzen pro-Spalte-Konfiguratoren die einfachen Filter; jede Spalte filtert die Produkte unabhängig (Top-Filter werden ausgeblendet/ignoriert). Günstigste Spalte wird hervorgehoben.
+- `vglsets` wird nur serialisiert, wenn mind. eine Spalte befüllt ist; mind. 1 Spalte bleibt immer aktiv, max. 4. Unbekannte `key`/`value` werden beim Parsen ignoriert.
 - Implementierung erfordert `<Suspense>` um `<VergleichInhalt>` (wegen `useSearchParams`).
 
 ---

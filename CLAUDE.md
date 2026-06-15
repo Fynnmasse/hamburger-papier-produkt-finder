@@ -136,6 +136,7 @@ Filter und „Eigener Vergleich" werden in Query-Parametern gespiegelt → jede 
 | `vglnach=custom` + `vglsets` | `vglsets=lagen:1,material:zellstoff,versandart:karton,falzung:z-falz\|lagen:2,material:recycling` | **Eigener Vergleich**: bis zu 4 frei kombinierte Spalten gegenüberstellen. Spalten mit `\|` getrennt, Eigenschaften je Spalte mit `,` als `key:value` (nicht gesetzt = egal) |
 
 - **Zwei Modi:** (1) einfache Filter `lagen`/`material`/`versandart`/`falzung` → gefilterte, nach Grundpreis sortierte Liste. (2) Button **„Eigener Vergleich"** (`vglnach=custom`) → Spalten frei kombinieren.
+- **„Ihre Auswahl"-Bestätigung:** Im Custom-Modus erscheint ganz oben ein Bestätigungs-Banner (`role="status"`), das die zusammengestellten Spalten als Chips spiegelt (z.B. „1-lagig · Z-Falz" + Mengen-Badge „Karton"). Es bestätigt dem aus dem Shop-Hero kommenden Kunden, dass die Übergabe der Auswahl (`vglsets`) funktioniert hat. Nur Spalten mit mind. einer gewählten Eigenschaft werden gezeigt. Nativ in React/Tailwind umgesetzt (ersetzt das standalone-Snippet `produktfinder-auswahl-bestaetigung.html`).
 - Im Custom-Modus ersetzen pro-Spalte-Konfiguratoren die einfachen Filter; jede Spalte filtert die Produkte unabhängig (Top-Filter werden ausgeblendet/ignoriert). Günstigste Spalte wird hervorgehoben.
 - `vglsets` wird nur serialisiert, wenn mind. eine Spalte befüllt ist; mind. 1 Spalte bleibt immer aktiv, max. 4. Unbekannte `key`/`value` werden beim Parsen ignoriert.
 - Implementierung erfordert `<Suspense>` um `<VergleichInhalt>` (wegen `useSearchParams`).

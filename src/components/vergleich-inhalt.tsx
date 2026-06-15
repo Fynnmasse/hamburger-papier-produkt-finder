@@ -310,8 +310,62 @@ export function VergleichInhalt({ products, kategorie, kategorieLabel }: Verglei
     return bestIdx
   }, [customSpalten])
 
+  // „Ihre Auswahl"-Bestätigung: spiegelt die aus dem Hero übergebenen Varianten als Chips.
+  // Nur im Eigenen Vergleich und nur für Spalten mit mind. einer gewählten Eigenschaft –
+  // so sieht der Kunde sofort, dass die Übergabe aus dem Shop funktioniert hat.
+  const auswahlChips = useMemo(() => {
+    if (!customModus) return []
+    return vglSets
+      .map(set => {
+        const teile: string[] = []
+        if (set.lagen) teile.push(getDimLabel('lagen', set.lagen))
+        if (set.material) teile.push(getDimLabel('material', set.material))
+        if (set.falzung) teile.push(getDimLabel('falzung', set.falzung))
+        const menge = set.versandart ? getDimLabel('versandart', set.versandart) : ''
+        return { name: teile.length ? teile.join(' · ') : 'Alle Produkte', menge, hatAuswahl: teile.length > 0 || menge !== '' }
+      })
+      .filter(c => c.hatAuswahl)
+  }, [customModus, vglSets])
+
   return (
     <div>
+      {/* „Ihre Auswahl"-Bestätigung — bestätigt ganz oben die aus dem Hero übergebene Auswahl */}
+      {auswahlChips.length > 0 && (
+        <section
+          role="status"
+          aria-live="polite"
+          className="mb-6 animate-fade-up rounded-2xl border border-border bg-gradient-to-b from-white to-sand/40 p-4 sm:p-5 shadow-sm"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <span className="grid place-items-center w-7 h-7 flex-shrink-0 rounded-full bg-primary/10 text-primary">
+              <Check size={16} strokeWidth={3} aria-hidden="true" />
+            </span>
+            <span className="font-display font-bold text-navy text-base sm:text-lg">Ihre Auswahl</span>
+            <span className="text-xs font-semibold text-muted-foreground">
+              {auswahlChips.length} {auswahlChips.length === 1 ? 'Variante' : 'Varianten'}
+            </span>
+          </div>
+          <ul className="flex flex-wrap gap-2 m-0 p-0 list-none">
+            {auswahlChips.map((c, i) => (
+              <li
+                key={i}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-semibold text-navy whitespace-nowrap"
+              >
+                {c.name}
+                {c.menge && (
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                    {c.menge}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Diese Varianten werden hier gegenübergestellt.
+          </p>
+        </section>
+      )}
+
       {/* Filter */}
       <div className="flex flex-wrap gap-3 mb-6">
         {!customModus && verfuegbareLagen.length > 1 && (
